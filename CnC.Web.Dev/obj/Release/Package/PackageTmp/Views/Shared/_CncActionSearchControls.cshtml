@@ -1,0 +1,63 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@model CnC.Core.Accounts.CnCAction
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+
+<div class="row control-padding-bottom">
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.DisplayName", null, "Display Name")</strong></label>
+                @Html.EditorFor(model => model.DisplayName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter display name" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.ActionName", null, "Action Name")</strong></label>
+                @Html.EditorFor(model => model.ActionName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter action name"} })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.ControllerName", null, "Controller Name")</strong></label>
+                @Html.EditorFor(model => model.ControllerName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter controller name"} })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.CreatedDateFrom", null, "Date From")</strong></label>
+                @Html.EditorFor(model => model.CreatedDateFrom, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter created date from"} })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.CreatedDateTo", null, "To")</strong></label>
+                @Html.EditorFor(model => model.CreatedDateTo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter created date to"} })
+            </div>
+        </div>
+    </div>       
+</div>

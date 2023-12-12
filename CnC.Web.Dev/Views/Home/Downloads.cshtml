@@ -1,0 +1,41 @@
+﻿@using CnC.Web.Controllers
+@using CnC.Core.Customers
+@using CnC.Service
+@{
+    ViewBag.Title = "Downloads";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var files = new HomeController().GetFilesToDownload();
+    var customerSession = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(customerSession.LanguageId);
+    var cardService = new CardService();
+    var cards = cardService.GetCardsReloadable(customerSession.Id);
+}
+
+<div>
+    @if (cards != null && cards.Count > 0)
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>@localizationService.GetResource("Cnc.FirstName", null, "First Name")</th>
+                    @*<th>Description</th>*@
+                    <th>@localizationService.GetResource("Cnc.Download", null, "Download")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in files)
+                {
+                    <tr>
+                        <td>@item.Text</td>
+
+                        <td>@Html.ActionLink("Download", "DownloadItem", new { ItemName = item.Value })</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h3>@localizationService.GetResource("Cnc.SorryToDownloadApp", null, "Sorry! To Download this app you must have at least one active card")</h3>
+    }
+</div>

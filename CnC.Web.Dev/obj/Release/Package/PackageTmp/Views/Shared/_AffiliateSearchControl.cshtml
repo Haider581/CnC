@@ -1,0 +1,55 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@model CnC.Core.Affiliates.Affiliate
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+
+<div class="row control-padding-bottom">
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.FirstName", null, "First Name")</strong></label>
+                @Html.EditorFor(model => model.Address.FirstName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter FirstName" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.LastName", null, "Last Name")</strong></label>
+                @Html.EditorFor(model => model.Address.LastName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Last Name" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.Email", null, "Email")</strong></label>
+                @Html.EditorFor(model => model.Address.Email, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Email" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.ShowInActive", null, "Show In-Active")</strong></label>
+                @Html.CheckBoxFor(model => model.Active, false)
+            </div>
+        </div>
+    </div>    
+</div>

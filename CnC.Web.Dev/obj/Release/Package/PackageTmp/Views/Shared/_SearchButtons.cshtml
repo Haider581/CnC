@@ -1,0 +1,25 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+
+@*<div class="row">*@
+    <button type="submit" name="btnSearch" id="btnSearch" value="Search" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+        <span style="padding:10px;">@localizationService.GetResource("Search", null, "Search")</span>
+        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-search"></i></span>
+    </button>
+    <button type="submit" name="btnClearSearch" value="ClearSearch" id="btnClearSearch" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+        <span style="padding:10px;">@localizationService.GetResource("Cnc.ClearSearch", null, "Clear Search")</span>
+        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-refresh"></i></span>
+    </button>
+@*</div>*@

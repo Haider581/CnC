@@ -1,0 +1,438 @@
+﻿@using CC.Core
+@using System.Web.UI.WebControls
+@using CnC.Service
+@using CnC.Core.Customers
+@{
+    ViewBag.Title = "New KYC Form";
+
+    var commonService = new CnC.Helper.Utility();
+    var jsonCountries = commonService.GetCountries();
+    var commonController = new CnC.Controllers.CommonController();
+    var countries = commonController.GetCountries();
+
+    var exchangeRate = new CC.Service.ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CC.Service.CurrencyService().SystemCurrency;
+
+    var serviceFee = new ServiceFeeService().GetServiceFee(CC.Core.ServiceType.Card);
+    decimal serviceFeePercent = 0;
+
+    if (serviceFee != null)
+    {
+        serviceFeePercent = serviceFee.Percentage;
+    }
+    var cust = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(cust.LanguageId);
+}
+<div id="content">
+    <!-- breadcrumb -->
+    <ol class="breadcrumb" style="text-transform: uppercase;">
+        @*<li>@User.Identity.Name.ToLower()</li>*@
+        <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+    </ol>
+    <section id="widget-grid" class="">
+
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+
+            <header role="heading">
+                @*<div class="jarviswidget-ctrls" role="menu">
+                    <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div><div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li></ul></div>*@
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>@localizationService.GetResource("Cnc.NewCustomerRegistration", null, "New Customer Registration")</h2>
+
+                @*<span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>*@
+            </header>
+
+            <!-- widget div-->
+            <div role="content">
+
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+                    @using (Html.BeginForm("NewKYCForm", "Customer", FormMethod.Post, new { @id = "kycForm", @name = "kycForm", @class = "smart-form", role = "form", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+
+                    <!-- Personal Details - start -->
+                        <header>@localizationService.GetResource("Cnc.PersonalDetails")</header>
+
+                        <fieldset>
+                            <div class="row">
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.FirstName", null, "First Name")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("FirstName")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.LastName", null, "Last Name")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("LastName")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.Gender", null, "Gender")</label>
+                                    <label class="select">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.DropDownList("Gender", EnumHelper.GetSelectList(typeof(Gender)), " -Please Select- ")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.DateOfBirth", null, "Date of Birth")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-calendar"></i>
+                                        @Html.TextBox("DateOfBirth", null, new { @class = "datepicker", @readonly = "true" })
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.MaritalStatus", null, "Marital Status")</label>
+                                    <label class="select">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.DropDownList("MaritalStatus", EnumHelper.GetSelectList(typeof(MaritalStatus)), " -Please Select- ")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.NIC", null, "NIC")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("NIC")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.Passport#", null, "Passport #" /)</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("PassportNo")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.Nationality", null, "Nationality")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("Nationality")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.Address", null, "Address")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("Address")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.PostalCode", null, "Postal Code")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("PostalCode")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.Country", null, "Country")</label>
+                                    <label class="select">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.DropDownList("CountryDDL", new SelectList(countries, "Id", "Name"), "- Please Select -")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.City", null, "City")</label>
+                                    <label class="select">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        <select class="form-control" id="CityDDL" name="CityDDL">
+                                            @*<option>- Please Select Country -</option>*@
+                                        </select>
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.Email", null, "Email")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-envelope-o"></i>
+                                        @Html.TextBox("Email")
+                                    </label>
+                                </section>
+
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.Contact#", null, "Contact #")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.TextBox("ContactNo")
+                                    </label>
+                                </section>
+                            </div>
+                        </fieldset>
+                    <!-- Personal Details - end -->
+                    <!-- Cards - start -->
+                        <header>Cards</header>
+
+                        <fieldset>
+                            <div>
+                                <label class="label label-info" id="lblTopupExchangeRate">
+                                    @*<span>Exchange Rate 1</span>@Html.Raw(systemCurrency.Code)= <label>@exchangeRate.Rate @exchangeRate.Currency.Code</label>*@
+                                </label>
+                                <p class="text-danger">
+                                    Step 1: Enter quantity for the Card type Customer wants to buy
+                                </p>
+                                <p class="text-danger">
+                                    Step 2: Total Fee to pay in IR will be calculated in shown under grid
+                                </p>
+                                <p class="text-danger">
+                                    Step 3: It is assumed that Customer provided information has already been validated and Cards fee paid
+                                </p>
+                                <p class="text-danger">
+                                    Note: Card policy will apply
+                                </p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>@localizationService.GetResource("Cnc.Name", null, "Name")</th>
+                                            <th>@localizationService.GetResource("Cnc.Quantity", null, "Quantity")</th>
+                                            <th>@localizationService.GetResource("Cnc.Fee", null, "Fee")</th>
+                                            <th>@localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (&#163;)</th>
+                                            @*<th>Total Fee (IR)</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            var listItems = new List<ListItem>();
+                                            for (int i = 0; i <= item.MaxQuantity; i++)
+                                            {
+                                                listItems.Add(new ListItem() { Text = "" + i, Value = "" + i });
+                                            }
+                                            <text>
+                                                <tr>
+                                                    <td>
+                                                        @item.Name<input type="hidden" id="CardName" name="CardName" value="@item.Name" />
+                                                        <input type="hidden" id="cardId" name="cardId" value="@item.Id" />
+                                                    </td>
+                                                    <td>
+                                                        <label class="select">
+                                                            <i class="icon-append fa fa-tag"></i>
+                                                            @Html.DropDownList("CardQty", new SelectList(listItems, "Value", "Text"))
+                                                        </label>
+                                                    </td>
+                                                    <td>@item.Fee</td>
+                                                    <td class="feeEU">0.00</td>@*@item.Fee*@
+                                                    @*<td class="totalFeeIR">0.00</td>*@
+                                                    @*@Math.Round(item.Fee * exchangeRate.Rate, 2)*@
+                                                </tr>
+                                            </text>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            @localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (&#163;): <label id="TotalFeeEU"></label>
+                            <input type="hidden" id="hidTotalFeeEU" name="hidTotalFeeEU" />
+                            <br />
+                            @*Total Fee (IR): <label id="TotalFeeInCustomerCurrency"></label>
+                                <input type="hidden" id="hidTotalFeeInCustomerCurrency" name="hidTotalFeeInCustomerCurrency" />
+                                <br />*@
+                            @*Service Charges: <label id="ServiceChargesInCustomerCurrency">100</label>
+                                <input type="hidden" id="hidServiceChargesInCustomerCurrency" value="100" name="hidServiceChargesInCustomerCurrency" />*@
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalFeeToPay", null, "Total Fee To Pay"): <label id="GrandTotal">0</label>
+                            <input type="hidden" id="hidGrandTotal" name="hidGrandTotal" />
+
+                        </fieldset>
+                    <!-- Cards - end-->
+                    <!-- Documents - start -->
+                        <header>@localizationService.GetResource("Cnc.Documents", null, "Documents")</header>
+
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-6">
+                                    <div class="input input-file">
+                                        <span class="button"><input id="NICDoc" type="file" name="NICDoc" onchange="$(this).parent().next().val($(this).val());">@localizationService.GetResource("Cnc.Browse")</span>
+                                        <input type="text" placeholder="NIC Doc" readonly="">
+                                    </div>
+                                </section>
+
+                                @*<div class="form-group">
+                                    @Html.Label("NIC Doc", new { @class = "col-md-2 control-label" })
+                                    <div class="row col-lg-9">
+                                    <input type="file" name="NICDoc" class="form-control" />
+                                    </div>
+                                    </div>*@
+                                <section class="col col-6">
+                                    <div class="input input-file">
+                                        <span class="button"><input id="ProofOfAddressDoc" type="file" name="ProofOfAddressDoc" onchange="$(this).parent().next().val($(this).val());">@localizationService.GetResource("Cnc.Browse")</span>
+                                        <input type="text" placeholder="Proof Of Address Doc" readonly="">
+                                    </div>
+                                </section>
+                                @*<div class="form-group">
+                                    @Html.Label("Proof Of Address Doc", new { @class = "col-md-2 control-label" })
+                                    <div class="row col-lg-9">
+                                    <input type="file" name="ProofOfAddressDoc" class="form-control" />
+                                    </div>
+                                    </div>*@
+                                <section class="col col-6">
+                                    <div class="input input-file">
+                                        <span class="button"><input id="PassportDoc" type="file" name="PassportDoc" onchange="$(this).parent().next().val($(this).val());">@localizationService.GetResource("Cnc.Browse", null, "Browse")</span>
+                                        <input type="text" placeholder="Passport Doc" readonly="">
+                                    </div>
+                                </section>
+
+                                @*<div class="form-group">
+                                    @Html.Label("Passport Doc", new { @class = "col-md-2 control-label" })
+                                    <div class="row col-lg-9">
+                                    <input type="file" name="PassportDoc" class="form-control" />
+                                    </div>
+                                    </div>*@
+                                <section class="col col-6">
+                                    <div class="input input-file">
+                                        <span class="button"><input id="ProofOfSourceOfFunds" type="file" name="ProofOfSourceOfFunds" onchange="$(this).parent().next().val($(this).val());">@localizationService.GetResource("Cnc.Browse", null, "Browse")</span>
+                                        <input type="text" placeholder="Proof Of Source Of Funds" readonly="">
+                                    </div>
+                                </section>
+
+                                @*<div class="form-group">
+                                    @Html.Label("Proof Of Source Of Funds", new { @class = "col-md-2 control-label" })
+                                    <div class="row col-lg-9">
+                                    <input type="file" name="ProofOfSourceOfFunds" class="form-control" />
+                                    </div>
+                                    </div>*@
+                            </div>
+                        </fieldset>
+                    <!-- Documents - end -->
+                    <!-- Submit button - start -->
+                        <footer>
+                            <button type="submit" name="btnSearch" id="btnSearch" class="btn btn-primary">@localizationService.GetResource("Cnc.Register",null,"Register")</button>
+                        </footer>
+
+                        <div class="message">
+                            <i class="fa fa-thumbs-up"></i>
+                            <p>@localizationService.GetResource("Cnc.DataSaved",null,"Data Saved")</p>
+                        </div>
+                    <!-- Submit button - end -->
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+
+    @*<script src="~/Scripts/jquery.validate.min.js"></script>*@
+    <script src="~/Scripts/Validation/Customer/NewKycForm.js"></script>
+
+    <script>
+        $("#CountryDDL").change(function () {
+            var id = $("#CountryDDL").val();
+            if (id != "") {
+                CheckIsValid();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetCities", "Common")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { countryId: id },
+                    dataType: "json",
+                    success: function (data) {
+                        var cmbCity = $('#CityDDL');
+                        cmbCity.empty();
+                        cmbCity.append($('<option></option>').val("-1").html("- Please Select -"));
+                        $.each(data, function (i) {
+
+                            cmbCity.append($('<option></option>').val(data[i].Id).html(data[i].Name)
+                                );
+                        });
+                    }
+                });
+            } else {
+                var cmbCity = $('#CityDDL');
+                cmbCity.empty();
+                cmbCity.append($('<option></option>').val("0").html("Select City"));
+            }
+        })
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('tbody tr').hover(function () {
+                $(this).toggleClass('clickable');
+            }).on('click', function (evt) {
+
+                var $cell = $(evt.target).closest('td');
+                if ($cell.index() == 1) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+
+                        var originalInUreo = $(this).find('td:eq(2)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        //var totalInIR = (originalInUreo * maxQtyVal); * @*@exchangeRate.Rate;*@
+                        $(this).find('td:eq(3)').text("" + totalInUreo);
+                        //  $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+
+                    } catch (err) {
+                    }
+                }
+
+                // Calculate column totals
+                calculateTotalInEU();
+                // calculateTotalInIR();
+                calculateGrandTotalIR();
+
+            });
+        });
+
+        //** Calculate column total in Euro ** //
+        function calculateTotalInEU() {
+            try{
+                var sum = 0;
+                $(".feeEU").each(function () {
+                    var value = $(this).text();
+                    // add only if the value is number
+                    if (!isNaN(value) && value.length != 0) {
+                        sum += parseFloat(value);
+                        $("#hidTotalFeeEU").val(sum);
+                        $("#TotalFeeEU").text(sum.toFixed(2));
+                    }
+                });
+            }
+            catch(e){}
+        }
+
+        //**  Calculate Grand total in customer's currency ** //
+        function calculateGrandTotalIR() {
+            try {
+                var amount = parseFloat($("#hidTotalFeeEU").text() || 0)
+                var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+                amount=amount+serviceCharges;
+
+                $("#GrandTotal").text(amount.toFixed(2));
+                $("#hidGrandTotal").val(amount);
+            }
+            catch (e){}
+        }
+
+        function calculatePercentageValue(value, percent) {
+            return (value * percent / 100);
+        }
+    </script>
+}

@@ -1,0 +1,89 @@
+﻿@model CnC.Core.Customers.Customer
+@using CnC.Service;
+@using CnC.Core.Customers;
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+
+<div class="row control-padding-bottom">
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.NationalID", null, "National ID ")</strong></label>
+                @Html.EditorFor(model => model.NIC, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter NIC", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.Passport#", null, "Passport")</strong></label>
+                @Html.EditorFor(model => model.PassportNo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter passport no.", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.FirstName", null, "First Name")</strong></label>
+                @Html.EditorFor(model => model.User.FirstName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter user first name", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.LastName", null, "Last Name")</strong></label>
+                @Html.EditorFor(model => model.User.LastName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter user last name", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.Email", null, "Email")</strong></label>
+                @Html.EditorFor(model => model.User.Email, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter user email", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.RegistrationDateFrom", null, "Registration Date From")</strong></label>
+                @Html.EditorFor(model => model.User.CreatedDateFrom, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter CreatedDateFrom", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.RegistrationDateTo", null, "To")</strong></label>
+                @Html.EditorFor(model => model.User.CreatedDateTo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter CreatedDateTo", @type = "text" } })
+            </div>
+        </div>
+    </div>    
+</div>
+
+
+
+
+
+
+<script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+
+<script src="~/Scripts/Validation/Partial/_CustomerSearchControls.js"></script>
+

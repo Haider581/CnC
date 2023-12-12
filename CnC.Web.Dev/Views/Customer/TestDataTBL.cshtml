@@ -1,0 +1,79 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <script src="~/Scripts/libs/jquery-2.1.1.min.js"></script>
+    <script src="~/Scripts/plugin/datatables/jquery.dataTables.min.js"></script>
+    <title>TestDataTBL</title>
+
+
+    <script>
+
+
+    bindAptList = function () {
+        alert('Hello World');
+       
+        /* END BASIC */
+
+        /* END COLUMN SHOW - HIDE */
+        /* TABLETOOLS */
+        aptDataTbl = $('#example').dataTable({
+            // Tabletools options:
+            "bServerSide": true,
+            "sAjaxSource": "/Customer/GetCustmersList"
+
+
+        });
+        // Appending the Datepicker control to the Main appointent list datatable
+
+
+
+
+    }
+
+
+
+
+
+    $(document).ready(function () {
+
+
+        bindAptList();
+           });
+    </script>
+
+
+
+
+</head>
+<body>
+    <div> 
+        <table id="example" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr style="text-align:left;">
+                    <th>Id</th>
+                    <th>UserId</th>
+                    <th>NIC</th>
+
+                </tr>
+            </thead>
+
+            <tfoot>
+                <tr style="text-align:left;">
+                    <th>Id</th>
+                    <th>UserId</th>
+                    <th>NIC</th>
+
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</body>
+</html>

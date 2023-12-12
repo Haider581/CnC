@@ -1,0 +1,250 @@
+﻿<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+@using System.Web.UI.WebControls
+@using CnC.Service
+@model List<CnC.Core.Cards.CardType>
+@{
+    var exchangeRate = new CnC.Service.ExchangeRateService().GetExchangeRate(98);
+    var systemCurrency = new CnC.Service.CurrencyService().SystemCurrency;
+   
+}
+@using (Html.BeginForm("NewCardRequest", "Card", FormMethod.Post, new { @id = "newCardRequestForm", @name = "newCardRequestForm" }))
+{
+    <div class="widget-body @exchangeRate">
+        <h5>
+            Exchange Rate @Html.Raw(systemCurrency.Code) = <code>
+                @*@exchangeRate.Rate @exchangeRate.Currency.Code*@
+            </code>
+        </h5>
+        <p>
+            <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 1:</span> Enter Quality for the Card Type you want to buy.
+        </p>
+        <p>
+            <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 2:</span> Total Fee to pay in IR will calculate and show you under grid.
+        </p>
+        <p>
+            <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 3:</span> Pay Online or deposit the amount in our bank account and notify here.
+        </p>
+
+        <div class="alert alert-info fade in">
+            <button class="close" data-dismiss="alert">
+                ×
+            </button>
+            <i class="fa-fw fa fa-info"></i>
+            <strong>Note!</strong> Card Policy will apply.
+        </div>
+        <div class="table-responsive">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Card Type</th>
+                        <th>Quantity</th>
+                        <th>Fee (€)</th>
+                        <th>Total Fee (€)</th>
+                        <th>Total Fee (IR)</th>
+                    </tr>
+                </thead>
+                <tbody id="cardRequestTbl">
+                    @foreach (var item in Model)
+                {
+                    var listItems = new List<ListItem>();
+                    for (int i = 0; i <= item.MaxQuantity; i++)
+                    {
+                        listItems.Add(new ListItem() { Text = "" + i, Value = "" + i });
+                    }
+                <text>
+                    <tr>
+                        <td id="tdCardType">@item.Name </td>
+                        <td>@Html.DropDownList("MaxQty", new SelectList(listItems, "Value", "Text"), new { @class = "form-control" })</td>
+                        <td>@item.Fee</td>
+                        <td class="totalFeeEU">0.00</td>
+                        <td class="totalFeeIR" id="tdFeeIR">0.00</td>
+                    </tr>
+                </text>
+                }                   
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <div class="widget-body col-md-6">
+        <div class="smart-form" novalidate="novalidate">
+            <fieldset>
+
+                <header>
+                    Bank To Bank Transaction
+                </header>
+                <p style="margin:5px;">
+                    <i class="fa fa-bell text-danger"></i> <i>If the customer has deposited the amount in our Bank account</i>
+                </p>
+
+                <section>
+                    <label class="label">Transaction Tracking/Reference No.</label>
+                    <label class="input">
+
+                        @Html.TextBox("txtTransactionNo")
+                    </label>
+                </section>
+
+                <section>
+                    <label class="label">Your Account No.</label>
+                    <label class="input">
+
+                        @Html.TextBox("txtAccountNo")
+                    </label>
+                </section>
+
+                <section>
+                    <label class="label">Name</label>
+                    <label class="input">
+
+                        @Html.TextBox("txtName")
+                    </label>
+                </section>
+
+                <section>
+                    <label class="label">Amount</label>
+                    <label class="input">
+
+                        @Html.TextBox("txtAmount")
+                    </label>
+                </section>
+
+            </fieldset>
+
+            <footer>
+                <input type="button" id="btnNotify" name="btnNotify" class="btn btn-primary" value="Notify" />
+            </footer>
+
+            <div class="message">
+                <i class="fa fa-thumbs-up"></i>
+                <p>Your data has been saved</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 well pull-right">
+        <p>
+            Total Fee (€):    <code class="pull-right" id="TotalFeeEU">0</code> <input type="hidden" id="hidTotalFeeEU" value="0" />
+        </p>
+        <p>
+            Total Fee (IR):  <code class="pull-right" id="TotalFeeInCustomerCurrency">0</code><input type="hidden" id="hidTotalFeeInCustomerCurrency" value="0" />
+        </p>
+        <p>
+            Service Charges:  <code class="pull-right" id="ServiceChargesInCustomerCurrency">100</code><input type="hidden" name="hidServiceChargesInCustomerCurrency" id="hidServiceChargesInCustomerCurrency" value="100" />
+        </p>
+        <p>
+            Total Fee to Pay (IR):    <span class="badge bg-color-blueLight pull-right" id="GrandTotal">0</span>
+        </p>
+    </div>
+}
+
+<div class="col-md-4 well pull-right well well-sm bg-color-teal txt-color-white text-center">
+    <h5>Online Payment</h5>
+  </div>
+
+<script src="~/Scripts/Validation/Customer/_CallCenterNewCardRequest.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('tbody tr').hover(function () {
+            $(this).toggleClass('clickable');
+        }).on('click', function (evt) {
+            var $cell = $(evt.target).closest('td');
+            if ($cell.index() == 1) {
+                try {
+                    var hasValSure = "t";
+                    var maxQtyVal = $(this).find('select').val();
+                    var maxQtyText = $(this).find('select option:selected').text();
+
+                    var originalInUreo = $(this).find('td:eq(2)').html();
+                    var totalInUreo = originalInUreo * maxQtyVal;
+                    $(this).find('td:eq(3)').text("" + totalInUreo);
+                } catch (err) {
+                }
+            }
+
+            // Calculate column totals
+            calculateTotalInEU();
+            calculateGrandTotalIR();
+
+        });
+    });
+
+    //** Calculate column total in Euro ** //
+    function calculateTotalInEU() {
+        try{
+            var sum = 0;
+            $(".totalFeeEU").each(function () {
+                var value = $(this).text();
+                // add only if the value is number
+                if (!isNaN(value) && value.length != 0) {
+                    sum += parseFloat(value);
+                    $("#TotalFeeEU").text(sum.toFixed(2));
+                    $("#hidTotalFeeEU").val(sum)
+                }
+            });
+        }
+        catch(e){}
+    }
+
+    //**  Calculate Grand total in customer's currency ** //
+    function calculateGrandTotalIR() {
+        try {
+            var amount = parseFloat($("#TotalFeeEU").text() || 0)
+            var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+            amount=amount+serviceCharges;
+            $("#GrandTotal").text(amount.toFixed(2));
+            $("#hidGrandTotal").val(amount);
+        }
+        catch (e){}
+    }
+
+    function calculatePercentageValue(value, percent) {
+        return (value * percent / 100);
+    }
+
+    $(document).ready(function () {
+        $('#MaxQty').click();
+    });
+</script>
+
+<script>
+    // submit form data
+    $(document).ready(function () {
+        $("#btnNotify").click(function () {
+            $("#newCardRequestForm").validate();
+
+            if (!$("#newCardRequestForm").valid()) {
+                return;
+            }
+            // Cards data from table
+            var arrCards = $('#tblCards tr:gt(0)').map(function() {
+                return {
+                    cardName:  $(this.cells[0]).html(),
+                    cardAmount: $(this.cells[3]).html(),
+                    cardQuantity: $(this.cells[1]).find("select").val()
+                };
+            }).get();
+
+            // Bank to bank transaction data from textboxes
+            // include Cards array to this object
+            var transaction = {
+                transactionNo : $("#txtTransactionNo").val(),
+                accountNo : $("#txtAccountNo").val(),
+                name : $("#txtName").val(),
+                amount : $("#txtAmount").val(),
+                Cards : arrCards,
+            };
+
+            $.ajax({
+                url: '@Url.Action("NewCardRequest", "Card")',
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(transaction),
+                success: function (data) {
+                    $(".message").show();
+                }
+            });
+        });
+    });
+</script>

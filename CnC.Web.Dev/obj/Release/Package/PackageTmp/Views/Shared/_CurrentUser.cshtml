@@ -1,0 +1,25 @@
+﻿@using CnC.Core
+@*<div class="login-info">
+    <span>
+        <a href="javascript:void(0);" id="show-shortcut" data-action="toggleShortcut">
+            
+            <span>Welcome Admin @User.Identity.Name.ToLower() </span>
+            <i class="fa fa-angle-down"></i>
+        </a>
+    </span>
+</div>*@
+<!-- User info -->
+<div class="login-info">
+    <span>
+        <!-- User image size is adjusted inside CSS, it should stay as it -->
+        <a href="#;" id="show-shortcut" data-action="toggleShortcut">
+            @*<img src="~/Assets/img/avatars/male.png" class="online"/>*@
+            <span style="text-transform: uppercase;">
+                @User.Identity.Name.ToLower()
+    @*@CurrentSession.Instance.LoginUser.FullName*@
+            </span>
+            @*<i class="fa fa-angle-down"></i>*@
+        </a>
+    </span>
+</div>
+<!-- end user info -->

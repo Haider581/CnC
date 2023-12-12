@@ -1,0 +1,197 @@
+﻿@using CnC.Core
+@using CnC.Core.Customers
+@using Microsoft.Ajax.Utilities
+@model List<Customer>
+@{
+    ViewBag.Title = "Translation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@ViewBag.Title</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @*<div id="cncLoader"></div>*@
+                            <div id="cncLoaderMessage"></div>
+                            <div id="showMessage"> </div>
+                            @using (Html.BeginForm("CustomerTranslation", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "CardRequests" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary("", new { @class = "text-danger" })
+                                <fieldset>
+                                    @{Html.RenderPartial("_CustomerSearchControls");}
+                                    @{Html.RenderPartial("_SearchButtons");}
+                                </fieldset>
+                                <div class="table-responsive">
+                                    @{
+                                        if (Model != null && Model.Count > 0)
+                                        {
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Full Name</th>
+                                                        <th>National ID #</th>
+                                                        <th>Passport #</th>
+                                                        <th>Reg Date</th>
+                                                        <th>Proof Of Address</th>
+                                                        <th>Proof Of Source Of Funds</th>
+                                                        <th>Upload</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @{
+                                                        foreach (var item in Model)
+                                                        {
+                                                            //var requestFormStatus = new CnC.Service.CardService().GetRequestFormStatus(item.CardRequestForm);
+                                                            <tr>
+                                                                <td>@item.User.FullName</td>
+                                                                <td>@item.NIC</td>
+                                                                <td>@item.PassportNo</td>
+                                                                <td>@item.User.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                <td>
+                                                                    <input type="file" id="proofOfSourceOfAddress1" name="proofOfSourceOfAddress" accept="image/jpeg, image/png" />
+                                                                    <input type="file" id="proofOfSourceOfAddress2" name="proofOfSourceOfAddress" accept="image/jpeg, image/png" />
+                                                                    <input type="file" id="proofOfSourceOfAddress3" name="proofOfSourceOfAddress" accept="image/jpeg, image/png" />
+                                                                    <input type="file" id="proofOfSourceOfAddress4" name="proofOfSourceOfAddress" accept="image/jpeg, image/png" />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="file" id="proofOfSourceOfFunds1" name="proofOfSourceOfFunds" accept="image/jpeg, image/png" />
+                                                                    <input type="file" id="proofOfSourceOfFunds2" name="proofOfSourceOfFunds" accept="image/jpeg, image/png" />
+                                                                    <input type="file" id="proofOfSourceOfFunds3" name="proofOfSourceOfFunds" accept="image/jpeg, image/png" />
+                                                                    <input type="file" id="proofOfSourceOfFunds4" name="proofOfSourceOfFunds" accept="image/jpeg, image/png" />
+                                                                </td>
+                                                                @*<td><a href="@Url.Action("Translator", "Customer")">Create Card Request</a></td>*@
+                                                                <td><input id="@item.Id" name="btnSubmit" onclick='PostFiles("@item.Id");' type="button" value="Upload" /></td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                <button class="close" data-dismiss="alert">×</button>
+                                                                <i class="fa-fw fa fa-cube"></i>
+                                                                <strong>Sorry! </strong>No Records Found
+                                                            </div>
+                                                        }
+                                    }
+                                </div>
+
+                                                        }
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+    <script>
+        // Wait for the DOM to be ready
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        function PostFiles(mId) {
+            var data = new FormData();
+            var proofOfSourceOfAddressFile1 = $("#proofOfSourceOfAddress1").get(0).files;
+            var proofOfSourceOfAddressFile2 = $("#proofOfSourceOfAddress2").get(0).files;
+            var proofOfSourceOfAddressFile3 = $("#proofOfSourceOfAddress3").get(0).files;
+            var proofOfSourceOfAddressFile4 = $("#proofOfSourceOfAddress4").get(0).files;
+            var proofOfSourceOfFunds1 = $("#proofOfSourceOfFunds1").get(0).files;
+            var proofOfSourceOfFunds2 = $("#proofOfSourceOfFunds2").get(0).files;
+            var proofOfSourceOfFunds3 = $("#proofOfSourceOfFunds3").get(0).files;
+            var proofOfSourceOfFunds4 = $("#proofOfSourceOfFunds4").get(0).files;
+            if (proofOfSourceOfAddressFile1.length > 0 && proofOfSourceOfFunds1.length > 0) {
+                data.append("SourceOfAddress1", proofOfSourceOfAddressFile1[0]);//[0]
+                data.append("SourceOfAddress2", proofOfSourceOfAddressFile2[0]);
+                data.append("SourceOfAddress3", proofOfSourceOfAddressFile3[0]);
+                data.append("SourceOfAddress4", proofOfSourceOfAddressFile4[0]);
+                data.append("SourceOfFunds1", proofOfSourceOfFunds1[0]);
+                data.append("SourceOfFunds2", proofOfSourceOfFunds2[0]);
+                data.append("SourceOfFunds3", proofOfSourceOfFunds3[0]);
+                data.append("SourceOfFunds4", proofOfSourceOfFunds4[0]);
+                data.append("CustId", mId);
+                $("#cncLoader").show();
+            }
+            $.ajax({
+                // url: "Controller/ActionMethod"
+                url: "/Customer/CustomerTranslationUploadFiles",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: data,
+                success: function (data) {
+                    //code after success
+                    $("#cncLoader").hide();
+                    if (data[0] == "200") {
+                        $("#cncLoaderMessage").append(data[1]);
+                        $("#cncLoaderMessage").show();
+                    } else {
+
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                    }
+                },
+                error: function (er) {
+                    alert('Error occured');
+                }
+            });
+        }
+        function UpdatePanelDiv() {
+            $("#showMessage").empty();
+            $("#showMessage").hide();
+        }
+    </script>
+}

@@ -1,0 +1,357 @@
+﻿@model List<CnC.Core.Cards.CardRequestForm>
+@using CnC.Core
+@using CnC.Core.Cards
+@using CnC.Service
+@using CnC.Core.Customers;
+
+@{
+    ViewBag.Title = "Edit Card Request";
+    var cardTypes = new CardService().GetCardTypes();
+
+    var exchangeRate = new ExchangeRateService()
+                                .GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id).Rate;
+    var settingService = new SettingService();
+}
+
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+
+<ol class="breadcrumb">
+    <li>TBOAgent</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false"
+                     data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Edit Card Request</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+
+                    </div>
+                    <!-- end widget edit box -->
+                    <!-- widget content -->
+                    <div class="widget-body">
+                        @if (Model != null && Model.Count() > 0)
+                        {
+
+                            <div class="table-responsive" style="overflow-x: hidden">
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <div id="showMessage"></div>
+                                @using (Ajax.BeginForm("EditCardRequest", "Card",
+new AjaxOptions
+{
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = "showMessage",
+    OnFailure = "AjaxFailure",
+    //OnSuccess = "onSuccess",
+    OnBegin = "AjaxBegin",
+    OnComplete = "AjaxComplete"
+},
+new
+{
+    @id = "EditCardRequest",
+    @name = "EditCardRequest",
+    @class = "smart-form validatform",
+    role = "form",
+    enctype = "multipart/form-data"
+}))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <table class="table table-bordered">
+                                        <tr>
+
+                                            <th class="col-xs-2">
+                                                @Html.DisplayName("Request #")
+                                            </th>
+                                            <th class="col-xs-3">
+                                                @Html.DisplayName("Full Name")
+                                            </th>
+                                            <th class="col-xs-2">
+                                                @Html.DisplayName("National ID #")
+                                            </th>
+                                            <th class="col-xs-2">
+                                                @Html.DisplayName("Request Date")
+                                            </th>
+                                            <th class="col-xs-1">
+                                                @Html.DisplayName("Payment Mode")
+                                            </th>
+
+                                            <th class="col-xs-1">
+                                                @Html.DisplayName("Card Type")
+                                            </th>
+
+                                            <th class="col-xs-1">
+                                                @Html.DisplayName("Status")
+                                            </th>
+
+                                            <th></th>
+                                        </tr>
+
+                                        @foreach (var cardRequestForm in Model.Where(x => x.CardRequests.Count > 0)
+.ToList())
+                                        {
+                                            string paymentDesc = string.Empty;
+                                            int i = 0;
+                                            foreach (var payment in cardRequestForm.Payments)
+                                            {
+                                                paymentDesc = paymentDesc + "" +
+                                                                (payment.PaymentMethodId == (int)PaymentMethod.RAHYAB
+                                                                || payment.PaymentMethodId == (int)PaymentMethod.Admin
+                                                                ? "Manual" : ((PaymentMethod)payment.PaymentMethodId).ToString())
+                                                                + ",";
+                                                paymentDesc = paymentDesc.Trim(',');
+                                            }
+                                            <text>
+                                                @if (i == 0)
+                                                {
+                                                    i = 1;
+                                                    <text>
+                                                        <tr>
+                                                            <td> @cardRequestForm.Id </td>
+                                                            <td> @cardRequestForm.Customer.User.FullName </td>
+                                                            <td> @cardRequestForm.Customer.NIC </td>
+                                                            <td> @cardRequestForm.CreatedOn.ToString("yyyy/MM/dd HH:mm") </td>
+                                                            <td> @paymentDesc </td>
+                                                            @{
+                                                                string cardDesc = string.Empty;
+                                                                string fmCrId = string.Empty;
+                                                                cardDesc = cardRequestForm.CardRequests[0].CardType.Name;
+                                                                var cardRequestStatus = cardRequestForm
+                                                                    .CardRequests[0].StatusString;
+                                                                //fmCrId = cardRequestForm.Id + "-"
+                                                                //    + cardRequestForm.CardRequests[0].Id +
+                                                                //    "#" + cardRequestForm.CardRequests[0].Card.CardServiceProviderClientId;
+                                                            }
+                                                            <td>
+                                                                <select id="ddlCardType" onchange="CalculatePayment()"
+                                                                        name="ddlCardType">
+                                                                    <option value='@cardRequestForm.CardRequests[0].CardType.Id-@cardRequestForm.CardRequests[0].CardType.Fee'>
+                                                                        @cardRequestForm.CardRequests[0].CardType.Name
+                                                                    </option>
+                                                                    @for (int j = 0; j < cardTypes.Count(); j++)
+                                                                    {
+                                                                        <option value='@cardTypes[j].Id-@cardTypes[j].Fee'>
+                                                                            @cardTypes[j].Name
+                                                                        </option>
+                                                                    }
+                                                                </select>
+
+                                                                @*<input hidden="hidden" class="txtFee" type="text" value="@cardTypes[j].Fee" />*@
+
+                                                            </td>
+                                                            <td> @cardRequestStatus </td>
+
+                                                        </tr>
+                                                    </text>
+                                                                    cardRequestForm.CardRequests.RemoveAt(0);
+                                                                }
+                                                @foreach (var cardRequest in cardRequestForm.CardRequests)
+                                                {
+                                                    <text >
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        @* <td class="CardType">@cardRequest.CardType.Name</td>*@
+                                                        <td class="CardType">
+                                                            <select id="ddlCardType" onchange="CalculatePayment()"
+                                                                    name="ddlCardType">
+                                                                <option value='@cardRequest.CardType.Id-@cardRequest.CardType.Fee'>
+                                                                    @cardRequest.CardType.Name
+                                                                </option>
+                                                                @for (int j = 0; j < cardTypes.Count(); j++)
+                                                                {
+                                                                    <option value='@cardTypes[j].Id-@cardTypes[j].Fee'>
+                                                                        @cardTypes[j].Name
+                                                                    </option>
+                                                                }
+
+                                                                @*<input hidden="hidden" class="txtFee" type="text" value="@cardTypes[j].Fee" />*@
+
+                                                            </select>
+
+                                                        </td>
+                                                        <td>
+                                                            @cardRequest.StatusString
+                                                        </td>
+                                                        @*
+                                                            <td></td>*@
+                                                    </tr>
+                                                    </text>
+
+                                                }
+
+                                            </text>
+
+                                                                }
+                                    </table>
+                                    <input id="txtCustomerId" name="txtCustomerId" hidden="hidden" type="text" value="@Model[0].CustomerId" />
+                                    <input name="txtPaymentPaid" hidden type="text" value="@Model[0].Payments[0].Amount" />
+                                    <div class="pull-right">
+                                        <button class="btn btn-sm btn-success" type="submit" name="btnUpdate"
+                                                id="btnUpdate">
+                                            Update
+                                        </button>
+                                    </div>
+
+                                                                }
+                            </div>
+                            <div class="pull-left">
+                                <lable name="lblPaymentPaid">Payment Paid:@Model[0].Payments[0].Amount</lable>
+                            </div>
+                            <div class="pull-right">
+                                <lable id="lblNewPayment" name="lblNewPayment">New Payment:@Model[0].Payments[0].Amount</lable>
+                            </div>
+                            <br />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                        <button class="close" data-dismiss="alert">×</button>
+                                                                        <i class="fa-fw fa fa-cube"></i>
+                                                                        <strong>Sorry! </strong> No Records Found
+                                                                    </div>
+                                                                }
+                    </div>
+                    <!-- end widget content -->
+
+                </div>
+                <!-- end widget div -->
+
+        </div>
+        <!-- end widget -->
+        </article>
+        <!-- WIDGET END -->
+</div>
+<!-- end row -->
+    </section>
+<!-- end widget grid -->
+                                                                </div>
+
+<script>
+    function CalculatePayment() {
+        $('lblNewPayment').text('');
+        var values = [];
+        var amount = 0.00;
+        $('select option:selected').each(function () {
+            values.push($(this).attr('value'));
+        });
+        for (var i = 0; i < values.length ; i++) {
+            values[i] = values[i].split("-").pop();
+        }
+        for (var i = 0; i < values.length ; i++) {
+            amount = amount + (parseFloat(values[i]).toFixed(2) * 1)
+        }
+
+        var actualAmount = amount * '@exchangeRate';
+        actualAmount = parseFloat(actualAmount + ((actualAmount / 100)
+            * '@settingService.ExchangeRateServiceCharges')).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+        actualAmount = parseFloat(actualAmount).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+
+        $('#lblNewPayment').text("New Payment:" + actualAmount);
+    }
+
+    window.addEventListener("submit", function (e) {
+        var form = $('#EditCardRequest');
+        $("#cncLoader").show();
+        var form = e.target;
+        if (form.getAttribute("enctype") === "multipart/form-data") {
+            if (form.dataset.ajax) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                var xhr = new XMLHttpRequest();
+                xhr.open(form.method, form.action);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+
+                        var data = JSON.parse(xhr.responseText);
+                        $("#cncLoader").hide();
+                        if (data.length > 0) {
+
+                            if (data[0] == "101") {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            } else if (data[0] == "102") {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            } else if (data[0] == "103") {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            } else if (data[0] == "104") {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            } else if (data[0] == "204") {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            } else if (data[0] == "205") {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            } else if (data[0] == "206") {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            }
+                            else {
+                                $("#cncLoaderMessage").append(data[1]);
+                                $("#cncLoaderMessage").show();
+                            }
+                        }
+                    }
+                };
+                xhr.send(new FormData(form));
+            }
+        }
+    }, true);
+
+
+
+</script>

@@ -1,0 +1,212 @@
+﻿@using CnC.Core
+@using CnC.Core.TopUps
+@using CnC.Core.Customers
+@using CnC.Service
+@using CnC.Web.Controllers
+@model List<TopUpRequestForm>
+@{
+    ViewBag.Title = "Top Up Request Under Processing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    bool isCustomer = false;
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    if (userSession != null && userSession.IsCustomer)
+    {
+        isCustomer = true;
+    }
+    LocalizationService localizationService = null;
+    if (isCustomer)
+    {
+        var cust = Session["CurrentCustomer"] as Customer;
+        localizationService = new LocalizationService(cust.LanguageId);
+    }
+    localizationService = new LocalizationService();
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<!-- breadcrumb -->
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm("CustomerTopUpRequestsProcessing", "TopUp", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchTopUpRequestsProcessing" }))
+                            {
+                                if (isCustomer)
+                                {
+                                    <fieldset>
+                                        @{ Html.RenderPartial("_TopUpRequestSearchControl");}
+                                        <div class="row">
+                                            @{Html.RenderPartial("_SearchButtons");}
+                                        </div>
+                                    </fieldset>
+                                                }
+                                                else
+                                                {
+                                                    <div class="row" style="padding-bottom:20px;">
+                                                        <div class="col-sm-12">
+                                                            <a href="@Url.Action("CustomerNewTopUpRequest", "TopUp")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                                                <span style="padding:10px;">Add New TopUp Request</span>
+                                                                <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    }
+                                                }
+                        </div>
+
+                        <!-- end widget content -->
+                        <div class="table-responsive">
+                            @{
+
+                                if (Model != null && Model.Count > 0)
+                                {
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>@localizationService.GetResource("Cnc.Request#", null, "Request #")</th>
+                                                <th>@localizationService.GetResource("Cnc.RequestDate", null, "Request Date")</th>
+                                                <th>@localizationService.GetResource("Cnc.PaymentMode", null, "Payment Mode")</th>
+                                                @*<th>Customer ID</th>*@
+                                                <th>@localizationService.GetResource("Cnc.NationalId", null, "National ID #")</th>
+                                                @*<th>Email</th>*@
+                                                <th>@localizationService.GetResource("Cnc.Card#", null, "Card #")</th>
+                                                <th>@localizationService.GetResource("Cnc.CardType", null, "Card Type")</th>
+                                                <th>@localizationService.GetResource("Cnc.Amount", null, "Amount") (€)</th>
+                                                @*<th>Amount (IR)</th>*@
+                                                <th>@localizationService.GetResource("Cnc.CurrentStatus", null, "Current Status")</th>
+                                                @*<th>Update Status</th>*@
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                int i = 0;
+
+                                                <text>
+                                                    @if (i == 0)
+                                                    {
+                                                        i = 1;
+                                                        <text>
+                                                            <tr>
+                                                                <td>@item.Id</td>
+                                                                <td>@item.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                <td>
+                                                                    @{  string paymentDesc = item.Payments.Aggregate(string.Empty, (current, payment) => current + " " + (PaymentMethod)payment.PaymentMethodId + ",");
+                                                                        paymentDesc = paymentDesc.Trim(',');
+                                                                    }
+                                                                    @paymentDesc
+                                                                </td>
+                                                                @*<td>@item.Customer.Id</td>*@
+                                                                <td>@item.Customer.NIC</td>
+                                                                @*<td>@item.Customer.User.Email</td>*@
+                                                                <td>@item.TopUpRequests[0].Card.Number</td>
+                                                                <td>@item.TopUpRequests[0].Card.CardRequest.CardType.Name</td>
+
+                                                                <td>@item.TopUpRequests[0].Amount.ToString("###,###.##") </td>
+                                                                @*<td>@(item.TopUpRequests[0].Amount * item.ExchangeRate)</td>*@
+                                                                <td>@item.TopUpRequests[0].StatusString</td>
+                                                                @*<td>
+                                                                        <a href="@Url.Action(@updateAction[1],"Customer")">@updateAction[0]</a>
+                                                                    </td>*@
+                                                            </tr>
+                                                        </text>
+                                                                            item.TopUpRequests.RemoveAt(0);
+                                                                        }
+                                                    @foreach (var topUpRequest in item.TopUpRequests)
+                                                    {
+                                                        <text>
+                                                            <tr>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>@topUpRequest.Card.Number</td>
+                                                                <td>@topUpRequest.Card.CardRequest.CardType.Name</td>
+                                                                <td>@topUpRequest.Amount.ToString("###,###.##")</td>
+                                                                @*<td>@(topUpRequest.Amount * exchangeRate.Rate)</td>*@
+                                                                <td>@topUpRequest.StatusString</td>
+                                                                @*<td></td>*@
+                                                            </tr>
+                                                        </text>
+                                                    }
+                                                </text>
+
+                                                                        }
+                                        </tbody>
+                                    </table>
+                                                                            if (isCustomer)
+                                                                            {
+                                                                                using (Html.BeginForm("CustomerTopUpRequestsProcessing", "TopUp", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchTopUpRequestsProcessing" }))
+                                                                                {
+                                                                                    { Html.RenderPartial("_Pagination"); }
+                                                                                }
+                                                                            }
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                                <button class="close" data-dismiss="alert">×</button>
+                                                                                <i class="fa-fw fa fa-cube"></i>
+                                                                                <strong>@localizationService.GetResource("Cnc.Sorry", null, "Sorry")! </strong>@localizationService.GetResource("Cnc.NoRecord", null, "No Records Found")
+                                                                            </div>
+                                                                        }
+                            }
+                        </div>
+
+
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+
+    <script src="~/Scripts/Validation/Customer/Customer.js"></script>
+
+}

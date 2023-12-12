@@ -1,0 +1,123 @@
+﻿@using CnC.Web.Controllers;
+@using CnC.Service;
+@using CnC.Core;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Create Ticket";
+    HelpDeskService helpService = new HelpDeskService();
+    var getTickets = new TicketController();
+    var userId = ViewBag.Id;
+    List<Ticket> getTicketsData = getTickets.GetAllTickets(userId);
+    List<QuickTicket>
+       quickTickets = helpService.GetQuickTickets();
+
+}
+<div id="content">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+                Tickets
+                <span>
+                    >
+                    @ViewBag.Title
+                </span>
+            </h1>
+        </div>
+
+    </div>
+    <section id="widget-grid" class="">
+        <div class="table-responsive" id="divTable">
+            <table class="table table-bordered">
+               
+                    @using (Html.BeginForm("GetTickets", "Ticket", FormMethod.Post, new { @class = "form-horizontal", id = "form1", enctype = "multipart/form-data" }))
+            {
+                        <tr>
+                            <td>Priority</td>
+                            <td>
+                                @Html.DropDownList("cmbPriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), "--Select--", new { @class = "form-control" })
+                            </td>
+                            <td>Status</td>
+                            <td>
+                                @Html.DropDownList("cmbStatus", EnumHelper.GetSelectList(typeof(TicketStatus)), "--Select--", new { @class = "form-control" })
+                            </td>
+
+                        </tr>
+                    }
+                </table>
+            </div>
+                <div id="getTicket">
+                    <table id="tblTickets" class="table table-bordered" style="width: 100%;">
+
+                        <thead>
+
+                            <tr>
+                                <th>No.</th>
+                                <th>Date</th>
+                                <th>Subject</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        @*<tfoot>
+
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Date</th>
+                                    <th>Subject</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </tfoot>*@
+
+                        @foreach (var item in getTicketsData)
+            {
+                int ticketId = item.Id;
+                //  var ticketStatus = item.TicketProcess.Where(x => x.TicketId == ticketId).LastOrDefault().TicketStatus;
+                var ticketStatus = item.TicketProcess.Where(x => x.TicketId == ticketId)
+                                                     .Select(p => new { p.CreatedOn, p.TicketStatusId })
+                                                     .LastOrDefault();
+                            <tbody>
+                                <tr data-priorty="@item.SeverityId" data-Status="@ticketStatus" class="trdata">
+
+                                    <td>
+                                        @item.TicketNo
+                                    </td>
+                                    <td>
+                                        @ticketStatus.CreatedOn
+                                    </td>
+                                    <td>
+                                        <!-- Trigger/Open The Modal -->
+                                        @*<button id="myBtn">Open Modal</button>*@
+                                        <a target="_blank" id="myBtn1" href="/ticket/GetMessagesByTicket?ticketId=@ticketId&SessionUserId=@userId" style="cursor: pointer;"> @item.Subject</a>
+
+                                    </td>
+
+                                    <td>
+                                        @*@{ var priority=(TicketSeverity)item.SeverityId};
+                                            @priority*@
+                                        @{ TicketSeverity priority = (TicketSeverity)Enum.ToObject(typeof(TicketSeverity), item.SeverityId);}
+                                        @priority
+                                    </td>
+                                    <td>
+                                        @{
+
+
+                                        }
+                                        @{ TicketStatus status = (TicketStatus)Enum.ToObject(typeof(TicketStatus), ticketStatus.TicketStatusId);}
+                                        @status
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                                            }
+                    </table>
+                </div>
+
+
+    </section>
+</div>
+@section pagespecific {
+
+}

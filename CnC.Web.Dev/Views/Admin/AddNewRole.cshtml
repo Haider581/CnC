@@ -1,0 +1,124 @@
+﻿@model CnC.Core.Accounts.Role
+
+@{
+    ViewBag.Title = "AddNewRole";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Add New Role</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {<div class="alert alert-danger fade in">
+                            <button class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong> ViewBag.MessageFailure
+                        </div> }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <div class="row control-padding-bottom">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Name of Role" } })
+                                                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter description of role" } })
+                                                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+
+                                            <div class="col-md-6 control-padding-bottom">
+                                                <label class="checkbox-inline">
+                                                    @Html.EditorFor(model => model.CanViewOnlineRecords)
+                                                    @Html.ValidationMessageFor(model => model.CanViewOnlineRecords, "", new { @class = "text-danger" })
+                                                    CanViewOnlineRecords
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <a href="@Url.Action("Roles", "Admin")" name="btnRoles" id="btnRoles" value="" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Back To Roles</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-backward"></i></span>
+                                                </a>
+                                                <button formnovalidate="formnovalidate" type="submit" name="btnCancel" id="btnCancel" value="Cancel" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Cancel</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-refresh"></i></span>
+                                                </button>
+                                                <button type="submit" name="btnSave" id="btnSave" value="Save" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Save</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-save"></i></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

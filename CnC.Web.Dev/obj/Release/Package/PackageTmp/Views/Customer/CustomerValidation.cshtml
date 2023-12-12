@@ -1,0 +1,442 @@
+﻿@using CnC.Core
+@using CnC.Service;
+@using CnC.Core.Customers
+@using CnC.Web.Helper
+@model List<Customer>
+@{
+    ViewBag.Title = "Validation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string ConfirmationDialog = System.Configuration.ConfigurationManager.AppSettings["ConfirmationDialog"];
+
+    var customerSession = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customerSession == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customerSession.LanguageId);
+    }
+
+    string showFailedPayments = string.Empty;
+    bool isShowFailedPayments = true;
+
+    if (!string.IsNullOrEmpty(Request["ShowFailedPayments"]))
+    {
+        showFailedPayments = Request["ShowFailedPayments"];
+        if (showFailedPayments.Contains("1"))
+        { isShowFailedPayments = true; }
+        else
+        { isShowFailedPayments = false; }
+    }
+
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .ui-dialog-content {
+        overflow: hidden !important;
+    }
+
+    .wraptext {
+        text-wrap: normal;
+        max-width: 120px;
+        white-space: normal;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Jalali/jalali.js"></script>
+<script src="~/Scripts/Validation/Customer/CustomerFailValidation.js"></script>
+
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <input id="hfConfirmationDialog" name="hfCustomerName" value="@ConfirmationDialog" type="hidden" />
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @*<div id="cncLoader"></div>*@
+                            <div id="cncLoaderMessage">
+                            </div>
+                            <div id="showMessage"> </div>
+                            @using (Html.BeginForm("CustomerValidation", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "CardRequests" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary("", new { @class = "text-danger" })
+                                <fieldset>
+                                    @{ Html.RenderPartial("_CustomerSearchControls");}
+                                    <div style="margin-bottom:4px;margin-left:4px" class="row">
+                                        <label class="">
+                                            @Html.CheckBox("ShowFailedPayments", isShowFailedPayments, new { value = "1" })
+                                            Show Declined
+                                        </label>
+                                    </div>
+                                    <div class="row">
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </div>
+                                </fieldset>
+                                            }
+                        </div>
+                        <!-- end widget content -->
+                        <div class="table-responsive">
+                            @{
+                                if (Model != null && Model.Count > 0)
+                                {
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>@localizationService.GetResource("Cnc.FullName", null, "Full Name")</th>
+                                                <th>@localizationService.GetResource("Cnc.Email", null, "Email")</th>
+                                                <th>@localizationService.GetResource("Cnc.NationalId", null, "National ID #")</th>
+                                                <th>@localizationService.GetResource("Cnc.Passport#", null, "Passport #")</th>
+                                                @*<th>Gender</th>*@
+                                                <th>@localizationService.GetResource("Cnc.RegistrationDate", null, "Registration Date")</th>
+                                                <th>@localizationService.GetResource("Cnc.FailureReason", null, "Failure Reason")</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var item in Model)
+                                                {
+                                                    //var requestFormStatus = new CnC.Service.CardService().GetRequestFormStatus(item.CardRequestForm);
+                                                    <tr>
+                                                        <td>@item.User.FullName</td>
+                                                        <td>@item.User.Email</td>
+                                                        <td>@item.NIC</td>
+                                                        <td>@item.PassportNo</td>
+                                                        @*<td>@item.Gender</td>*@
+                                                        <td>@item.User.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                        <td class="wraptext"><span style="text-wrap: normal;">@item.ValidationFailureReason</span></td>
+                                                        <td>
+
+                                                            @{
+                                                                var utility = new Utility();
+                                                                var custId = utility.UrlSafeEncrypt(item.Id.ToString());
+                                                                var url = "/Customer/EditCustomer?validate=" + utility.UrlSafeEncrypt("yes") + "&editId=" + custId;
+                                                            }
+                                                            @*<a onclick='PostCustomerInfo("@item.Id","v","");' style="cursor:pointer" id="btnValidated">Validated</a>*@
+                                                            <a href="@url" style="cursor:pointer" id="customerEdit">@localizationService.GetResource("Cnc.Validate", null, "Validate")</a><span style="margin-left: 5px; margin-right: 5px;">|</span>
+                                                            <a onclick='UpdateCustomer("@item.Id");' style="cursor:pointer" id="card_failed">@localizationService.GetResource("Cnc.Failed", null, "Failed")</a><span style="margin-left: 5px; margin-right: 5px;"></span>
+
+                                                        </td>
+                                                    </tr>
+                                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                                                using (Html.BeginForm("CustomerValidation", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "CardRequests" }))
+                                                                {
+                                                                    { Html.RenderPartial("_Pagination"); }
+                                                                }
+                                                                @*<br />
+
+                                                                    <div style="text-align:center">
+                                                                        Page @(ViewBag.MaxPage < ViewBag.Page ? 0 : Convert.ToInt16(ViewBag.Page) + 1)
+                                                                        of @(Convert.ToInt16(@ViewBag.MaxPage) + 1)
+                                                                    </div>
+                                                                    <div style="text-align: right; margin-right:10px;">
+                                                                        @if (ViewBag.Page > 0)
+                                                                        {
+                                                                            <a href="@Url.Action("CustomerValidation", new { page = ViewBag.Page - 1 })"
+                                                                               class="btn btn-primary">
+                                                                                &laquo; Prev
+                                                                            </a>
+                                                                        }
+                                                                        @{
+                                                                            if (ViewBag.MaxPage != null)
+                                                                            {
+                                                                                int numberOfPages = ViewBag.MaxPage;
+                                                                                for (int i = 1; i <= numberOfPages; i++)
+                                                                                {
+                                                                                    <a href="@Url.Action("CustomerValidation", new { page = i-1 })"
+                                                                                       class="btn btn-primary">
+                                                                                        @i
+                                                                                    </a>
+                                                                                }
+
+                                                                            }
+                                                                        }
+                                                                        @if (ViewBag.Page < ViewBag.MaxPage)
+                                                                        {
+                                                                            <a href="@Url.Action("CustomerValidation", new { page = ViewBag.Page + 1 })"
+                                                                               class="btn btn-primary">
+                                                                                Next &raquo;
+                                                                            </a>
+                                                                        }
+                                                                    </div>*@
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                        <button class="close" data-dismiss="alert">×</button>
+                                                                        <i class="fa-fw fa fa-cube"></i>
+                                                                        <strong>@localizationService.GetResource("Cnc.Sorry", null, "Sorry")! </strong>@localizationService.GetResource("Cnc.NoRecords", null, "No Records Found")
+                                                                    </div>
+                                                                }
+                            }
+                        </div>
+                        <input id="hfCustomerId" name="hfCustomerName" type="hidden" />
+                        <input id="hfv" name="hfv" type="hidden" />
+                        <div id="dialog_card_failed" title="Dialog failed">
+                            <div class="widget-body no-padding">
+                                <form id="card-info-form123" name="CardInfo" autocomplete="off" class="smart-form validatform">
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-6" style="width:100%;">
+                                                <label class="label">@localizationService.GetResource("Cnc.FailureReason", null, "Failure Reason"):</label>
+                                                <label class="input">
+                                                    @* <i>Reason To Fail:</i>*@
+                                                    @Html.TextArea("txtFailure", "",
+                                                   new
+                                                   {
+                                                       Lang = !new SettingService().LocalizationEnable
+                                                       //&& customerSession != null
+                                                       //&& !customerSession.Language.IsRightToLeftOrientation
+                                                       ? "ENG" : "fa-IR",
+                                                       placeholder = !new SettingService().LocalizationEnable ?
+                                                       "Please Enter in English" :
+                                                       localizationService.
+                                                       GetResource("Cnc.PleaseEnterInPersian",
+                                                       null, "Please Enter in Persian"),
+                                                       @onCopy = "return false",
+                                                       @onDrag = "return false",
+                                                       @onDrop = "return false",
+                                                       @onPaste = "return false",
+                                                       @autocomplete = "off",
+                                                       @style = "width:100%; overflow:hidden; ",
+                                                       @onkeyup = "textAreaAdjust(this)"
+                                                   })
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <!-- end widget div -->
+                        </div>
+
+                        <!-- end widget -->
+                    </div>
+                </div>
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+    <div id="confirmation_dialog" title="Dialog Simple Title">
+        <p>
+            @localizationService.GetResource(ConfirmationDialog, null, ConfirmationDialog)
+        </p>
+    </div>
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+
+}
+@section pagespecific {
+    <script src="~/Scripts/FarsiType.js"></script>
+}
+<script type="text/javascript">
+    function textAreaAdjust(o) {
+        o.style.height = "1px";
+        o.style.height = (25 + o.scrollHeight) + "px";
+    }
+    $(document).ready(function () {
+
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+        $('#confirmation_dialog').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Confirmation",
+            buttons: [{
+                html: "<i class='fa fa-check'></i>&nbsp; @localizationService.GetResource("Cnc.Yes",null,"Yes")",
+                "class": "btn btn-primary",
+                click: function () {
+                    var hv = $('#hfCustomerId').val();
+                    var hfv = $('#hfv').val();
+                    //alert(hv);
+
+                    PostCustomerInfo(hv, hfv);
+                    //$(this).dialog("close");
+                }
+            }, {
+                html: "<i class='fa fa-times'></i>&nbsp; @localizationService.GetResource("Cnc.Cancel", null, "Cancel")",
+                "class": "btn btn-default",
+                click: function () {
+                    $(this).dialog("close");
+                }
+            }]
+        });
+
+        $('#txtFailure').keypress(function (e) {
+            if (e.keyCode === 13) {
+                $('.btn-danger').click();
+            }
+        });
+
+        $('#dialog_card_failed').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: '@localizationService.GetResource("Cnc.FailureReason", null,"Reason To Fail")',
+            buttons: [
+                {
+                    html: "<i class='fa fa-trash-o'></i>&nbsp; @localizationService.GetResource("Cnc.FailedToValidate",null,"Failed To Validate")",
+                    "class": "btn btn-danger",
+                    click: function () {
+                        //$(".btn-default").attr("disabled", true);
+                        var form = $('#card-info-form123');
+                        form.validate();
+                        if (!form.valid()) {
+                            return false;
+                        };
+                        $(".btn-default").attr("disabled", true);
+                        PostCustomerInfo("", "f", this);
+                    }
+                }, {
+                    html: "<i class='fa fa-times'></i>&nbsp; @localizationService.GetResource("Cnc.Cancel",null,"Cancel")",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(".btn-danger").attr("disabled", true);
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+    });
+    function ConfirmationDialog(rf, hfv) {
+        if (rf != "") {
+            $("#hfCustomerId").val(rf);
+            $("#hfv").val(hfv);
+            $('#confirmation_dialog').dialog('open');
+        }
+        return false;
+    }
+    function UpdateCustomer(rf) {
+        if (rf != "") {
+            $("#hfCustomerId").val(rf);
+            $("#txtFailure").val("");
+            $('#dialog_card_failed').dialog('open');
+        }
+        return false;
+    }
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+    function PostCustomerInfo(key, para, closeDialogue) {
+        //loadJSON(r);
+        $("#cncLoader").show();
+        var hv = $('#hfCustomerId').val();
+        //var ConfirmationDialog = $('#hfConfirmationDialog').val();
+        if (para == "f" && key == "") {
+            if (hv != "") {
+                var failureReason = $("#txtFailure").val();
+                //if (confirm(ConfirmationDialog)) {
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("UpdateCustomerValidateStatus", "Customer")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { key: hv, failureReason: failureReason },
+                    dataType: "json",
+                    success: function (data) {
+                        $("#cncLoader").hide();
+                        if (data[0] == "200") {
+                            $(closeDialogue).dialog("close");
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+
+                        } else {
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                    },
+                    error: function () {
+                        $(closeDialogue).dialog("close");
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Enable to process the request please try again.");
+                    }
+                });
+                
+            } else {
+                alert("Missing required values.");
+            }
+        } else {
+            var failureReason1 = "";
+            if (key != "" && para == "v") {
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("UpdateCustomerValidateStatus", "Customer")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { key: key, failureReason: failureReason1 },
+                    dataType: "json",
+                    success: function (data) {
+                        $("#cncLoader").hide();
+                        if (data[0] == "200") {
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+                        } else {
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                    },
+                    error: function () {
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Enable to process the request please try again.");
+                    }
+                });
+            }
+        }
+    }
+</script>

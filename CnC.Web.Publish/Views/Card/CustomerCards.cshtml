@@ -1,0 +1,239 @@
+﻿@using CnC.Core.Cards
+@model List<Card>
+@{
+    ViewBag.Title = "My Cards";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .Container {
+        width: 100%;
+    }
+
+    .Content {
+        width: 100%;
+    }
+
+    .Flipped, .Flipped .Content {
+        transform: rotateX(180deg);
+        -ms-transform: rotateX(180deg); /* IE 9 */
+        -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <div id="dialog_simple" title="Dialog Simple Title">
+        <div class="widget-body no-padding">
+            <div class="Content">
+                <br />
+                <h4 style="font-weight:500; margin-left:7px;">Balance :<span id="lblBalance"></span>(€)</h4>
+                <hr />
+                <table id="tblBalanceAndTransaction" class="table table-striped table-bordered">
+                    <tr>
+                        <th>Amount</th>
+                        <th>Decsription</th>
+                        <th>Type</th>
+                        <th>Approved</th>
+                        <th>CreatedOn</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@ViewBag.Title</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="Container Flipped">
+                            <div class="Content">
+                                @*<div id="cncLoader" style="z-index:123;"></div>*@
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <div id="showMessage"> </div>
+                                <div class="table-responsive">
+                                    @if (Model != null && Model.Count > 0)
+                                    {
+                                        <table class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th title="Customer ID">ID</th>
+                                                    @*<th>Email</th>
+                                                        <th>National ID # </th>*@
+                                                    <th>Card #</th>
+                                                    <th>Card Type</th>
+                                                    <th>Creation Date</th>
+                                                    <th>Balance and Transactions</th>
+                                                    @*<th>Status</th>
+                                                        <th>Balance (€)</th>
+                                                        <th title="Top Up History">TUH</th>
+                                                        <th title="Payment Transaction History">PTH</th>*@
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{int i = 0; }
+                                                @foreach (var item in Model)
+                                                {
+                                                    <text>
+                                                        <tr>
+                                                            <td>@item.CardRequest.CardRequestForm.Customer.Id</td>
+                                                            @*<td>@item.CardRequest.CardRequestForm.Customer.User.Username</td>*@
+                                                            @*<td>@item.CardRequest.CardRequestForm.Customer.User.Email</td>
+                                                                <td>@item.CardRequest.CardRequestForm.Customer.NIC</td>*@
+                                                            <td>@item.Number</td>
+                                                            <td>@item.CardRequest.CardType.Name</td>
+                                                            <td>@item.CardRequest.CardIssuerRespondedOn.Value.ToString("yyyy/MM/dd HH:mm")</td>
+                                                            <td><a onclick='OpenDialog(@item.Number);' style="cursor:pointer">View</a></td>
+                                                            @*href='@Url.Action("CardBalanceAndTransactions", "Card")'*@
+                                                            @*<td>
+                                                                    @Enum.GetName(typeof(CardStatus), item.Status)
+
+                                                                    @if (item.Status == 0)
+                                                                    {
+                                                                        <a href='#' rel='tooltip' title=''>Block </a><a href='#' rel='tooltip' title=''>Refund/Close </a>
+                                                                    }
+                                                                    else if (item.Status == 1)
+                                                                    {
+                                                                        <a href='#' rel='tooltip' title=''>UnBlock </a><a href='#' rel='tooltip' title=''>Refund/Close </a>
+                                                                    }
+                                                                </td>
+                                                                <td>@item.Balance</td>
+                                                                <td> <a data-toggle="modal" data-target="@(@String.Format("#topUpHistory_{0}", i))">View </a> </td>
+                                                                <td> <a data-toggle="modal" data-target="@(@String.Format("#paymentpHistory_{0}", i))">View </a> </td>*@
+                                                        </tr>
+                                                    </text>
+                                                    i = i + 1;
+                                                }
+                                            </tbody>
+                                        </table>
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>                                                            
+                                                            <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                <button class="close" data-dismiss="alert">×</button>
+                                                                <i class="fa-fw fa fa-cube"></i>
+                                                                <strong>Sorry! </strong>No card information found.
+                                                            </div>
+                                                        </text>
+                                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+    <script>
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        $('#dialog_simple').dialog({
+            autoOpen: false,
+            width: 600,
+            resizable: false,
+            modal: true,
+            title: "Balance and Transactions",
+            buttons: [
+              {
+                  html: "<i class='fa fa-times'></i>&nbsp; Close",
+                  "class": "btn btn-default",
+                  click: function () {
+                      $(this).dialog("close");
+                  }
+              }
+            ]
+        });
+        function CardBalanceAndTransactions(cardNumber) {
+            $("#cncLoader").show();
+            $.ajax({
+                type: 'GET',
+                url: "/Card/CardBalanceAndTransactions",
+                cache: false,
+                data: { cardNumber: cardNumber },
+                success: function (data) {
+                    $("#cncLoader").hide();
+                    if (data[0] == "200") {
+                        $('#dialog_simple').dialog('open');
+                        $("#lblBalance").text(data[1].Balance);
+                        $('#tblBalanceAndTransaction').empty()
+                        for (var i = 0; i < data[1].PaymentTransactions.length; i++) {
+                            var src = data[1].PaymentTransactions[i].CreatedOn;
+                            src = src.replace(/[^0-9 +]/g, '');
+                            var myDate = new Date(parseInt(src));
+                            var convertedDate=myDate.toISOString().substring(0, 10);
+                            var trans;
+                            if (data[1].PaymentTransactions[i].IsDebit==true) {
+                                trans = "Debit"
+                            } else {
+                                trans = "Credit"
+                            }
+                            var apvode;
+                            if (data[1].PaymentTransactions[i].IsApproved==true) {
+                                apvode = "Yes";
+                            } else {
+                                apvode = "No";
+                            }
+                            $("#tblBalanceAndTransaction").append("<tr><td>" + data[1].PaymentTransactions[i].Amount + "</td><td>" + data[1].PaymentTransactions[i].Description + "</td><td>" + trans + "</td><td>" + apvode + "</td><td>" + convertedDate + "</td></tr>");
+                        }
+                    } else {
+                        //show error message
+                        //$("#errordiv").html(data[1]);
+                    }
+                },
+                error: function (req) {
+                }
+            });
+            // we make sure to cancel the default action of the link
+            // because we will be sending an AJAX call
+            return false;
+        };
+        function OpenDialog(cardNumber) {
+            CardBalanceAndTransactions(cardNumber);
+            return false;
+        }
+    </script>
+}

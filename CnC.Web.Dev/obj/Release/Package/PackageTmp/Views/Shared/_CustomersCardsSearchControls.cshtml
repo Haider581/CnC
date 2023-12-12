@@ -1,0 +1,88 @@
+﻿@using CnC.Service
+@using CnC.Core.Customers;
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    var cardTypes = new CardService().GetCardTypes();
+    if (customer != null)
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<div class="row">
+    <section class="col col-3">
+        <label class="label">@(customer == null ? "Card Type" : localizationService.GetResource("Cnc.CardType", null
+                             , "Card Type"))</label>
+        <label class="select">
+            <i style="color:#a2a2a2; font-size: 14px;" class="icon-append"></i>
+        </label>
+        @{
+            var val = Request["dllCardType"];
+        }
+
+        @if (string.IsNullOrEmpty(val))
+        {
+            <select class="form-control" style="height:30px;" id="dllCardType" name="dllCardType">
+                <option value="">-@(customer == null ? "Please select" : localizationService.GetResource("Cnc.PleaseSelect", null, "Please Select"))-</option>
+                @foreach (var item in cardTypes)
+                {
+                    <option value="@(item.Id)">@item.Name</option>
+                }
+            </select>
+        }
+        // execute on POST Request
+        else
+        {
+            var selectedData = cardTypes.SingleOrDefault(c => c.Id == Convert.ToInt32(val));
+            <select class="form-control" style="height:30px;" id="dllCardType" name="dllCardType">
+                <option selected class="selected" value="@selectedData.Id">@selectedData.Name</option>
+                @foreach (var item in cardTypes)
+                {
+                    if (item.Id != Convert.ToInt32(val))
+                    {
+                        <option value="@(item.Id)">@item.Name</option>
+                    }
+                }
+            </select>
+        }
+
+    </section>
+
+    <section class="col col-3">
+        <label class="label">@(customer == null ? "Card #" : localizationService.GetResource("Cnc.Card#", null, "Card #"))</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtCardNo", Request["txtCardNo"], new { placeholder = (customer == null ? "Card #" : localizationService.GetResource("Cnc.Card#", null, "Card #")) })
+        </label>
+    </section>
+
+    <section class="col col-3">
+        <label>@(customer == null ? "From" : localizationService.GetResource("Cnc.CreatedDateFrom", null, "From"))</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtCreatedDateFrom", Request["txtCreatedDateFrom"],
+           new { @class = "datepicker", placeholder = (customer == null ? "Created Date From" : localizationService.GetResource("Cnc.CreatedDateFrom", null, "Created Date From")), @readonly = "true" })
+        </label>
+    </section>
+
+    <section class="col col-3">
+        <label>@(customer == null ? "To" : localizationService.GetResource("Cnc.CreatedDateTo", null, "To"))</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtCreatedDateTo", Request["txtCreatedDateTo"],
+           new { @class = "datepicker", placeholder = (customer == null ? "To" : localizationService.GetResource("Cnc.CreatedDateTo", null, "To")), @readonly = "true" })
+        </label>
+    </section>
+
+</div>
+<div class="row">
+    <section class="col col-3">
+        <label class="label">@(customer == null ? "Email" : localizationService.GetResource("Cnc.Email", null, "Email"))</label>
+        <label class="input">
+            @*<i class="icon-append fa fa-hashtag">#</i>*@
+            @Html.TextBox("txtEmail", Request["txtEmail"], new { placeholder = (customer == null ? "Email" : localizationService.GetResource("Cnc.Email", null, "Email")) })
+        </label>
+    </section>
+</div>
+
+<script src="~/Scripts/Validation/Partial/_TopUpRequestSearchControl.js"></script>

@@ -1,0 +1,1201 @@
+﻿@using CnC.Core
+@using System.Web.UI.WebControls
+@using CnC.Service
+@using CnC.Core.Cards
+@using CnC.Core.Customers
+@{
+    ViewBag.Title = "New Customer Registration: Step 2 (Card Requests)";
+    var customerController = new CnC.Web.Controllers.CustomerController();
+    bool isCustomer = false;
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    if (userSession != null && userSession.IsCustomer)
+    {
+        isCustomer = true;
+    }
+
+    var exchangeRate = new ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var settingService = new SettingService();
+    // for get view
+    CardService cardService = new CardService();
+    var customerId = ViewBag.CustomerId;
+    var customerSession = Session["CurrentCustomer"] as Customer;
+    List<CnC.Core.Cards.CardType> cardTypes = null;
+    if (customerSession != null)
+    {
+        cardTypes = cardService.GetCardTypes(customer: customerSession);
+    }
+    else
+    {
+        cardTypes = cardService.GetCardTypes();
+    }
+
+    LocalizationService localizationService = null;
+    if (customerSession == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customerSession.LanguageId);
+    }
+    string cardFeeInUreo = string.Empty;
+    foreach (var card in cardTypes)
+    {
+        cardFeeInUreo = cardFeeInUreo + card.Fee + ",";
+    }
+    cardFeeInUreo.TrimEnd(',');
+    //ServiceFee.ExchangeRate
+    List<Card> customerDeliveredCards = null;
+    List<CardRequestForm> customerCardRequestForm = null;
+    if (customerSession != null)
+    {
+        int totalCount = 0;
+        customerDeliveredCards = new CardService().GetCards(out totalCount, customerId: customerSession.UserId);
+        customerCardRequestForm = new CardService().GetCardRequestForms(out totalCount, customerId: customerSession.UserId);
+    }
+    if (customerId != null && customerId != "")
+    {
+        int custId = Convert.ToInt32(new CnC.Web.Helper.Utility().UrlSafeDecrypt(customerId));
+        int totalCount = 0;
+        customerDeliveredCards = new CardService()
+            .GetCards(out totalCount, customerId: custId);
+        customerCardRequestForm = new CardService()
+            .GetCardRequestForms(out totalCount, customerId: custId);
+    }
+    bool blackCardExist = false;
+
+    if (customerCardRequestForm != null && customerCardRequestForm.Count() > 0)
+    {
+        foreach (var cardRequestForm in customerCardRequestForm)
+        {
+            foreach (var cardRequest in cardRequestForm.CardRequests)
+            {
+                if (cardRequest.CardType.IsProofOfSourceOfFundsRequired)
+                {
+                    blackCardExist = true;
+                    break;
+                }
+            }
+            if (blackCardExist)
+            {
+                break;
+            }
+        }
+    }
+
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .Container {
+        width: 100%;
+    }
+
+    .Content {
+        width: 100%;
+    }
+
+    .Flipped, .Flipped .Content {
+        transform: rotateX(180deg);
+        -ms-transform: rotateX(180deg); /* IE 9 */
+        -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+    }
+
+    .ui-dialog-content {
+        overflow: hidden !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .smart-rtl .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner:before, .smart-rtl .smart-form .col {
+        float: none !important;
+    }
+
+    .col-centered {
+        float: none;
+        margin: 0 auto;
+    }
+</style>
+
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/Jalali/jalali.js"></script>
+<script src="~/Scripts/Jalali/calendar.js"></script>
+<script src="~/Scripts/Jalali/calendar-setup.js"></script>
+<script src="~/Scripts/Jalali/lang/calendar-fa.js"></script>
+
+<link href="~/Content/skins/aqua/theme.css" rel="stylesheet" />
+<script src="~/Scripts/html2canvas.js"></script>
+<div id="content">
+    <!-- breadcrumb -->
+    <ol class="breadcrumb" style="text-transform: uppercase;">
+        @*
+            <li>@User.Identity.Name.ToLower()</li>*@
+        <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+    </ol>
+    <section id="widget-grid" class="">
+
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>
+                    @localizationService.GetResource("Cnc.CustomerCardRequest", null, "Customer Card Request")
+                </h2>
+
+                @*<span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>*@
+            </header>
+            <!-- widget div-->
+            <div role="content">
+                <div id="dialog_instructions" title="Instruction Dialog" style="overflow: hidden;">
+                    <div class="widget-body no-padding">
+                        <form id="card-info-form2" name="CardInfoApprove" autocomplete="off" class="smart-form validatform">
+                            <fieldset>
+                                <div class="row">
+                                    <section class="col col-12" style="width:100%">
+                                        <ul style="list-style-type: none;">
+                                            <li>
+                                                @localizationService.GetResource("Cnc.OnSuccessfulSubmission"
+    , null
+    , "On successful submission of Card Request KYC form in English and Persian will be automatically send to you as an email attachments.If you do not recieve any email, please click on resend email button on next page.")
+                                            </li>
+                                        </ul>
+                                    </section>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div id="divEmp" class="widget-body no-padding">
+                    @*<div id="cncLoader"></div>*@
+                    <div id="cncLoaderMessage">
+                        @*<span id="spanSuccess" class="spanSuccessColor"><span id="completeSpan" class="text-center text-success spanSuccessColor"><strong><i class='fa fa-check fa-lg'></i> Complete</strong></span><br />KYC form has been saved successfully!<br /><a id="lkGoBack" style="font-size: 14px;" class="spanSuccessColor" href="@Url.Action(" NewKYCFormInCustomerLanguage","Customer")">Go back</a></span>*@
+                    </div>
+                    <div id="showMessage">@ViewBag.MessageFailure</div>
+
+                    @using (Ajax.BeginForm("NewCustomerCardRequests", "Customer",
+new AjaxOptions
+{
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = "showMessage",
+    OnFailure = "AjaxFailure",
+    //OnSuccess = "onSuccess",
+    OnBegin = "AjaxBegin",
+    OnComplete = "AjaxComplete"
+
+}, new { @id = "NewCustomerCardRequest", @name = "NewCustomerCardRequests", @class = "smart-form validatform formToValidate", role = "form", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+
+                        if (isCustomer && (customerDeliveredCards == null
+                                                        || customerDeliveredCards.Count() <= 0)
+                                                    && (customerCardRequestForm != null && customerCardRequestForm.Count > 0))
+                        {
+                            <h3 style="color:red">
+                                @localizationService.GetResource("Cnc.SorryToMakeCardRequest", null
+         , "Sorry! To make Card Request, one of your previous Cards  must be Delivered")
+                            </h3>
+                        }
+                        else
+                        {
+                            <!--Step2-->
+                            <div id="cardRequestAndDocsStep2">
+
+
+                                <!--Cards - start-->
+
+
+                                <h2>
+                                    @if (isCustomer)
+                                    {
+                                        var systemCurrency = new CurrencyService().SystemCurrency;
+                                        <span style="margin-left:20px; font-weight:bold;">
+                                            @*@localizationService.GetResource("Cnc.ExchangeRate", null, "Exchange Rate")(@Html.Raw(systemCurrency.Code)) = <code>
+                                                @exchangeRate.Rate @exchangeRate.Currency.Code*@
+                                            Exchange Rate(@Html.Raw(systemCurrency.Code)) = <code>
+                                                @exchangeRate.Rate @exchangeRate.Currency.Code
+                                            </code>
+
+
+                                        </span>
+                                    }
+                                </h2>
+
+                                <header> @localizationService.GetResource("Cards", null, "Cards") </header>
+
+                                <fieldset>
+                                    <div class="progress progress-sm progress-striped active">
+                                        <div class="progress-bar bg-color-darken" role="progressbar" style="width: 45%"></div>
+                                    </div>
+                                    <div>
+                                        <label class="label label-info" id="lblTopupExchangeRate">
+                                            @*<span>Exchange Rate 1</span>@Html.Raw(systemCurrency.Code)= <label>@exchangeRate.Rate @exchangeRate.Currency.Code</label>*@
+                                        </label>
+                                        <p class="text-danger">
+                                            @localizationService.GetResource("Cnc.Step1ForCardtypequantityCustomerrequested", null, "Step 1: For each Card type enter quantity which Customer requested")
+                                        </p>
+                                        <p class="text-danger">
+                                            @localizationService.GetResource("Cnc.AssumedCustomerProvidedInfo", null, "Step 2: It is assumed that Customer provided information has already been validated and Cards fee paid")
+                                        </p>
+                                        <p class="text-danger">
+                                            @localizationService.GetResource("Cnc.NoteCardPolicy", null, " Note: Card policy will apply")
+                                        </p>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="tblCards">
+                                            <thead>
+                                                <tr>
+                                                    <th>@localizationService.GetResource("Cnc.Name", null, "Name")</th>
+                                                    @if (isCustomer)
+                                                    {
+                                                        <th> @localizationService.GetResource("Cnc.Fee", null, "Fee") </th> }
+                                                    <th>@localizationService.GetResource("Cnc.Quantity", null, "Quantity")</th>
+                                                    <th hidden>@localizationService.GetResource("Cnc.Fee", null, "Fee")</th>
+                                                    <th hidden>@localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (&#163;)</th>
+
+                                                    @*
+                                                        <th>Total Fee (IR)</th>*@
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{
+
+                                                    if (cardTypes != null)
+                                                    {
+                                                        string IsProofOfSourceOfFundsRequired = string.Empty;
+                                                        string IsProofOfAddressRequired = string.Empty;
+                                                        foreach (var item in cardTypes)
+                                                        {
+                                                            var listItems = new List
+                                                            <ListItem>
+                                                                ();
+                                                            for (int i = 0; i <= item.MaxQuantity; i++)
+                                                            {
+                                                                listItems.Add(new ListItem() { Text = "" + i, Value = "" + i });
+                                                            }
+
+                                                            // Make a string that stores Id of cards where [IsProofOfSourceOfFundsRequired] ,[IsProofOfAddressRequired] is true
+                                                            // make two hidden fields
+                                                            if (item.IsProofOfSourceOfFundsRequired)
+                                                            {
+                                                                IsProofOfSourceOfFundsRequired = IsProofOfSourceOfFundsRequired + item.Id + ",";
+                                                            }
+                                                            if (item.IsProofOfAddressRequired)
+                                                            {
+                                                                IsProofOfAddressRequired = IsProofOfAddressRequired + item.Id + ",";
+                                                            }
+                                                            <text>
+                                                                <tr>
+                                                                    <td>
+
+                                                                        @if (isCustomer)
+                                                                        {
+                                                                            string msgDesc1 = item.Name + " (Reload Limit : " + item.ReloadLimit;
+                                                                            string msgDesc2 = "   Allowed Qty : " + item.MaxQuantity + ")";
+                                                                            <span> @localizationService.GetResource(msgDesc1, null, msgDesc1) </span><span style="margin-left:10px;"> @localizationService.GetResource(msgDesc2, null, msgDesc2) </span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @item.Name
+                                                                        }
+
+                                                                        <input type="hidden" id="CardName" name="CardName" value="@item.Name" />
+                                                                        <input type="hidden" id="cardId" name="cardId" value="@item.Id" />
+                                                                    </td>
+                                                                    @if (isCustomer)
+                                                                    {
+                                                                        <td>
+                                                                            @item.Fee
+                                                                        </td>
+                                                                    }
+                                                                    <td>
+                                                                        <label class="select">
+                                                                            <i class="icon-append fa fa-tag"></i>
+                                                                            @if (item.IsProofOfAddressRequired && item.IsProofOfSourceOfFundsRequired)
+                                                                            {
+                                                                                @Html.DropDownList("CardQty", new SelectList(listItems, "Value", "Text"), new { @class = "ddlDocumentsRequired ddlCheckCardQty", name = "Name", id = "CardQty" + item.Id })
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                @Html.DropDownList("CardQty", new SelectList(listItems, "Value", "Text"), new { @class = "ddlCheckCardQty", name = "Name", id = "CardQty" + item.Id })
+                                                                            }
+                                                                        </label>
+                                                                    </td>
+                                                                    <td hidden>@item.Fee</td>
+                                                                    <td class="feeEU" id="@item.Id" hidden>0.00</td>
+                                                                </tr>
+                                                            </text>
+                                                        }
+
+                                                        //Here make two hidden fields
+                                                        <text>
+                                                            <input type="hidden" id="IsProofOfSourceOfFundsRequired" name="IsProofOfSourceOfFundsRequired" value="@IsProofOfSourceOfFundsRequired" />
+                                                            <input type="hidden" id="IsProofOfAddressRequired" name="IsProofOfSourceOfFundsRequired" value="@IsProofOfAddressRequired" />
+                                                        </text>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                        <div id="divMsg" class="alert alert-danger" style="display:none;">
+                                            <strong>@localizationService.GetResource("Cnc.Required", null, "Required")!</strong> @localizationService.GetResource("Cnc.PleaseSelectAtLeastOneCard", null, "Please Select Atleast One Card")
+                                        </div>
+                                    </div>
+
+                                    @if (isCustomer)
+                                    {
+                                        @*<div style = "text-align:right; margin-right:10px; font-weight:bold;">@localizationService.GetResource("Cnc.TotalFee", null, "Total Fee")("€"): <label style = "font-weight:bold;" id = "TotalFeeEU"> 0.00 </label></div>
+
+                                            <div style = "text-align:right; margin-right:10px; font-weight:bold;"> @localizationService.GetResource("Cnc.TotalFee", null, "Total Fee")(@localizationService.GetResource("Cnc.Rial", null, "Rial")): <label style = "font-weight:bold;" id = "TotalFeeIR" > 0.00 </label ></div >
+
+                                                   <div style = "text-align:right; margin-right:10px; font-weight:bold;"> @localizationService.GetResource("Cnc.ExchangeRate", null, "Exchage Rate")(@localizationService.GetResource("Cnc.Rial", null, "Rial")): <label style = "font-weight:bold;" id = "ExchangeRateFeeIR" > 0.00 </label ></div >
+
+                                                          <div style = "text-align:right; margin-right:10px; font-weight:bold;"> @localizationService.GetResource("Cnc.TotalFeeToPay", null, "Total Fee To Pay")(@localizationService.GetResource("Cnc.Rial", null, "Rial")): <label style = "font-weight:bold;" id = "TotalFeeToPayInIR" > 0.00 </label ></div >
+
+                                                                 <input type = "hidden" id = "hidTotalFeeEU" name = "hidTotalFeeEU" />
+
+                                                                      <input type = "hidden" id = "hidTotalFeeIR" name = "hidTotalFeeIR" />*@
+
+
+                                        <div style="text-align:right; margin-right:10px; font-weight:bold;">Total Fee(€): <label style="font-weight:bold;" id="TotalFeeEU"> 0.00 </label></div>
+
+                                        <div style="text-align:right; margin-right:10px; font-weight:bold;"> Total Fee(@localizationService.GetResource("Cnc.Rial", null, "Rial")): <label style="font-weight:bold;" id="TotalFeeIR"> 0.00 </label></div>
+
+                                        <div style="text-align:right; margin-right:10px; font-weight:bold;"> Exchage Rate(@localizationService.GetResource("Cnc.Rial", null, "Rial")): <label style="font-weight:bold;" id="ExchangeRateFeeIR"> 0.00 </label></div>
+
+                                        <div style="text-align:right; margin-right:10px; font-weight:bold;"> Total Fee To Pay(@localizationService.GetResource("Cnc.Rial", null, "Rial")): <label style="font-weight:bold;" id="TotalFeeToPayInIR"> 0.00 </label></div>
+
+                                        <input type="hidden" id="hidTotalFeeEU" name="hidTotalFeeEU" />
+
+                                        <input type="hidden" id="hidTotalFeeIR" name="hidTotalFeeIR" />
+
+                                    }
+                                    <br />
+
+                                    <br />
+                                    @*Total Fee To Pay: <label id="GrandTotal">0</label>*@
+                                    <input type="hidden" id="hidGrandTotal" name="hidGrandTotal" />
+                                    <input type="hidden" id="hfsubmitActionId" name="hfsubmitActionName" />
+
+                                </fieldset>
+                                <!-- Cards - end-->
+                                <!-- Customer Language Documents - start -->
+                                @if (cardTypes != null && cardTypes.Count > 0)
+                                {
+                                    if (cardTypes.Any(c => c.IsProofOfSourceOfFundsRequired == true && c.IsProofOfAddressRequired == true))
+                                    {
+                                        <div id="CustomerLanguageDocuments">
+
+
+                                            <header> @localizationService.GetResource("Cnc.AttachCustomerDocsjpegFormat", null, "Attach Customer Documents, Persian, only in png/jpg/jpeg format, file size maximum 1MB") </header>
+
+
+                                            <fieldset>
+
+
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">@localizationService.GetResource("Cnc.ProofofAddressType", null, "Proof Of Address Type"):</label>
+                                                        <label class="select">
+                                                            <i class="icon-append fa fa-comment"></i>
+                                                            <select class="form-control" id="proofOfAddressType" name="proofOfAddressType">
+                                                                <option value="default">
+                                                                    -@localizationService.GetResource("Cnc.PleaseSelectType", null, "Please Select Type") -
+                                                                </option>
+                                                                <option value="1">
+                                                                    @localizationService.GetResource("Cnc.PropertyOwnerShip", null, "Property Ownership or Lease Legal Document")
+                                                                </option>
+                                                                <option value="2">
+                                                                    @localizationService.GetResource("Cnc.LatestElectBill", null, "Latest Electricity Bill")
+                                                                </option>
+                                                                <option value="3">
+                                                                    @localizationService.GetResource("Cnc.LatestGasBill", null, "Latest Gas Bill")
+                                                                </option>
+                                                            </select>
+                                                            <input type="hidden" name="hfProofOfAddressTypeN" id="hfProofOfAddressType" value="" />
+                                                            <em id="proofOfAddressTypeError" style="display:none" class="invalid">This field is required</em>
+                                                        </label>
+                                                        <label class="label">@localizationService.GetResource("Cnc.ProofOfAddressScanedCopy", null, "Proof of Address Scaned Copy")</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfAddressDocCl[0]" id="proofOfAddressDocCl0" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfAddressDocCl0Error" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfAddressDocCl[1]" id="proofOfAddressDocCl1" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfAddressDocCl1Error" style="display:none" class="invalid">@localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfAddressDocCl[2]" id="proofOfAddressDocCl2" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfAddressDocCl2Error" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfAddressDocCl[3]" id="proofOfAddressDocCl3" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfAddressDocCl3Error" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                    </section>
+
+                                                    <section class="col col-6">
+                                                        <label class="label">@localizationService.GetResource("Cnc.ProofofSourceOfFunds", null, "Proof of Source of Funds"):</label>
+                                                        <label class="select">
+                                                            <i class="icon-append fa fa-comment"></i>
+                                                            <select class="form-control" id="sourcceOfFundType" name="sourcceOfFundType">
+                                                                <option value="default">
+                                                                    -@localizationService.GetResource("Cnc.PleaseSelectType", null, "Please Select Type") -
+                                                                </option>
+                                                                <option value="1">
+                                                                    @localizationService.GetResource("Cnc.Employement", null, "Employement")
+                                                                </option>
+                                                                <option value="2">
+                                                                    @localizationService.GetResource("Cnc.Pension", null, "Pension")
+                                                                </option>
+                                                                <option value="3">
+                                                                    @localizationService.GetResource("Cnc.PaymentofDividendsasUBO", null, "Payment of Dividends as UBO")*
+                                                                </option>
+                                                                <option value="4">
+                                                                    @localizationService.GetResource("Cnc.LoanAgreement", null, "Loan Agreement")
+                                                                </option>
+                                                                <option value="5">
+                                                                    @localizationService.GetResource("Cnc.SaleContract", null, "Sale Contract")
+                                                                </option>
+                                                                <option value="6">
+                                                                    @localizationService.GetResource("Cnc.CommisionBasedAssociateAgreement", null, "Commission based Associate Agreement")
+                                                                </option>
+                                                                <option value="7">
+                                                                    @localizationService.GetResource("Cnc.InsuranceCompensation", null, "Insurance Compensation")
+                                                                </option>
+                                                                <option value="8">
+                                                                    @localizationService.GetResource("Cnc.Lottery/Winning", null, "Lottery/Winning")
+                                                                </option>
+                                                                <option value="9">
+                                                                    @localizationService.GetResource("Cnc.OtherSourceOfFunds", null, "Other Source Of Funds")
+                                                                </option>
+
+                                                            </select>
+                                                            <input type="hidden" name="hfSourceOfFundTypeN" id="hfSourceOfFundType" value="" />
+                                                        </label>
+
+                                                        <div id="OtherSourceofFunds" style="display:none; padding-top:15px;">
+                                                            <label class="label">@localizationService.GetResource("Cnc.Mention", null, "Mention")</label>
+                                                            <label class="input">
+                                                                <i class="icon-prepend fa fa-comment"></i>
+                                                                @Html.TextBox("txtOtherSourceofFunds", null, new { @name = "txtOtherSourceofFunds", @placeholder = localizationService.GetResource("Cnc.OtherSourceOfFunds", null, "Other Source of Funds") })
+                                                            </label>
+                                                        </div>
+                                                        <label class="label">@localizationService.GetResource("Cnc.SourceOfFunds", null, "Source of Funds")</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[0]" id="proofOfSourceOfFundsCl0" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfSourceOfFundsCl0Error" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[1]" id="proofOfSourceOfFundsCl1" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfSourceOfFundsCl1Error" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[2]" id="proofOfSourceOfFundsCl2" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfSourceOfFundsCl2Error" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[3]" id="proofOfSourceOfFundsCl3" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forproofOfSourceOfFundsCl3Error" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                                        </label>
+                                                    </section>
+                                                </div>
+
+
+                                            </fieldset>
+
+                                        </div>
+                        <!-- Documents Customer- end -->
+                                    }
+                                }
+
+                                @if (isCustomer)
+                                {
+                                    <div class="widget-body col-md-12" id="divSelectPaymentMethod">
+                                        <div class="smart-form" novalidate="novalidate">
+                                            <fieldset>
+                                                <header style="margin-bottom:20px;">
+                                                    Please Select Payment Method
+                                                </header>
+
+                                                <div class="inline-group">
+                                                    <label class="radio">
+                                                        <input type="radio" name="radioPaymentOptions" value="1">
+                                                        <i></i>Bank To Bank Transaction
+                                                    </label>
+                                                    <label class="radio">
+                                                        <input type="radio" name="radioPaymentOptions" value="2">
+                                                        <i></i>Online Payment
+                                                    </label>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div id="arrowDown" class="col-md-6 col-centered" style="text-align:center; font-size:xx-large; margin-top: 180px;">
+                                            <span class="glyphicon glyphicon-arrow-down"></span>
+                                        </div>
+                                    </div>
+                        <!-- Bank to Bank Transaction -->
+                                    <div id="BankToBankTransaction">
+                                        <div class="widget-body col-md-6 col-centered" id="divBank">
+                                            <div class="smart-form" novalidate="novalidate">
+                                                <fieldset>
+                                                    <header>
+                                                        Bank To Bank Transaction
+                                                        @*@localizationService.GetResource("Cnc.BankToBankTransaction", null, "Bank To Bank Transaction")*@
+                                                    </header>
+                                                    <p style="margin:5px;">
+                                                        @*<i class="fa fa-bell text-danger"></i> <i>@localizationService.GetResource("Cnc.IfCustomerDepositamountinbank", null, "If the customer has deposited the amount in our Bank account")</i>*@
+                                                        <i class="fa fa-bell text-danger"></i> <i>If the customer has deposited the amount in our Bank account</i>
+                                                    </p>
+                                                    <section>
+                                                        @*<label class="label">@localizationService.GetResource("Cnc.Transaction/ReferenceNumber", null, "Transaction Tracking/Reference No.")</label>*@
+                                                        <label style="float: left !important;" class="label">Transaction Tracking/Reference No</label>
+
+                                                        <label class="input">
+                                                            <input style="text-align:left!important; direction: ltr!important;" type="text" name="txtCardTransactionNo" id="txtCardTransactionNo">
+                                                        </label>
+                                                    </section>
+                                                    <section>
+                                                        @*<label class="label">@localizationService.GetResource("Cnc.YourAccountNo.", null, "Your Account No.")</label>*@
+                                                        <label style="float: left !important;" class="label">Your Account No</label>
+                                                        <label class="input">
+                                                            @Html.TextBox("txtCardAccountNo", "", new { Style = "text-align:left!important; direction: ltr!important;" })
+                                                        </label>
+                                                    </section>
+                                                    <section>
+                                                        <label style="float: left !important;" class="label">Name</label>
+                                                        <label class="input">
+                                                            @Html.TextBox("txtCardReqCustName", "", new { Style = "text-align:left!important; direction: ltr!important;" })
+                                                        </label>
+                                                    </section>
+                                                    <section>
+                                                        <label style="float: left !important;" class="label">Amount(Rial)</label>
+                                                        <label class="input">
+                                                            @Html.TextBox("txtCardPaidAmount", "", new { Style = "text-align:left!important; direction: ltr!important;" })
+                                                        </label>
+                                                    </section>
+                                                    <div id="errorTopupAmount" class="alert alert-danger" style="display:none;">
+                                                        <strong>Amount Limit: Amount can not be less than Total Fee To Pay</strong>
+                                                    </div>
+                                                    <section>
+                                                        @if (isCustomer)
+                                                        {
+                                                            <input type="submit" id="btnSaveInfoStep2" name="btnSaveInfoStep2" class="btn btn-primary btn-lg btn-block" value="Notify" />
+                                                            <input type="button" id="btnSaveInfoStep3" name="btnSaveInfoStep3" class="btn btn-primary btn-lg btn-block" value="Notify" />
+                                                        }
+                                                    </section>
+                                                </fieldset>
+
+                                                <div class="message">
+                                                    <i class="fa fa-thumbs-up"></i>
+                                                    <p>Data Saved</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="OnlineTransaction" class="widget-body col-md-12">
+                                        <div class="smart-form" novalidate="novalidate">
+                                            <fieldset>
+                                                <input type="submit" id="btnOnlinePaymentId" name="btnOnlinePaymentName" class="btn btn-primary btn-lg btn-block" value=@localizationService.GetResource("Cnc.OnlinePayment", null, "Online Payment")>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!isCustomer)
+                                {
+                                    <footer>
+                                        <button type="submit" name="btnSaveInfoStep2" id="btnSaveInfoStep2"
+                                                class="btn btn-primary">
+                                            @localizationService.GetResource("Cnc.Save", null,
+                                                                 "Save")
+                                        </button>
+                                    </footer>
+                                }
+                            </div>
+                    <!-- End Step2 -->
+                                                    <input type="hidden" id="hfIsCustomer" value="@isCustomer" />
+                                                    <input type="hidden" id="hfCustomerId" name="hfCustomerId" value="@customerId" />
+                                                    <input hidden="hidden" id="hiddenFieldEnglish" name="hiddenFieldEnglish" />
+                                                    <input hidden="hidden" id="hiddenFieldPersian" name="hiddenFieldPersian" />
+                                                    <Button type="Submit" id="btnDownloadKycForms" hidden="hidden"> </Button>
+                                                        }
+                                                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts
+    {
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+    <script src="~/Scripts/FarsiType.js"></script>
+    <link href="~/Content/skins/aqua/theme.css" rel="stylesheet" />
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+    <script src="~/Scripts/Validation/Customer/NewCustomerCardRequests.js"></script>
+}
+<script>
+
+    function blink(){
+        $('.glyphicon-arrow-down').delay(300).fadeTo(100,0.5).delay(100).fadeTo(300,1, blink);
+    }
+    $('#tblCards > tbody  > tr').on('input propertychange paste', function () {
+        //alert("yes");
+        var a;
+        $('.ddlCheckCardQty').each(function () {
+            if ($(this).val() > 0) {
+                a = true;
+            }
+        });
+        if (!a) {
+            window.scrollTo(0, 0);
+            $("#divMsg").show();
+            $("#divSelectPaymentMethod").hide();
+            return false;
+        }
+        else {
+
+            $("#divMsg").hide();
+            $("#divSelectPaymentMethod").show();
+        }
+    });
+
+    $(document).ready(function () {
+        $("#NewCustomerCardRequest").trigger('reset');
+
+        if('@ViewBag.MessageFailure'!=null && '@ViewBag.MessageFailure'!=""){
+            $("#showMessage").removeClass("alert alert-danger fade in");
+            $("#showMessage").empty();
+            $("#showMessage").show();
+            $("#showMessage").addClass("alert alert-danger fade in");
+            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + "@ViewBag.MessageFailure" + "'");
+                }
+                var form = $("#NewCustomerCardRequest");
+        $("#arrowDown").hide();
+        $("#divSelectPaymentMethod").hide();
+        blink();
+        $("#BankToBankTransaction").hide();
+        $("#OnlineTransaction").hide();
+        $('#btnBankToBankTransaction').click(function () {
+            $("#OnlineTransaction").hide();
+            $("#arrowDown").show();
+            $("#BankToBankTransaction").show();
+                });
+        $('#NewCustomerCardRequest input').on('change', function() {
+
+                    var methodId = $('input[name=radioPaymentOptions]:checked', '#NewCustomerCardRequest').val()
+            if (methodId == 1) {
+                $("#OnlineTransaction").hide();
+                $("#arrowDown").show();
+                $("#BankToBankTransaction").show();
+                    }
+                    else {
+                $("#BankToBankTransaction").hide();
+                $("#arrowDown").show();
+                $("#OnlineTransaction").show();
+                        //document.getElementById("myForm").submit();
+                    }
+                });
+        var isCust = $("#hfIsCustomer").val();
+        if (isCust != null && isCust != "") {
+            $("#btnSaveInfoStep2").hide();
+            $("#btnSaveInfoStep3").show();
+                var resultCode = "@ViewBag.ResultCode";
+                var description = "@ViewBag.Description";
+            if (resultCode != null && resultCode != "" && description != null && description != "") {
+
+                var arrCardTypeId = "@ViewBag.CardTypeId".split(",");
+                var arrCardQty = "@ViewBag.CardQty".split(",");
+                var feeCard="@cardFeeInUreo".split(",");
+                for (var i = 0; i < arrCardTypeId.length; i++) {
+                    $("#CardQty"+arrCardTypeId[i]).val(arrCardQty[i]);
+                    if (arrCardQty[i]>0) {
+                        $("#"+arrCardTypeId[i]).text("" + (parseFloat(feeCard[i])*parseFloat(arrCardQty[i])));
+                    }
+                }
+
+                var amt = "@ViewBag.Amount";
+            var exchangeRate=@exchangeRate.Rate;
+            var excChangeRateCharges = parseFloat(@settingService.ExchangeRateServiceCharges);
+
+                $("#TotalFeeEU").text((parseFloat(amt)/exchangeRate).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));//
+                $("#TotalFeeIR").text(parseFloat(amt).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));//.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                $("#ExchangeRateFeeIR").text(((parseFloat(amt)/100)*parseFloat(excChangeRateCharges)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));//.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                $("#TotalFeeToPayInIR").text((parseFloat(amt)+(parseFloat(amt)/100)*parseFloat(excChangeRateCharges)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+                $("#hidTotalFeeIR").text((parseFloat(amt)+(parseFloat(amt)/100)*parseFloat(excChangeRateCharges)));
+                var resuultSet = resultCode + " " + description;
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + resuultSet + "'");
+            window.scrollTo(0, 0);
+            }
+        }
+
+        // Save button
+        // check if user has selected any card
+        $("#btnSaveInfoStep2").click(function () {
+            $("#hfsubmitActionId").val("Bank");
+            var a;
+            $('.ddlCheckCardQty').each(function () {
+                if ($(this).val() > 0) {
+                    a = true;
+                }
+            });
+            if (!a) {
+                window.scrollTo(0, 0);
+                $("#divMsg").show();
+                return false;
+            }
+            else {
+
+                $("#divMsg").hide();
+            }
+        });
+        $("#btnOnlinePaymentId").click(function () {
+            $("#hfsubmitActionId").val("Online");
+        });
+        var a;
+        $('.ddlDocumentsRequired').each(function () {
+            if ($(this).val() > 0) {
+                a = true;
+            }
+        });
+        if (a) {
+            $("#CustomerLanguageDocuments").show();
+            $("#divMsg").hide();
+        }
+        else {
+            $("#CustomerLanguageDocuments").hide();
+        }
+
+        // Card drop down change
+        $(".ddlDocumentsRequired").change(function () {
+            var a;
+            $('.ddlDocumentsRequired').each(function () {
+                if ($(this).val() > 0) {
+                    a = true;
+                }
+            });
+            var checkBlackCard="@blackCardExist";
+            if (a  && checkBlackCard=="False") {
+                $("#CustomerLanguageDocuments").show();
+                $("#divMsg").hide();
+            }
+            else {
+                $("#CustomerLanguageDocuments").hide();
+            }
+        });
+        $(".checkFileType").change(function () {
+            //var form = $('.validatform');
+            //if (!form.valid()) { return false; };
+        });
+
+        $('#proofOfAddressType').on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            var valueSelected = this.value;
+            $("#hfProofOfAddressType").val("" + valueSelected);
+
+        });
+        $('#sourcceOfFundType').on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            var valueSelected = this.value;
+            $("#hfSourceOfFundType").val("" + valueSelected);
+
+        });
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+        var isValid = true;
+        window.addEventListener("submit", function (e) {
+            var form = $("#NewCustomerCardRequest");
+            var proofAddressType = $("#proofOfAddressType option:selected").text();
+            var sourceOfFundType = $("#sourcceOfFundType option:selected").text();
+
+            $("#hfSourceOfFundType").val("" + sourceOfFundType);
+            $("#hfProofOfAddressType").val("" + proofAddressType);
+
+            $("#cncLoader").show();
+            var form = e.target;
+            if (form.getAttribute("enctype") === "multipart/form-data") {
+
+                if (form.dataset.ajax) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    var xhr = new XMLHttpRequest();
+                    xhr.open(form.method, form.action);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+
+                            var data = JSON.parse(xhr.responseText);
+
+                            $("#cncLoader").hide();
+                            if (data.length > 0) {
+                                var idVal = $("#hfCustomerId").val();
+                                if (data[0] == "200") {
+                                    if (data[2] == "Step5") {
+                                        document.getElementById("btnSaveInfoStep2").disabled = true;
+                                        //Redirect to NewCustomerSignedForm
+
+                                        //Start Form
+
+                                        if (data[2] != "" && data[2] != null) {
+                                            //Redirect to NewCustomerCardRequests
+                                            //document.getElementById("btnTopupNotify").disabled = true;
+
+                                            if (data[4] != "" && data[4] != null) {
+
+                                                var iframe = document.createElement('iframe');
+                                                var iframe1 = document.createElement('iframe');
+                                                //==========================
+                                                if (data[3] != "" && data[3] != null) {
+
+                                                    iframe.name = "englishFrame";
+                                                    iframe.id = "englishFrameId";
+                                                    iframe.width = "1200";
+                                                    $('body').append($(iframe));
+                                                    setTimeout(function () {
+                                                        var iframedoc =
+                                                            iframe.contentDocument || iframe.contentWindow.document;
+                                                        $('body', $(iframedoc)).html(data[3]);
+                                                        //document.getElementById("englishFrameId").style.display = "none";
+                                                        html2canvas($(iframedoc).contents(),
+                                                        {
+                                                            onrendered: function (canvas) {
+                                                                var a = document.createElement('a');
+                                                                a.name = "englishA";
+                                                                // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+                                                                a.href = canvas.toDataURL("image/jpeg")
+                                                                    .replace("image/jpeg", "image/octet-stream");
+                                                                a.download = "EnglishForm-" + data[1] + '.jpg';
+                                                                //a.click();
+                                                                var base64 = canvas.toDataURL();
+                                                                $('#hiddenFieldEnglish').val(base64);
+                                                            }
+                                                        });
+                                                    },
+                                                        10);
+                                                    //alert("Please read downloaded forms carefully and upload these forms in Step3.");
+                                                }
+
+                                                if (data[4] != "" && data[4] != null) {
+
+                                                    iframe1.name = "persianFrame";
+                                                    iframe1.id = "persianFrameId";
+                                                    iframe1.width = "1200";
+                                                    $('body').append($(iframe1));
+                                                    setTimeout(function () {
+                                                        var iframedoc1 =
+                                                            iframe1.contentDocument || iframe1.contentWindow.document;
+                                                        $('body', $(iframedoc1)).html(data[4]);
+                                                        //document.getElementById("persianFrameId").style.display = "none";
+                                                        html2canvas($(iframedoc1).contents(),
+                                                        {
+                                                            onrendered: function (canvas) {
+                                                                var a = document.createElement('a');
+                                                                a.name = "persianA";
+                                                                // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+                                                                a.href = canvas.toDataURL("image/jpeg")
+                                                                    .replace("image/jpeg", "image/octet-stream");
+                                                                a.download = "PersianForm-" + data[1] + '.jpg';
+                                                                //a.click();
+                                                                var base64 = canvas.toDataURL();
+                                                                $('#hiddenFieldPersian').val(base64);
+                                                                //$('#btnDownloadKycForms').click();
+                                                            }
+                                                        });
+                                                    },
+                                                        10);
+                                                }
+
+                                                setTimeout(function () {
+                                                    document.getElementById("englishFrameId").style.display = "none";
+                                                    document.getElementById("persianFrameId").style.display = "none";
+                                                    $('#btnDownloadKycForms').click();
+                                                    @*"@{ customerController.SaveKycForm("",""); }"*@
+                                                    //var url = "/Customer/NewCustomerSignedForm?id=" + idVal;
+                                                    //window.location.href = url;
+                                                    //$("#cncLoaderMessage").append(data[1]);
+                                                    //$("#cncLoaderMessage").show();
+                                                }, 5000);
+
+                                                //------------------------------
+                                            } else {
+                                                $("#cncLoaderMessage").append(data[1]);
+                                                $("#cncLoaderMessage").show();
+                                            }
+                                        }
+
+                                        //End Form
+                                    } else if (data[2] == "Step3") {
+                                        document.getElementById("btnSaveInfoStep2").disabled = true;
+                                        var url = "/Customer/NewCustomerSignedForm?id=" + idVal;
+                                        window.location.href = url;
+                                    } else if (data[2] == "Step4") {
+                                        $("#cncLoaderMessage").append(data[1]);
+                                        $("#cncLoaderMessage").show();
+                                    }
+                                } else if (data[0] == "205") {
+                                    $('#divEmp').append(data[1]);
+                                    //document.getElementById('divEmp').appendChild(data[1]);
+                                } else if (data[0] == "206") {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-danger fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                                    window.scrollTo(0, 0);
+                                }else if(data[0]=="207"){
+                                    var url = "/Customer/NewCustomerSignedForm?id=" + idVal;
+                                    window.location.href = url;
+                                }
+                                else if (data[0] == "208") {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#cncLoaderMessage").append(data[1]);
+                                    $("#cncLoaderMessage").show();
+                                }
+                                else if (data[0] == "900") {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#cncLoaderMessage").append(data[1]);
+                                    $("#cncLoaderMessage").show();
+                                }
+                                else {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-danger fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                                    window.scrollTo(0, 0);
+                                }
+                            }
+                        }
+                    };
+                    xhr.send(new FormData(form));
+                }
+            }
+        }, isValid);
+
+        $('#dialog_instructions').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: '@localizationService.GetResource("Cnc.NewCardRequest(Step#2)", null, "New Card Request(Step #2)")',
+            buttons: [{
+                html: "<i class='fa fa-check'></i>&nbsp; Ok",
+                "class": "btn btn-success",
+                click: function () {
+                    $(this).dialog("close");
+                    $("#btnSaveInfoStep3").hide();
+                    $("#btnSaveInfoStep2").show();
+                    $("#btnSaveInfoStep2").click();
+                }
+            }]
+        });
+    });//Ready document
+
+    $("#txtCardPaidAmount").change(function () {
+        var amtFeeded = $("#txtCardPaidAmount").val();
+        amtFeeded = amtFeeded.replace(/,/g, "");
+        amtFeeded = Math.ceil(parseFloat(amtFeeded));
+        $("#txtCardPaidAmount").val("" + amtFeeded);
+    });
+    function ResetForm() {
+
+        document.getElementById("proofOfSourceOfFundsCl0").value = "";
+        document.getElementById("proofOfSourceOfFundsCl1").value = "";
+        document.getElementById("proofOfSourceOfFundsCl2").value = "";
+        document.getElementById("proofOfSourceOfFundsCl3").value = "";
+        document.getElementById("proofOfSourceOfFundsCl4").value = "";
+        document.getElementById("ProofOfAddressDocCutomer").value = "";
+
+    }
+
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+    function AjaxBegin() {
+        //alert("Begain");
+        $("#cncLoader").show();
+    }
+    function AjaxComplete(data) { }
+    function AjaxFailure(ajaxContext) {
+        // alert("AjaxFailure");
+        var response = ajaxContext.responseText;
+        alert("Error Code [" + ajaxContext.ErrorCode + "] " + response);
+    }
+
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        var isCust = $("#hfIsCustomer").val();
+        $('tbody tr').hover(function () {
+            $(this).toggleClass('clickable');
+        }).on('focusout', function (evt) {
+            var $cell = $(evt.target).closest('td');
+            if (isCust != null && isCust != "") {
+                if ($cell.index() == 2) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+                        var originalInUreo = $(this).find('td:eq(3)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        //var totalInIR = (originalInUreo * maxQtyVal); * @exchangeRate.Rate;
+                        $(this).find('td:eq(4)').text("" + totalInUreo);
+                        //  $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+                        calculateTotalInEU();
+                        calculateGrandTotalIR();
+                    } catch (err) {
+                    }
+                }
+            } else {
+                if ($cell.index() == 1) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+                        var originalInUreo = $(this).find('td:eq(2)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        //var totalInIR = (originalInUreo * maxQtyVal); * @exchangeRate.Rate;
+                        $(this).find('td:eq(3)').text("" + totalInUreo);
+                        //  $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+                        calculateTotalInEU();
+                        calculateGrandTotalIR();
+                    } catch (err) {
+                    }
+                }
+            }
+
+            // Calculate column totals
+            // calculateTotalInIR();
+
+        });
+        $('tbody tr').hover(function () {
+            $(this).toggleClass('clickable');
+        }).on('click', function (evt) {
+            //alert("YES");
+
+            var $cell = $(evt.target).closest('td');
+            if (isCust != null && isCust != "") {
+                if ($cell.index() == 2) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+
+                        var originalInUreo = $(this).find('td:eq(3)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        //var totalInIR = (originalInUreo * maxQtyVal); * @exchangeRate.Rate;
+                        $(this).find('td:eq(4)').text("" + totalInUreo);
+                        //  $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+                        calculateTotalInEU();
+                        calculateGrandTotalIR();
+                    } catch (err) {
+                    }
+                }
+            } else {
+                if ($cell.index() == 1) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+
+                        var originalInUreo = $(this).find('td:eq(2)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        //var totalInIR = (originalInUreo * maxQtyVal); * @exchangeRate.Rate;
+                        $(this).find('td:eq(3)').text("" + totalInUreo);
+                        //  $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+                        calculateTotalInEU();
+                        calculateGrandTotalIR();
+                    } catch (err) {
+                    }
+                }
+            }
+
+            // Calculate column totals
+            // calculateTotalInIR();
+
+
+        });
+    });
+
+    //** Calculate column total in Euro ** //
+    function calculateTotalInEU() {
+        try {
+            var sum = 0;
+            $(".feeEU").each(function () {
+                var excChangeRateCharges = parseFloat(@settingService.ExchangeRateServiceCharges);
+                var value = $(this).text();
+                // add only if the value is number && value != "0.00" && value!="0" && value != "undefined" value.length != 0
+                if (!isNaN(value) && value.length != 0 ) {
+                    sum += parseFloat(value);
+                    $("#hidTotalFeeEU").val(sum);
+                    $("#TotalFeeEU").text(sum.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+                    $("#TotalFeeIR").text((sum * parseFloat(@exchangeRate.Rate)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+                    if (sum == 0) {
+                        excChangeRateCharges = 0;
+                    }
+                    $("#ExchangeRateFeeIR").text((((sum * parseFloat(@exchangeRate.Rate)) / 100) * excChangeRateCharges).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+                    $("#TotalFeeToPayInIR").text(Math.ceil(((((sum * parseFloat(@exchangeRate.Rate)) / 100) * excChangeRateCharges) + (sum * parseFloat(@exchangeRate.Rate)))).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+                    $("#hidTotalFeeIR").text(Math.ceil((((sum * parseFloat(@exchangeRate.Rate)) / 100) * excChangeRateCharges) + (sum * parseFloat(@exchangeRate.Rate))));
+                }
+            });
+        }
+        catch (e) { }
+    }
+
+    //**  Calculate Grand total in customer's currency ** //
+    function calculateGrandTotalIR() {
+        try {
+            //parseFloat($("#hidTotalFeeInCustomerCurrency").val()) +
+            var gt = (parseFloat($("#hidTotalFeeEU").val())); //+ parseFloat($("#hidServiceChargesInCustomerCurrency").val())
+
+            $("#GrandTotal").text(gt.toFixed(2));
+            $("#hidGrandTotal").val(gt);
+        }
+        catch (e) { }
+    }
+    $("#sourcceOfFundType").change(function () {
+        var sourcceOfFundType = $("#sourcceOfFundType").find("option:selected").val();
+
+        if (sourcceOfFundType == 9) {
+            document.getElementById("OtherSourceofFunds").style.display = "";
+        } else { document.getElementById("OtherSourceofFunds").style.display = "none"; }
+    });
+</script>

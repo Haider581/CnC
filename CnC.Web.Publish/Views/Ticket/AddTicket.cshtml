@@ -1,0 +1,170 @@
+﻿@using CnC.Core;
+@using CnC.Core.Accounts;
+@using CnC.Service;
+@model  List<CnC.Core.Ticket>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Create Ticket";
+
+    HelpDeskService helpService = new HelpDeskService();
+    UserService Users = new UserService();
+    List<Role>
+        assignedStaff = Users.GetRoles();
+
+    List<QuickTicket>
+        quickTickets = helpService.GetQuickTickets();
+}
+<div id="content">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+                Tickets
+                <span>
+                    >
+                    @ViewBag.Title
+                </span>
+            </h1>
+        </div>
+
+    </div>
+    <section id="widget-grid" class="">
+
+        @using (Html.BeginForm("AddTicket", "Ticket", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+        {
+            <div class="table-responsive" id="divTable">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Quick Ticket</th>
+                        <td>
+                            @Html.DropDownList(
+                                                        "cmbQuickTicket",
+                                                        new SelectList(
+                                                        quickTickets.Select(x => new { Value = x.Id, Text = x.Name }),
+                                                        "Value",
+                                                        "Text"
+                                                        ), "--Select--", new { @class = "form-control" }
+                                                        )
+                        </td>
+                    </tr>
+                  
+                    <tr>
+                        <th>Priority</th>
+                        <td>
+                            @Html.DropDownList("cmbPriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), "--Select--", new { @class = "form-control" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Subject</th>
+                        <td>
+                            @Html.TextBox("txtSubject", null, new { @class = "form-control" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Comments</th>
+                        <td>
+                            @Html.TextArea("txtComments", new { @class = "form-control" })
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td>
+                            <div id="multiple">
+                                <input type="file" class="multiple" name="attachment" multiple="multiple" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button type="submit" class="btn btn-primary">Create Ticket</button>
+                        </td>
+                    </tr>
+                </table>
+                </div>
+                }
+</section>
+</div>
+
+@section pagespecific {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#cmbQuickTicket").change(function () {
+                var end = this.value;
+                if (end != null && end != "") {
+
+
+                    $.ajax({
+                        url: "/ticket/GetQuickDataById",
+                        data: {
+
+                            quickTicketId: end
+
+                        },
+                        success: function (response) {
+
+                            MakeTable(response);
+
+                        },
+                        error: function (error) {
+
+                            alert("error");
+
+                        }
+                    })
+
+
+                } else {
+                    $("#txtSubject").val('');
+                    $("#cmbPriority")[0].selectedIndex = 0;
+                    $("#cmbAssigned").removeAttr("disabled");
+                    $("#cmbPriority").removeAttr("disabled");
+                    $("#txtSubject").removeAttr('disabled', 'disabled');
+                }
+            }
+        );
+        });
+
+        $(function () {
+            debugger
+            if (window.FileReader != null) {
+                $('#single').hide();
+                $('.single').prop('disabled', true);
+            } else {
+                $('#multiple').hide();
+                $('.multiple').prop('disabled', true);
+            }
+        });
+
+        function showAdd() {
+
+            $("#showdata").show();
+        }
+        function hideData() {
+            $("#showdata").hide();
+        }
+
+        function ContactInfo(id) {
+            $.post('@Url.Action("Home","Userinfo")', { id: id });
+        }
+        function CheckData(e) {
+            var a = e.g
+            alert("ha");
+        }
+
+        function MakeTable(Data) {
+            var priority = Data.PriorityId;
+            var rollId = Data.rollId;
+            var subject = Data.Name;
+            $("#cmbPriority").val(priority);
+            $('#txtSubject').val(subject);
+
+            $("#cmbAssigned").attr('disabled', 'disabled');
+            $("#cmbPriority").attr('disabled', 'disabled');
+            $("#txtSubject").attr('disabled', 'disabled');
+        }
+    </script>
+}

@@ -1,0 +1,384 @@
+﻿@using CnC.Service
+@using CnC.Core.Common
+@model List<CurrencyRate>
+@{
+    ViewBag.Title = "Exchange Rates";
+    var exchangeRate = new ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CurrencyService().SystemCurrency;
+}
+<style>
+     .invalid {
+        color: red !important;
+    }
+
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    @*<section id="widget-grid" class="">
+            <h5>
+                Exchange Rate (@Html.Raw(systemCurrency.Code)) = <code>
+                    @exchangeRate.Rate @exchangeRate.Currency.Code
+                </code>
+            </h5>
+        </section>*@
+    <input type="hidden" id="hfCurrencyId" name="hfCurrencyId" />
+    <div id="dialogUpdateExchangeRate" title="Dialog failed">
+        <form class="smart-form" id="ChangeExchangeRate" name="ChangeExchangeRate" autocomplete="off">
+            <fieldset>
+                <div class="row">
+                    <section class="col col-6">
+                        <label class="label">New Exchange Rate</label>
+                        <label class="input">
+                            <label></label>
+                            @Html.TextBox("txtExchangeRate", null, new { @class = "form-control", placeholder = "New Exchange Rate" })
+                        </label>
+                    </section>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="dialogViewHistory" title="Dialog failed">
+        <fieldset>
+            <div class="row">
+
+                <h3 style="margin-left:20px;"><span id="currencyName"></span> (<span id="currencyCode"></span>)</h3>
+                <div id="dvTable" style="margin-left: 10px; margin-right: 10px;">
+
+                </div>
+
+            </div>
+        </fieldset>
+    </div>
+    <section id="widget-grid" class="">
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+                @*<div class="jarviswidget-ctrls" role="menu">
+                    <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div><div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li></ul></div>*@
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>Exchange Rates</h2>
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+            <!-- widget div-->
+            <div role="content">
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div class="widget-body" style="min-height: 10px;">
+                    System Currency: @Html.Raw(systemCurrency.Name) (@Html.Raw(systemCurrency.Code))
+                    <div id="cncLoaderMessage">
+                    </div>
+                    <div id="showMessage"> </div>
+                </div>
+                <!-- end widget content -->
+                @*<div class="widget-body no-padding">
+                        <div class="alert alert-success" id="msgPwd" style="display:none;">
+                        </div>
+                    </div>*@
+                <div class="alert alert-success" id="msgPwd" style="display:none;">
+                </div>
+                <div class="table-responsive">
+                    @if (Model != null)
+                    {
+                        <table class="table table-bordered table-striped table-hover" id="UserTable">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Currency</th>
+                                    <th>Exchange Rate</th>
+                                    <th>History</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    foreach (var exchangeRates in Model)
+                                    {
+
+                                        <tr>
+                                            <td>@exchangeRates.CurrencyId</td>
+                                            <td>@exchangeRates.Currency.Name</td>
+                                            <td>@exchangeRates.Rate @exchangeRates.Currency.Code</td>
+                                            <td><a onclick='ViewHistory("@exchangeRates.CurrencyId");' style="cursor:pointer">View</a></td>
+                                            <td><a onclick='UpdateExchangeRate("@exchangeRates.CurrencyId");' style="cursor:pointer" id="">Change</a></td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                                    }
+                                    else
+                                    {
+                                        <text>
+                                            <div class="alert alert-info">
+                                                <strong>Info!</strong> No users found.
+                                            </div>
+                                        </text>
+                                    }
+                </div>
+
+            </div>
+            
+        </div>
+    </section>
+</div>
+@section pagespecific {
+    <script>
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        function UpdateExchangeRate(CurrencyId) {
+            if (CurrencyId != "") {
+                $("#hfCurrencyId").val(CurrencyId);
+                $("#txtExchangeRate").val("");
+                $('#dialogUpdateExchangeRate').dialog('open');
+            }
+
+            return false;
+        }
+        function ViewHistory(CurrencyId) {
+            if (CurrencyId != "") {
+                $("#hfCurrencyId").val(CurrencyId);
+                //$("#txtExchangeRate").val("");
+                $('#dialogViewHistory').dialog('open');
+                GetExchangeRateHistory();
+            }
+
+            return false;
+        }
+
+        $('#dialogUpdateExchangeRate').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Change Exchange Rate",
+            buttons: [
+                {
+                    html: "Save",
+                    "class": "btn btn-warning",
+                    click: function () {
+                        var form = $('#ChangeExchangeRate');
+                        form.validate();
+                        if (!form.valid()) {
+                            return false;
+                        };
+                        PostNewExchangeRate();
+                    }
+                },
+                {
+                    html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(this).dialog("close");
+                        var validator = $("#ChangeExchangeRate").validate();
+                        validator.resetForm();
+                        $("#ChangeExchangeRate").find('.state-error,.input,.smart-form').removeClass('state-error');
+                    }
+                }
+            ]
+        });
+        $('#dialogViewHistory').dialog({
+            autoOpen: false,
+            width: 600,
+            resizable: false,
+            modal: true,
+            title: "Exchange Rate History",
+            buttons: [
+                {
+                    html: "<i class='fa fa-times'></i>&nbsp; Close",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+        function PostNewExchangeRate() {
+            $("#cncLoader").show();
+            var currencyId = $('#hfCurrencyId').val();
+            if (currencyId != "") {
+                var exchangeRate = $("#txtExchangeRate").val();
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("UpdateExchangeRate", "ExchangeRate")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { currencyId: currencyId, currencyRate: exchangeRate },
+                    dataType: "json",
+                    success: function (data) {
+                        $("#cncLoader").hide();
+                        //$("#msgPwd").html('<strong>Success!</strong> Exchange Rate has been changed successfully.');
+                        //$("#msgPwd").show();
+                        if (data[0] == "200") {
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+                        } else {
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                        $('#dialogUpdateExchangeRate').dialog('close')
+                    },
+                    error: function () {
+                        //$("#msgPwd").html('<strong>Fail!</strong> An error occured changing the Exchange Rate. Please try again.');
+                        //$("#msgPwd").show();
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+                        $('#dialogUpdateExchangeRate').dialog('close')
+                    }
+                });
+            } else {
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Missing required values. ");
+            }
+        }
+        function GetExchangeRateHistory() {
+            $("#cncLoader").show();
+            var currencyId = $('#hfCurrencyId').val();
+            if (currencyId != "") {
+                //var exchangeRate = $("#txtExchangeRate").val();
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("GetExchangeRateHistory", "ExchangeRate")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { currencyId: currencyId },
+                    dataType: "json",
+                    success: function (data) {
+                        $("#cncLoader").hide();
+                        if (data[0] == "200") {
+
+                            var customers = new Array();
+                            customers.push(["Date", "Exchange Rate"]);
+                            //alert(data[1][0].Currency.Name);
+                            $("#currencyName").html(data[1][0].Currency.Name);
+                            $("#currencyCode").html(data[1][0].Currency.Code);
+                            for (var i = 0; i < data[1].length; i++) {
+                                var src = data[1][i].CreatedOn;
+                                src = src.replace(/[^0-9 +]/g, '');
+                                var myDate = new Date(parseInt(src));
+
+                                //myDate.toLocaleString().replace('/','-').replace('/','-').replace(',','')
+                                //var convertedDate = myDate.toISOString().substring(0, 19).replace('T', ' ') + ' GMT';
+                                customers.push(["" + myDate.getFullYear() + "/" + (myDate.getMonth() + 1) + "/" + myDate.getDate() + " " + formatAMPM(myDate), data[1][i].Rate]);
+                                // $("#tblBalanceAndTransaction").find(tbody).append("<tr><td>" + data[1].PaymentTransactions[i].Amount + "</td><td>" + data[1].PaymentTransactions[i].Description + "</td><td>" + trans + "</td><td>" + apvode + "</td><td>" + convertedDate + "</td></tr>");
+                            }
+                            //------------
+                            //Build an array containing Customer records.
+
+
+
+                            //Create a HTML Table element.
+                            var table = document.createElement("TABLE");
+                            table.border = "1";
+                            table.id = "tblBalanceAndTransaction";//classList("");
+                            table.className = "table table-striped table-bordered";
+                            //Get the count of columns.
+                            var columnCount = customers[0].length;
+
+                            //Add the header row.
+                            var row = table.insertRow(-1);
+                            for (var i = 0; i < columnCount; i++) {
+                                var headerCell = document.createElement("TH");
+                                headerCell.innerHTML = customers[0][i];
+                                row.appendChild(headerCell);
+                            }
+
+                            //Add the data rows.
+                            for (var i = 1; i < customers.length; i++) {
+                                row = table.insertRow(-1);
+                                for (var j = 0; j < columnCount; j++) {
+                                    var cell = row.insertCell(-1);
+                                    cell.innerHTML = customers[i][j];
+                                }
+                            }
+
+                            var dvTable = document.getElementById("dvTable");
+                            dvTable.innerHTML = "";
+                            dvTable.appendChild(table);
+
+
+                        } else {
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                        $('#dialogUpdateExchangeRate').dialog('close')
+                    },
+                    error: function () {
+                        //$("#msgPwd").html('<strong>Fail!</strong> An error occured changing the Exchange Rate. Please try again.');
+                        //$("#msgPwd").show();
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+                        $('#dialogUpdateExchangeRate').dialog('close')
+                    }
+                });
+            } else {
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Missing required values. ");
+            }
+        }
+        function formatAMPM(date) {
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            var strTime = hours + ':' + minutes + ' ' + ampm;
+            return strTime;
+        }
+    </script>
+    <script>
+        // submit form data
+        // Wait for the DOM to be ready
+        $(function () {           
+            $("form[name='ChangeExchangeRate']").validate({
+                rules: {                   
+                    txtExchangeRate: {
+                        required: true,                       
+                        maxlength: 9,
+                        number: true,
+                    }
+                   
+                },
+                messages: {
+                    txtExchangeRate: {
+                        required: "Exchange Rate is required"
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+
+

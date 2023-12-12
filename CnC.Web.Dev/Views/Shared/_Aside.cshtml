@@ -1,0 +1,120 @@
+﻿@using CnC.Core.Accounts
+<!-- Left panel : Navigation area -->
+<!-- Note: This width of the aside area can be adjusted through LESS variables -->
+
+@using CnC.Service
+@using CnC.Core.Customers;
+@{
+    var cust = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (cust == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(cust.LanguageId);
+    }
+}
+
+<aside id="left-panel">
+
+    @{ Html.RenderPartial("_CurrentUser"); }
+
+    <nav>
+        <ul style="display: block;">
+            @{
+                List<CnCAction> cncActions = Session["UserActions"] as List<CnCAction>;
+                if (cncActions != null && cncActions.Count > 0)
+                {
+                    var i = 1;
+                    foreach (var action in cncActions)
+                    {
+                        if (action.IsAllowed && (action.ShowInMenu || action.ShowInTab))
+                        {
+
+                            <li class="">
+                                @if (string.IsNullOrEmpty(action.ActionName) || string.IsNullOrEmpty(action.ControllerName)
+|| (action.SubActions != null && action.SubActions.Count > 0))
+                                {
+                                    <a href="#">
+                                        <i class="fa fa-lg fa-fw fa-table"></i>
+                                        <span class="menu-item-parent">@localizationService.GetResource(action.DisplayName, null, action.DisplayName)</span>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action(action.ActionName, action.ControllerName)">
+                                        <i class="fa fa-lg fa-fw fa-table"></i>
+                                        <span class="menu-item-parent">@localizationService.GetResource(action.DisplayName, null, action.DisplayName)</span>
+                                    </a>
+                                }
+                                @if (action.SubActions != null && action.SubActions.Count > 0)
+                                {
+                                    var subUL = "#left-panel > nav > ul > li:nth-child(" + i + ") > ul";
+                                    i = i + 1;
+                                    <ul class="subul" id="@subUL">
+                                        @foreach (var actionLevel2 in action.SubActions)
+                                        {
+                                            if (actionLevel2.IsAllowed && (actionLevel2.ShowInMenu || actionLevel2.ShowInTab))
+                                            {
+                                                <li>
+                                                    @if (string.IsNullOrEmpty(actionLevel2.ActionName)
+|| string.IsNullOrEmpty(actionLevel2.ControllerName)
+|| (actionLevel2.SubActions != null && actionLevel2.SubActions.Count > 0))
+                                                    {
+                                                        <a href="#">
+                                                            <span>@localizationService.GetResource(actionLevel2.DisplayName, null, actionLevel2.DisplayName)</span>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@Url.Action(actionLevel2.ActionName, actionLevel2.ControllerName)">
+                                                            <span>@localizationService.GetResource(actionLevel2.DisplayName, null, actionLevel2.DisplayName)</span>
+                                                        </a>
+                                                    }
+
+                                                    @if (actionLevel2.SubActions != null && actionLevel2.SubActions.Count > 0)
+                                                    {
+                                                        <ul style="display: block;">
+                                                            @foreach (var actionLevel3 in actionLevel2.SubActions)
+                                                            {
+                                                                if (actionLevel3.IsAllowed
+                                                                    && (actionLevel3.ShowInMenu || actionLevel3.ShowInTab))
+                                                                {
+                                                                    <li>
+                                                                        @if (string.IsNullOrEmpty(actionLevel3.ActionName)
+|| string.IsNullOrEmpty(actionLevel3.ControllerName))
+                                                                        {
+                                                                            // Do nothing
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="@Url.Action(actionLevel3.ActionName, actionLevel3.ControllerName)">
+                                                                                <span>@localizationService.GetResource(actionLevel3.DisplayName, null, actionLevel3.DisplayName)</span>
+                                                                            </a>
+                                                                        }
+
+                                                                    </li>
+                                                                }
+                                                            }
+                                                        </ul>
+                                                    }
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                }
+                            </li>
+                        }
+                    }
+                }
+            }
+            }
+        </ul>
+    </nav>
+    <span class="minifyme" data-action="minifyMenu">
+        <i class="fa fa-arrow-circle-left hit"></i>
+    </span>
+
+</aside>

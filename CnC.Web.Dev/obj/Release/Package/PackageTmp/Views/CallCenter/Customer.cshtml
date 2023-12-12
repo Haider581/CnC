@@ -1,0 +1,172 @@
+﻿@model IEnumerable<CnC.Core.Customers.Customer>
+@using CnC.Web.Helper;
+@{
+    ViewBag.Title = "Customer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Call Center</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Customer</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+                                <fieldset>
+                                    @{ Html.RenderPartial("_CallCenterSearch", new CnC.Core.Customers.Customer());}
+                                    <div class="row" style="padding-bottom:20px;">
+                                        <div class="col-sm-12">
+                                            @{Html.RenderPartial("_SearchButtons");}
+
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                                                if (Model != null && Model.Count() > 0)
+                                                {
+                                                    <div class="table-responsive" style="overflow-x: hidden">
+                                                        <table class="table table-bordered">
+                                                            <tr>
+
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("First Name")
+                                                                </th>
+                                                                <th class="col-xs-3">
+                                                                    @Html.DisplayName("Last Name")
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("NIC")
+                                                                </th>
+                                                                <th class="col-xs-3">
+                                                                    @Html.DisplayName("Passport#")
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.User.Email)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("Contact #")
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("DOB")
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("Address")
+                                                                </th>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayName("Security Question")
+                                                                </th>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayName("Answer")
+                                                                </th>
+                                                                <th></th>
+                                                            </tr>
+
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+
+                                                                    <td class="wraptext">
+                                                                        @Html.DisplayFor(modelItem => item.User.FirstName)
+                                                                    </td>
+                                                                    <td class="wraptext">
+                                                                        @Html.DisplayFor(modelItem => item.User.LastName)
+                                                                    </td>
+                                                                    <td class="wraptext">
+                                                                        @Html.DisplayFor(modelItem => item.NIC)
+                                                                    </td>
+                                                                    <td class="wraptext">
+                                                                        @Html.DisplayFor(modelItem => item.PassportNo)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.User.Email)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.ContactNo)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.DateOfBirth)
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Address)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.SecurityQuestion)
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Answer)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.ActionLink("Cards", "CustomerCardsDetails" new { customerId = new Utility().UrlSafeEncrypt(item.Id.ToString()) })|
+                                                                        @Html.ActionLink("Card Request", "CustomerCardRequestDetails", new { customerId = new Utility().UrlSafeEncrypt(item.Id.ToString()) }) |
+                                                                        @Html.ActionLink("TopUp Request", "CustomerTopUpDetails", new { customerId = new Utility().UrlSafeEncrypt(item.Id.ToString()) })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </table>
+                                                    </div>
+                                                    }
+                                                }
+                            @*else
+                                {
+                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                        <button class="close" data-dismiss="alert">×</button>
+                                        <i class="fa-fw fa fa-cube"></i>
+                                        <strong>Sorry! </strong> No Records Found
+                                    </div>
+                                }*@
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>

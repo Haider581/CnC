@@ -1,0 +1,104 @@
+﻿@using CnC.Web.Models
+@using BotDetect.Web.Mvc;
+@using System.Configuration;
+@*@using reCAPTCHA.MVC*@
+@model LoginViewModel
+@{
+    ViewBag.Title = "Log in";
+    Layout = null;
+}
+<!-- FAVICONS -->
+<link rel="shortcut icon" href="~/content/img/favicon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="~/content/img/favicon/favicon.ico" type="image/x-icon">
+<title>Use Card Services: Login</title>
+<style>
+    /*.field-validation-error {
+    display: inline !important;
+    float: none !important;
+    color:red !important;
+    }
+    #myform > div:nth-child(4) > span {
+    display:inline !important;
+    float:none !important;
+    }*/
+</style>
+<link href="~/Content/css/loginstyle.css" rel="stylesheet" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400,700">
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/Validation/login.js"></script>
+@*<script src='https://www.google.com/recaptcha/api.js'></script>*@
+<style>
+    .error {
+        color: red;
+    }
+
+    #CaptchaCode {
+        width: 290px !important;
+    }
+</style>
+<div id="login">
+    <h4 style="color:white;text-align:center;">
+        Welcome to Use Card Services
+    </h4>
+
+    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }
+            , FormMethod.Post, new { role = "form", id = "myform", name = "myform" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div style="width:288px;">
+            <span class="fontawesome-user"></span>
+
+            @Html.TextBoxFor(m => m.Username, new { @placeholder = "Username", @id = "txtUserName" })
+
+        </div>
+        <div style="width:288px;">
+            <span class="fontawesome-lock"></span>
+            @Html.PasswordFor(m => m.Password, new { placeholder = "Password" })
+
+        </div>
+
+        string isCaptchaValidationActive = ConfigurationManager.AppSettings["IsCaptchaValidationActive"];
+        if (isCaptchaValidationActive == "1")
+        {
+            MvcCaptcha captchaLogin = new MvcCaptcha("CaptchaLogin");
+            @Html.Captcha(captchaLogin)
+            @Html.TextBox("CaptchaCode")
+            <br />
+            <div style="color:red; margin-bottom:5px;">@ViewBag.capchaMessage</div>
+        }
+
+        <input type="submit" value="Log in" name="btnPost" />
+        <div class="note" style="margin-top:10px; color:white!important">
+            @Html.ActionLink("Forgot password?", "ForgotPassword", "Customer", null, new { @style = "color:white;" })
+            @Html.ActionLink("Signup", "Signup", "Customer", null, new { @style = "color:white; float:right;" })
+
+        </div>
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    }
+
+    <p style="color:white;text-align:center;">
+        Note: Best recommended browser for this application is google chrome
+    </p>
+</div>
+
+@section Scripts {
+
+}
+<script>
+    $(document).ready(function () {
+        var correctCaptcha = function (response) {
+        };
+    });
+    window.onload = function () {
+        var input = document.getElementById("txtUserName").focus();
+    }
+    var verifyCallback = function (response) {
+        alert("grecaptcha is ready!");
+    };
+
+    var expiredCallback = function () {
+        alert("grecaptcha is expired!");
+    };
+</script>

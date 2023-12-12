@@ -1,0 +1,122 @@
+﻿@using CnC.Core
+@using System.Web.UI.WebControls
+@using CnC.Service
+@using CnC.Core.Customers
+@{
+    ViewBag.Title = "Customers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var grid = new WebGrid(Model, canSort: false, canPage: false);
+    var cust = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(cust.LanguageId);
+}
+
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>@localizationService.GetResource("Cnc.TboAgent", null, "Tbo Agent")</li>
+    <li>@localizationService.GetResource("Customers", null, "Customers")</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <div class="row">
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-5">
+            <h1 class="page-title txt-color-blueDark"><i class="fa-fw fa fa-home"></i> @localizationService.GetResource("Cnc.TboAgent", null, "Tbo Agent") <span>> @localizationService.GetResource("Customers", null, "Customers")</span></h1>
+        </div>
+    </div>
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget jarviswidget-color-blueDark" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <!-- widget options:
+                    usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+                    data-widget-colorbutton="false"
+                    data-widget-editbutton="false"
+                    data-widget-togglebutton="false"
+                    data-widget-deletebutton="false"
+                    data-widget-fullscreenbutton="false"
+                    data-widget-custombutton="false"
+                    data-widget-collapsed="true"
+                    data-widget-sortable="false"
+                    -->
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource("Customers", null, "Customers")</h2>
+
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @if (Model != null)
+                            {
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>@localizationService.GetResource("Cnc.Id", null, "Id")</th>
+                                            <th>@localizationService.GetResource("Cnc.UserId", null, "User Id")</th>
+                                            <th>@localizationService.GetResource("Cnc.Gender", null, "Gender")</th>
+                                            <th>@localizationService.GetResource("Cnc.UserId", null, "User Id")</th>
+                                            <th>@localizationService.GetResource("Cnc.NIC", null, "NIC")</th>
+                                            <th>@localizationService.GetResource("Cnc.Passport#", null, "Passport #")</th>
+                                            <th>@localizationService.GetResource("Cnc.Nationality", null, "Nationality")</th>
+                                            <th>@localizationService.GetResource("Cnc.Address", null, "Address")</th>
+                                            <th>@localizationService.GetResource("Cnc.Details", null, "Details")</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <text>
+                                                <tr>
+                                                    <td>@item.Id </td>
+                                                    <td>@item.UserId</td>
+                                                    <td>@item.GenderId</td>
+                                                    <td>@item.MaritalStatusId </td>
+                                                    <td>@item.NIC</td>
+                                                    <td>@item.PassportNo</td>
+                                                    <td>@item.Nationality</td>
+                                                    <td>@item.Address</td>
+                                                    <td><a class="btn btn-default btn-xs" value="@item.Id">@localizationService.GetResource("Cnc.ViewDetails", null, "View Details")</a></td>
+                                                </tr>
+                                            </text>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <text>
+                                    <div class="alert alert-info">
+                                        <strong>@localizationService.GetResource("Cnc.Info")!</strong> @localizationService.GetResource("Cnc.NoCustomerFound", null, "No Customer Found").
+                                    </div>
+                                </text>
+                            }
+
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->

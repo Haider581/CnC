@@ -1,0 +1,689 @@
+﻿@using CC.Core
+@using System.Web.UI.WebControls
+@using CC.Service
+@{
+    ViewBag.Title = "New KYC Form";
+    var commonService = new CnC.Helper.Utility();
+    var jsonCountries = commonService.GetCountries();
+    var commonController = new CnC.Controllers.CommonController();
+    var countries = commonController.GetCountries();
+    var exchangeRate = new CC.Service.ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CC.Service.CurrencyService().SystemCurrency;
+    // for get view
+    CardService cardService = new CardService();
+    var cardTypes = cardService.GetCardTypes();
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/Jalali/jalali.js"></script>
+<script src="~/Scripts/Jalali/calendar.js"></script>
+<script src="~/Scripts/Jalali/calendar-setup.js"></script>
+<script src="~/Scripts/Jalali/lang/calendar-fa.js"></script>
+<div id="content">
+    <!-- breadcrumb -->
+    <ol class="breadcrumb" style="text-transform: uppercase;">
+         @*<li>@User.Identity.Name.ToLower()</li>*@
+        <li> ViewBag.Title</li>
+    </ol>
+    <section id="widget-grid" class="">
+
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+                @*<div class="jarviswidget-ctrls" role="menu">
+                    <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div><div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li></ul></div>*@
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>New Customer Registration</h2>
+                @*<span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>*@
+            </header>
+            <!-- widget div-->
+            <div role="content">
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div id="divEmp" class="widget-body no-padding">
+                      @*<div id="cncLoader"></div>*@
+                    <div id="cncLoaderMessage">
+                        @*<span id="spanSuccess" class="spanSuccessColor"><span id="completeSpan" class="text-center text-success spanSuccessColor"><strong><i class='fa fa-check fa-lg'></i> Complete</strong></span><br />KYC form has been saved successfully!<br /><a id="lkGoBack" style="font-size: 14px;" class="spanSuccessColor" href="@Url.Action("NewKYCFormInCustomerLanguage","Customer")">Go back</a></span>*@
+                    </div>
+                    <div id="showMessage"> </div>
+                    @using (Ajax.BeginForm("NewCustomer", "Customer",
+new AjaxOptions
+{
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = "showMessage",
+    OnFailure = "AjaxFailure",
+    //OnSuccess = "onSuccess",
+    OnBegin = "AjaxBegin",
+    OnComplete = "AjaxComplete"
+
+}, new { @id = "NewCustomerForm", @name = "NewCustomerForm", @class = "smart-form", role = "form", enctype = "multipart/form-data" }))
+                    {
+@Html.AntiForgeryToken()
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+
+            <!-- Personal Details - start -->
+                        <header>Personal Detail</header>
+                        <fieldset>
+                            <div class="row">
+                                <div class="col col-lg-12">
+                                    <div class="row">
+                                        <section class="col col-6">
+                                            <label class="label">First Name</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtEngFirstName", "", new { placeholder = "Please Enter in English" })
+                                            </label>
+                                        </section>
+                                        <section class="col col-6">
+                                            <label class="label" style="text-align:right">نام</label>
+                                            <label class="input">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                @Html.TextBox("txtPerFirstName", "", new { Lang = "fa-IR", placeholder = "Please Enter in Persian" })
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6">
+                                            <label class="label">Last Name</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtEngLastName", "", new { placeholder = "Please Enter in English" })
+                                            </label>
+                                        </section>
+                                        <section class="col col-6">
+                                            <label class="label" style="text-align:right">نام خانوادگی</label>
+                                            <label class="input">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                @Html.TextBox("txtPerLastName", "", new { Lang = "fa-IR", placeholder = "Please Enter in Persian" })
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6" title="English">
+                                            <label class="label">Date Of Birth</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-calendar"></i>
+                                                @Html.TextBox("txtEngDateOfBirth", null, new { @class = "datepicker", @placeholder = "Please Enter in English", @readonly = "true" })
+                                            </label>
+                                        </section>
+                                        <section class="col col-6" title="Persian">
+                                            <label class="label" style="text-align:right">تاریخ تولد</label>
+                                            <label class="input">
+                                                <i class="icon-append fa fa-calendar"></i>
+                                                <input type="hidden" id="hfPerDateOfBirth" name="hfPerDateOfBirth" value="" />
+                                                @*<input id="txtPerDateOfBirth" type="text" Lang="fa-IR" />*@
+                                                @Html.TextBox("txtPerDateOfBirth", null, new { Lang = "fa-IR", @placeholder = "Please Enter in Persian" })
+                                                @*<img id="date_btn_1" src="~/Content/skins/aqua/cal.png" style="vertical-align: top;" />*@
+                                                <script type="text/javascript">
+
+                                                    Calendar.setup({
+                                                        inputField: "txtPerDateOfBirth",   // id of the input field
+                                                        button: "date_btn_1",   // trigger for the calendar (button ID)
+                                                        ifFormat: "%Y-%m-%d",       // format of the input field
+                                                        dateType: 'jalali',
+                                                        langNumbers: true,
+                                                        weekNumbers: false
+                                                    });
+                                                </script>
+                                                @*@Html.TextBox("txtPerDateOfBirth", null, new { @class = "datepicker", @placeholder = "Please Enter in Persain", @readonly = "true" })*@
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6" title="English">
+                                            <label class="label">Address</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtEngAddress", null, new { @placeholder = "Please Enter in English" })
+                                            </label>
+                                        </section>
+                                        <section class="col col-6" title="Persian">
+                                            <label class="label" style="text-align:right">ادرس</label>
+                                            <label class="input">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                @Html.TextBox("txtPerAddress", null, new { Lang = "fa-IR", @placeholder = "Please Enter in Persain" })
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6" title="English">
+                                            <label class="label">Address 2</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtEngAddress2", null, new { @placeholder = "Please Enter in English" })
+                                            </label>
+                                        </section>
+                                        <section class="col col-6" title="Persian">
+                                            <label class="label" style="text-align:right">ادرس 2</label>
+                                            <label class="input">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                @Html.TextBox("txtPerAddress2", null, new { Lang = "fa-IR", @placeholder = "Please Enter in Persain" })
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6">
+                                            <label class="label">Gender</label>
+                                            <label class="select">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                @Html.DropDownList("ddlGender", EnumHelper.GetSelectList(typeof(Gender)), " -Please Select- ")
+                                            </label>
+                                        </section>
+                                        <section class="col col-6">
+                                            <label class="label">Marital Status</label>
+                                            <label class="select">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                @Html.DropDownList("ddlMaritalStatus", EnumHelper.GetSelectList(typeof(MaritalStatus)), " -Please Select- ")
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6">
+                                            <label class="label">NIC</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtNIC")
+                                            </label>
+                                        </section>
+                                        <section class="col col-6">
+                                            <label class="label">Passport No.</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtPassportNo")
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6">
+                                            <label class="label">Nationality</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtNationality")
+                                            </label>
+                                        </section>
+                                        <section class="col col-6">
+                                            <label class="label">Postal Code</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtPostalCode")
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6">
+                                            <label class="label">Country</label>
+                                            <label class="select">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                @Html.DropDownList("ddlCountry", new SelectList(countries, "Id", "Name"), "- Please Select -")
+                                            </label>
+                                        </section>
+                                        <section class="col col-6">
+                                            <label class="label">City</label>
+                                            <label class="select">
+                                                <i class="icon-append fa fa-comment"></i>
+                                                <select class="form-control" id="ddlCity" name="ddlCity">
+                                                    @*<option>- Please Select Country -</option>*@
+                                                </select>
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        <section class="col col-6">
+                                            <label class="label">Email</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-envelope-o"></i>
+                                                @Html.TextBox("txtEmail")
+                                            </label>
+                                        </section>
+                                        <section class="col col-6">
+                                            <label class="label">Contact No.</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-comment"></i>
+                                                @Html.TextBox("txtContactNo")
+                                            </label>
+                                        </section>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+            <!-- Personal Details - end -->
+
+            <!-- Cards - start -->
+                        <header>Cards</header>
+                        <fieldset>
+                            <div>
+                                <label class="label label-info" id="lblTopupExchangeRate">
+                                    @*<span>Exchange Rate 1</span>@Html.Raw(systemCurrency.Code)= <label>@exchangeRate.Rate @exchangeRate.Currency.Code</label>*@
+                                </label>
+                                <p class="text-danger">
+                                    Step 1: Enter quantity for the Card type Customer wants to buy
+                                </p>
+                                <p class="text-danger">
+                                    Step 2: Total Fee to pay in IR will be calculated in shown under grid
+                                </p>
+                                <p class="text-danger">
+                                    Step 3: It is assumed that Customer provided information has already been validated and Cards fee paid
+                                </p>
+                                <p class="text-danger">
+                                    Note: Card policy will apply
+                                </p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Qty</th>
+                                            <th>Fee</th>
+                                            <th>Total Fee (&#163;)</th>
+                                            @*<th>Total Fee (IR)</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            if (cardTypes != null)
+                                            {
+                                                foreach (var item in cardTypes)
+                                                {
+                                                    var listItems = new List<ListItem>();
+                                                    for (int i = 0; i <= item.MaxQuantity; i++)
+                                                    {
+                                                        listItems.Add(new ListItem() { Text = "" + i, Value = "" + i });
+                                                    }
+                                        <text>
+                                            <tr>
+                                                <td>
+                                                    @item.Name<input type="hidden" id="CardName" name="CardName" value="@item.Name" />
+                                                    <input type="hidden" id="cardId" name="cardId" value="@item.Id" />
+                                                </td>
+                                                <td>
+                                                    <label class="select">
+                                                        <i class="icon-append fa fa-tag"></i>
+                                                        @Html.DropDownList("CardQty", new SelectList(listItems, "Value", "Text"))
+                                                    </label>
+                                                </td>
+                                                <td>@item.Fee</td>
+                                                <td class="feeEU">0.00</td>
+                                            </tr>
+                                        </text>
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            Total Fee (&#163;): <label id="TotalFeeEU"></label>
+                            <input type="hidden" id="hidTotalFeeEU" name="hidTotalFeeEU" />
+                            <br />
+                            @*Total Fee (IR): <label id="TotalFeeInCustomerCurrency"></label>
+                                <input type="hidden" id="hidTotalFeeInCustomerCurrency" name="hidTotalFeeInCustomerCurrency" />
+                                <br />*@
+                            @*Service Charges: <label id="ServiceChargesInCustomerCurrency">100</label>
+                            <input type="hidden" id="hidServiceChargesInCustomerCurrency" value="100" name="hidServiceChargesInCustomerCurrency" />*@
+                            <br />
+                            Total Fee To Pay: <label id="GrandTotal">0</label>
+                            <input type="hidden" id="hidGrandTotal" name="hidGrandTotal" />
+                        </fieldset>
+            <!-- Cards - end-->
+                          <!--CustomerSignedCopy  Documents - start -->
+                                            <header>Attach Customer Signed Copy, only in png/jpg/jpeg format, file size maximum 1MB </header>
+                                            <fieldset>
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">Customer Signed Copy (English)</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" placeholder="Attach Customer Signed English Copy" name="CustomerSignedCopy" id="CustomerSignedCopy" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forCustomerSignedCopyError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>
+                                                        </label>
+                                                    </section>
+                                                </div>
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">Customer Signed Copy (Persian)</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-file-image-o"></i>
+                                                            <input class="checkFileType" readonly="readonly" type="File" placeholder="Attach Customer Signed Persian Copy" name="customerSignedCopyCl" id="customerSignedCopyCl" value="Browse" accept="image/jpeg, image/png" />
+                                                            <em id="forCustomerSignedCopyError" style="display:none" class="invalid">Only Image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>
+                                                        </label>
+                                                    </section>
+                                                </div>
+                                            </fieldset>
+                         <!-- end  CustomerSignedCopy -->
+                            <!-- Documents - start -->
+                                            <header>Attach Customer Documents, English, only in png/jpg/jpeg format, file size maximum 1MB</header>
+                                            <fieldset>
+                                                    <div class="row">
+                                                        <section class="col col-6">
+                                                            <label class="label">NIC, Scanned Copy (English)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="NICDoc" id="NICDoc" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forNICDocError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>
+                                                            </label>
+                                                        </section>
+                                                        <section class="col col-6">
+                                                            <label class="label">Proof Of Address, Scanned Copy (English)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="ProofOfAddressDoc" id="ProofOfAddressDoc" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forProofOfAddressDocError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>                                                                
+                                                            </label>
+                                                        </section>
+                                                    </div>
+                                                                                                        
+                                                    <div class="row">
+                                                        <section class="col col-6">
+                                                            <label class="label">Passport, Scanned Copy (English)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="PassportDoc" id="PassportDoc" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forPassportDocError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>                                                                
+                                                            </label>
+                                                        </section>
+                                                        <section class="col col-6">
+                                                            <label class="label">Source Of Funds Proof, Scanned Copy (English)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFunds[0]" id="proofOfSourceOfFunds0" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFunds[1]" id="proofOfSourceOfFunds1" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFunds[2]" id="proofOfSourceOfFunds2" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFunds[3]" id="proofOfSourceOfFunds3" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFunds[4]" id="proofOfSourceOfFunds4" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forProofOfSourceOfFundsFormatError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>                                                                
+                                                            </label>
+                                                        </section>
+                                                    </div>
+                                            </fieldset>
+                            <!-- Documents - end -->
+                            <!-- Customer Language Documents - start -->
+                                            <header>Attach Customer Documents, Persian, only in png/jpg/jpeg format, file size maximum 1MB</header>
+                                            <fieldset>
+                                                    <div class="row">
+                                                        <section class="col col-6">
+                                                            <label class="label">NIC, Scanned Copy (Persian)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="NICDocCustomer" id="NICDocCustomer" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forNICDocCustomerError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>                                                                
+                                                            </label>
+                                                        </section>
+                                                        <section class="col col-6">
+                                                            <label class="label">Proof Of Address, Scanned Copy (Persian)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfAddressDocCutomer" id="proofOfAddressDocCutomer" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forproofOfAddressDocCutomerError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>
+                                                            </label>
+                                                        </section>
+                                                    </div>
+                                                    
+                                                    <div class="row">
+                                                        <section class="col col-6">
+                                                            <label class="label">Passport, Scanned Copy (Persian)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="PassportDocCustomer" id="PassportDocCustomer" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forPassportDocCustomerError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>                                                                
+                                                            </label>
+                                                        </section>
+                                                        <section class="col col-6">
+                                                            <label class="label">Source Of Funds Proof, Scanned Copy (Persian)</label>
+                                                            <label class="input">
+                                                                <i class="icon-append fa fa-file-image-o"></i>
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl0" id="proofOfSourceOfFundsCl0" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[1]" id="proofOfSourceOfFundsCl1" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[2]" id="proofOfSourceOfFundsCl2" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[3]" id="proofOfSourceOfFundsCl3" value="Browse" accept="image/jpeg, image/png" />
+                                                                <input class="checkFileType" readonly="readonly" type="File" name="proofOfSourceOfFundsCl[4]" id="proofOfSourceOfFundsCl4" value="Browse" accept="image/jpeg, image/png" />
+                                                                <em id="forProofOfSourceOfFundsCustomerError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>                                                                
+                                                            </label>
+                                                        </section>
+                                                    </div>                                                    
+                                            </fieldset>
+                            <!-- Documents - end -->
+                            <!-- Submit button - start -->
+                                            <footer>
+                                                <button type="submit" name="btnSearch" id="btnSearch" class="btn btn-primary">Register</button>
+                                            </footer>
+
+                                            <div class="message">
+                                                <i class="fa fa-thumbs-up"></i>
+                                                <p>Your data has been saved</p>
+                                            </div>
+                            <!-- Submit button - end -->
+                                            }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+    <script src="~/Scripts/FarsiType.js"></script>
+    <link href="~/Content/skins/aqua/theme.css" rel="stylesheet" />
+    @*<script src="~/Scripts/Jalali/jalali.js"></script>
+        <script src="~/Scripts/Jalali/calendar.js"></script>
+        <script src="~/Scripts/Jalali/calendar-setup.js"></script>
+        <script src="~/Scripts/Jalali/lang/calendar-fa.js"></script>*@
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/Customer/NewKYCFormInCustomerLanguage.js"></script>
+}
+<script>
+    $(document).ready(function () {
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+
+        window.addEventListener("submit", function (e) {
+            CheckIsValid();
+            var form = $('#NewCustomerForm');
+            //$.validator.unobtrusive.parse(form);
+            form.validate();
+            if (!form.valid()) { return false; };
+            $("#cncLoader").show();
+            var form = e.target;
+            if (form.getAttribute("enctype") === "multipart/form-data") {
+                if (form.dataset.ajax) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    var xhr = new XMLHttpRequest();
+                    xhr.open(form.method, form.action);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            //if (form.dataset.ajaxUpdate) {
+                            //var updateTarget = document.querySelector(form.dataset.ajaxUpdate);
+                            //if (updateTarget) {
+                            //updateTarget.innerHTML = xhr.responseText;
+                            var data = JSON.parse(xhr.responseText);
+                            $("#cncLoader").hide();
+                            if (data.length > 0) {
+                                if (data[0] == "100") {
+                                    $("#cncLoaderMessage").append(data[1]);
+                                    $("#cncLoaderMessage").show();
+
+                                } else {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-danger fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                                }
+                            }
+                            //}
+                            //}
+                        }
+                    };
+                    xhr.send(new FormData(form));
+                }
+            }
+        }, true);
+
+
+
+    });//Ready document
+
+
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+    function AjaxBegin() {
+        //alert("Begain");
+        $("#cncLoader").show();
+
+
+    }
+    function AjaxComplete(data) {
+        $("#cncLoader").hide();
+        if (data.statusText == "OK") {
+            if (data.responseJSON[0] == "100") {
+                $("#cncLoaderMessage").append(data.responseJSON[1]);
+                $("#cncLoaderMessage").show();
+
+            } else {
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' data-dismiss='alert'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data.responseJSON[1] + "'");
+            }
+        }
+
+        //data.status
+        //200
+        //data.statusText
+        //"OK"
+        //data.responseText
+        //""this is json result""
+
+
+
+    }
+    function AjaxFailure(ajaxContext) {
+        // alert("AjaxFailure");
+        var response = ajaxContext.responseText;
+        alert("Error Code [" + ajaxContext.ErrorCode + "] " + response);
+    }
+
+    $("#ddlCountry").change(function () {
+        //var dobPer = $("#txtPerDateOfBirth").val();
+        //$("#hfPerDateOfBirth").val(dobPer);
+        var id = $("#ddlCountry").val();
+        if (id != "") {
+            CheckIsValid();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCities", "Common")',
+                contentType: "application/json; charset=utf-8",
+                data: { countryId: id },
+                dataType: "json",
+                success: function (data) {
+                    var cmbCity = $('#ddlCity');
+                    cmbCity.empty();
+                    cmbCity.append($('<option></option>').val("-1").html("- Please Select -"));
+                    $.each(data,
+                        function (i) {
+
+                            cmbCity.append($('<option></option>').val(data[i].Id).html(data[i].Name)
+                            );
+                        });
+                }
+            });
+        } else {
+            var cmbCity = $('#CityDDL');
+            cmbCity.empty();
+            cmbCity.append($('<option></option>').val("0").html("Select City"));
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        $('tbody tr').hover(function () {
+            $(this).toggleClass('clickable');
+        }).on('click', function (evt) {
+
+            var $cell = $(evt.target).closest('td');
+            if ($cell.index() == 1) {
+                try {
+                    var hasValSure = "t";
+                    var maxQtyVal = $(this).find('select').val();
+                    var maxQtyText = $(this).find('select option:selected').text();
+
+                    var originalInUreo = $(this).find('td:eq(2)').html();
+                    var totalInUreo = originalInUreo * maxQtyVal;
+                    //var totalInIR = (originalInUreo * maxQtyVal); * @exchangeRate.Rate;
+                    $(this).find('td:eq(3)').text("" + totalInUreo);
+                    //  $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+
+                } catch (err) {
+                }
+            }
+
+            // Calculate column totals
+            calculateTotalInEU();
+            // calculateTotalInIR();
+            calculateGrandTotalIR();
+
+        });
+    });
+
+    //** Calculate column total in Euro ** //
+    function calculateTotalInEU() {
+        try {
+            var sum = 0;
+            $(".feeEU").each(function () {
+                var value = $(this).text();
+                // add only if the value is number
+                if (!isNaN(value) && value.length != 0) {
+                    sum += parseFloat(value);
+                    $("#hidTotalFeeEU").val(sum);
+                    $("#TotalFeeEU").text(sum.toFixed(2));
+                }
+            });
+        }
+        catch (e) { }
+    }
+
+    //**  Calculate column total for customer currency ** //
+    //function calculateTotalInIR() {
+    //    try{
+    //        var sum = 0;
+    //        // iterate through each td based on class and add the values
+    //        $(".totalFeeIR").each(function () {
+    //            var value = $(this).text();
+    //            // add only if the value is number
+    //            if (!isNaN(value) && value.length != 0) {
+    //                sum += parseFloat(value);
+    //                $("#TotalFeeInCustomerCurrency").text(sum.toFixed(2));
+    //                $("#hidTotalFeeInCustomerCurrency").val(sum)
+    //            }
+    //        });
+    //    }
+    //    catch(e){ }
+    //}
+
+    //**  Calculate Grand total in customer's currency ** //
+    function calculateGrandTotalIR() {
+        try {
+            //parseFloat($("#hidTotalFeeInCustomerCurrency").val()) +
+            var gt = (parseFloat($("#hidTotalFeeEU").val())); //+ parseFloat($("#hidServiceChargesInCustomerCurrency").val())
+
+            $("#GrandTotal").text(gt.toFixed(2));
+            $("#hidGrandTotal").val(gt);
+        }
+        catch (e) { }
+    }
+</script>
+

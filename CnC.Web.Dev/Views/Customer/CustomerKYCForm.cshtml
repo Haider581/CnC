@@ -1,0 +1,384 @@
+﻿@using CnC.Core
+@using CnC.Service;
+@using CnC.Core.Customers
+@using System.Web.UI.WebControls
+
+@{
+    ViewBag.Title = "Personal Details";
+    var grid = new WebGrid(Model, canSort: false, canPage: false);
+
+    var commonService = new CnC.Service.CommonService();
+    var countries = commonService.GetCountries();
+
+    var exchangeRate = new CnC.Service.ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+
+    var serviceFee = new ServiceFeeService().GetServiceFee(CnC.Core.ServiceType.Card);
+    decimal serviceFeePercent = 0;
+
+    if (serviceFee != null)
+    {
+        serviceFeePercent = serviceFee.Percentage;
+    }
+
+    var cust = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(cust.LanguageId);
+}
+<div class="jarviswidget jarviswidget-color-darken jarviswidget-sortable" id="wid-id-0" data-widget-editbutton="false" data-widget-deletebutton="false" role="widget">
+    <div class="row col-lg-9 form-horizontal">
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-9">
+            <h1 class="page-title txt-color-blueDark">
+                @localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)
+            </h1>
+        </div>
+        @using (Html.BeginForm("NewKYCForm", "Customer", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary("", new { @class = "text-danger" })
+
+            <!-- Personal Details - start -->
+            <article class="col-sm-12 col-md-12 col-lg-9 sortable-grid ui-sortable">
+                <div data-widget-editbutton="false" data-widget-colorbutton="false" id="wid-id-0" class="jarviswidget jarviswidget-sortable" role="widget">
+                    <header role="heading">
+                        <h2>@localizationService.GetResource("Cnc.PersonalDetails")</h2>
+                    </header>
+                    <div role="content">
+                        <div class="form-group">
+                            @Html.Label("First Name", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("FirstName", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Last Name", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("LastName", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Gender", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.DropDownList("Gender", EnumHelper.GetSelectList(typeof(Gender)), new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Date Of Birth", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("DateOfBirth", null, new { @class = "form-control date-picker" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Marital Status", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.DropDownList("MaritalStatus", EnumHelper.GetSelectList(typeof(MaritalStatus)), new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("NIC", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("NIC", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Passport No", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("PassportNo", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Nationality", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("Nationality", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Address", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("Address", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Postal Code", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("PostalCode", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Country", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.DropDownList("CountryDDL", new SelectList(countries, "Id", "Name"), "- Please Select -", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("City", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                <select class="form-control" id="CityDDL" name="CityDDL">
+                                    <option>@localizationService.GetResource("Cnc.SelectCity", null, "Select City")</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Email", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("Email", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Contact No", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                @Html.TextBox("ContactNo", null, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Personal Details - end -->
+
+            <!-- Cards - start -->
+            <article class="col-sm-12 col-md-12 col-lg-9 sortable-grid ui-sortable">
+                <div data-widget-editbutton="false" data-widget-colorbutton="false" id="wid-id-0" class="jarviswidget jarviswidget-sortable" role="widget">
+                    <header role="heading">
+                        <h2>@localizationService.GetResource("Cards", null, "Cards")</h2>
+                    </header>
+                    <div role="content">
+                        <div>
+                            <p>
+                                <h5>
+                                    @localizationService.GetResource("Cnc.ExchangeRate", null, "ExchangeRate")&#163; = <label>@exchangeRate</label>
+                                </h5>
+                            </p>
+                            <p class="text-danger">
+                                Step 1: Enter quantity for the Card type Customer wants to buy
+                            </p>
+                            <p class="text-danger">
+                                Step 2: Total Fee to pay in IR will be calculated in shown under grid
+                            </p>
+                            <p class="text-danger">
+                                Step 3: It is assumed that Customer provided information has already been validated and Cards fee paid
+                            </p>
+                            <p class="text-danger">
+                                Note: Card policy will apply
+                            </p>
+                        </div>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>@localizationService.GetResource("Cnc.Name", null, "Name")</th>
+                                    <th>@localizationService.GetResource("Cnc.Quantity", null, "Quantity")</th>
+                                    <th>@localizationService.GetResource("Cnc.Fee", null, "Fee")</th>
+                                    <th>@localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (&#163;)</th>
+                                    <th>@localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (IR)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    var listItems = new List<ListItem>();
+                                    for (int i = 1; i <= item.MaxQuantity; i++)
+                                    {
+                                        listItems.Add(new ListItem() { Text = "" + i, Value = "" + i });
+                                    }
+                                    <text>
+                                        <tr>
+                                            <td>@item.Name</td>
+                                            <td>@Html.DropDownList("MaxQty", new SelectList(listItems, "Value", "Text"), new { @class = "form-control" })</td>
+                                            <td>@item.Fee</td>
+                                            <td class="totalFeeEU">@item.Fee</td>
+                                            <td class="totalFeeIR">@Math.Round(item.Fee * exchangeRate, 2)</td>
+                                        </tr>
+                                    </text>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div>
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (&#163;): <label id="TotalFeeEU"></label><input type="hidden" id="hidTotalFeeEU" />
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (IR): <label id="TotalFeeInCustomerCurrency"></label><input type="hidden" id="hidTotalFeeInCustomerCurrency" />
+                            <br />
+                            @localizationService.GetResource("Cnc.ServiceCharges", null, "Service Charges") (IR): <label id="ServiceChargesInCustomerCurrency">100</label><input type="hidden" id="hidServiceChargesInCustomerCurrency" value="100" />
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalFeeToPay", null, "Total Fee To Pay") (IR): <label id="GrandTotal">0</label><input type="hidden" id="hidGrandTotal" />
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Cards - end-->
+
+            <!-- Documents - start -->
+            <article class="col-sm-12 col-md-12 col-lg-9 sortable-grid ui-sortable">
+                <div data-widget-editbutton="false" data-widget-colorbutton="false" id="wid-id-0" class="jarviswidget jarviswidget-sortable" role="widget">
+                    <header role="heading">
+                        <h2>@localizationService.GetResource("Cnc.Documents", null, "Documents")</h2>
+                    </header>
+                    <div role="content">
+                        <div class="form-group">
+                            @Html.Label("NIC Doc", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                <input type="file" name="NICDoc" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Proof Of Address Doc", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                <input type="file" name="ProofOfAddressDoc" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Passport Doc", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                <input type="file" name="PassportDoc" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Proof Of Source Of Funds", new { @class = "col-md-2 control-label" })
+                            <div class="row col-lg-9">
+                                <input type="file" name="ProofOfSourceOfFunds" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Documents - end -->
+
+            <!-- Submit button - start -->
+            <article class="col-sm-12 col-md-12 col-lg-9 sortable-grid ui-sortable">
+                <div class="row col-lg-9">
+                    <div class="text-center">
+                        <input type="submit" class="btn btn-default" value="Request To Change" />
+                    </div>
+                </div>
+            </article>
+            <!-- Submit button - end -->
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/scripts/smartadmin")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+
+    <script>
+        $(function () {
+            $(".date-picker").datepicker();
+        });
+    </script>
+    <script>
+        $("#CountryDDL").change(function () {
+            var id = $("#CountryDDL").val();
+            CheckIsValid();
+            if (id != "") {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetCities", "Customer")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { countryId: id },
+                    dataType: "json",
+                    success: function (data) {
+                        var cmbCity = $('#CityDDL');
+                        cmbCity.empty();
+                        cmbCity.append($('<option></option>').val("0").html("- Please Select -"));
+                        $.each(data, function (i) {
+
+                            cmbCity.append($('<option></option>').val(data[i].Id).html(data[i].Name)
+                                );
+                        });
+                    }
+                });
+            } else {
+                var cmbCity = $('#CityDDL');
+                cmbCity.empty();
+                cmbCity.append($('<option></option>').val("0").html("Select City"));
+            }
+        })
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('tbody tr').hover(function () {
+                $(this).toggleClass('clickable');
+            }).on('click', function (evt) {
+
+                var $cell = $(evt.target).closest('td');
+                if ($cell.index() == 1) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+
+                        var originalInUreo = $(this).find('td:eq(2)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        var totalInIR = (originalInUreo * maxQtyVal) * @exchangeRate;
+                        $(this).find('td:eq(3)').text("" + totalInUreo);
+                        $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+
+                    } catch (err) {
+                    }
+                }
+
+                // Calculate column totals
+                calculateTotalInEU();
+                calculateTotalInIR();
+                calculateGrandTotalIR();
+
+            });
+        });
+
+        //** Calculate column total in Euro ** //
+        function calculateTotalInEU() {
+            try{
+                var sum = 0;
+                $(".totalFeeEU").each(function () {
+                    var value = $(this).text();
+                    // add only if the value is number
+                    if (!isNaN(value) && value.length != 0) {
+                        sum += parseFloat(value);
+                        $("#TotalFeeEU").text(sum.toFixed(2));
+                        $("#hidTotalFeeEU").val(sum)
+                    }
+                });
+            }
+            catch(e){}
+        }
+
+        //**  Calculate column total for customer currency ** //
+        function calculateTotalInIR() {
+            try{
+                var sum = 0;
+                // iterate through each td based on class and add the values
+                $(".totalFeeIR").each(function () {
+                    var value = $(this).text();
+                    // add only if the value is number
+                    if (!isNaN(value) && value.length != 0) {
+                        sum += parseFloat(value);
+                        $("#TotalFeeInCustomerCurrency").text(sum.toFixed(2));
+                        $("#hidTotalFeeInCustomerCurrency").val(sum)
+                    }
+                });
+            }
+            catch(e){ }
+        }
+
+        //**  Calculate Grand total in customer's currency ** //
+        function calculateGrandTotalIR() {
+            try{
+                var amount = parseFloat($("#hidTotalFeeEU").text() || 0)
+                var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+                amount=amount+serviceCharges;
+
+                $("#GrandTotal").text(amount.toFixed(2));
+                $("#hidGrandTotal").val(amount);
+            }
+            catch (e){}
+        }
+
+        function calculatePercentageValue(value, percent) {
+            return (value * percent / 100);
+        }
+
+        $(document).ready(function () {
+            $('#MaxQty').click();
+        });
+    </script>
+}

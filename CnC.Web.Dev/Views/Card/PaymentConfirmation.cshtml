@@ -1,0 +1,130 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@using CnC.Core
+@using CnC.Core.Cards;
+@model List<CardRequestForm>
+@{
+    ViewBag.Title = "Payment Confirmation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var customerDefaultCurrency = new SettingService().CustomerDefaultCurrency.Code;
+    var customer = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService();
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<div id="content">
+    <section id="widget-grid" class="">
+        <div class="row">
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource("Search", null, "Search") @localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</h2>
+                    </header>
+                    <div id="content">
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <div class="widget-body">
+                            @*<div id="cncLoader"></div>*@
+                            <div id="cncLoaderMessage">
+                            </div>
+                            <div id="showMessage"> </div>
+                            @using (Html.BeginForm("PaymentConfirmation", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCardRequests" }))
+                            {
+                                <fieldset>
+                                    @{ Html.RenderPartial("_CardRequestSearchControl");}
+                                    <div class="row">
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </div>
+                                </fieldset>
+                                            }
+                        </div>
+                        <div class="Container Flipped">
+                            <div class="Content">
+                                <div class="table-responsive" style="padding-bottom:50px;">
+                                    @{
+                                        if (Model != null && Model.Count > 0)
+                                        {
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                       @* <th>@localizationService.GetResource("Cnc.RequestNumber", null, "Request Number")</th>*@
+                                                        <th>@localizationService.GetResource("Cnc.FullName", null, "Full Name")</th>
+                                                        <th>@localizationService.GetResource("Cnc.NationalID", null, "National ID #")</th>
+                                                        <th>@localizationService.GetResource("Cnc.RequestDate", null, "Request Date")</th>
+                                                        <th>@localizationService.GetResource("Cnc.Type", null, "Type")</th>
+                                                        <th>@localizationService.GetResource("Cnc.Reference#", null, "Reference #")</th>
+                                                        <th>@localizationService.GetResource("Cnc.Account#", null, "Account #")</th>
+                                                        <th>@localizationService.GetResource("Cnc.PaymentMode", null, "Payment Mode")</th>
+                                                        <th>@localizationService.GetResource("Cnc.AmountInRial", null, "Amount In Rial")</th>
+                                                        <th>@localizationService.GetResource("Cnc.FailureReason", null, "Failure Reason")</th>
+                                                        @*<th>Mark As</th>*@
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var requestForm in Model)
+                                                    {
+                                                        <tr>
+                                                            @*<td>@requestForm.Id</td>*@
+                                                            <td>@requestForm.Customer.User.FullName</td>
+                                                            <td>@requestForm.Customer.NIC</td>
+                                                            <td align="center">@requestForm.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                            @{
+                                                                var requestFormType = (RequestFormType)requestForm.TypeId;
+                                                            }
+                                                            <td>@requestFormType</td>
+                                                            <td>@requestForm.Payments[0].TransactionNo</td>
+                                                            <td>@requestForm.Payments[0].TransactionAccountNo</td>
+                                                            @{
+                                                                var paymentMethod = (PaymentMethod)requestForm.Payments[0].PaymentMethodId;
+                                                            }
+                                                            <td>@paymentMethod</td>
+                                                            <td align="right">@requestForm.Payments[0].Amount</td>
+                                                            <td>@requestForm.Payments[0].ConfirmationFailureReason</td>
+                                                            @*<td></td>*@
+                                                        </tr>
+                                                                }
+                                                </tbody>
+                                            </table>
+                                                                    using (Html.BeginForm("PaymentConfirmation", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCardRequests" }))
+                                                                    {
+                                                                        { Html.RenderPartial("_Pagination"); }
+
+                                                                    }
+                                                                }
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+<script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+<script src="~/Scripts/Validation/Card/Payment.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+    });
+</script>

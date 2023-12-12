@@ -1,0 +1,47 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@model CnC.Core.Customers.Customer
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+
+<div class="row control-padding-bottom">
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.NIC", null, "NIC")</strong></label>
+                @Html.EditorFor(model => model.NIC, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter NIC" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.Passport#", null, "Passport No")</strong></label>
+                @Html.EditorFor(model => model.PassportNo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Passport#" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.Contact#", null, "Contact No")</strong></label>
+                @Html.EditorFor(model => model.ContactNo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Contact#" } })
+            </div>
+        </div>
+    </div>
+</div>

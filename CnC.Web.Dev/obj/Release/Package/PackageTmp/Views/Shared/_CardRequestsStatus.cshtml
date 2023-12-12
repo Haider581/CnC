@@ -1,0 +1,19 @@
+﻿@using CnC.Core
+@{
+
+    string NumberOfRecievedCards = this.ViewData.ContainsKey("NumberOfRecievedCards") ? this.ViewData["NumberOfRecievedCards"].ToString() : string.Empty;
+
+    string NumberOfRejectCards = this.ViewData.ContainsKey("NumberOfRejectCards") ? this.ViewData["NumberOfRejectCards"].ToString() : string.Empty;
+    string ApprovedByCardIssuer = this.ViewData.ContainsKey("ApprovedByCardIssuer") ? this.ViewData["ApprovedByCardIssuer"].ToString() : string.Empty;
+    string DispatchPackageToTBO = this.ViewData.ContainsKey("DispatchPackageToTBO") ? this.ViewData["DispatchPackageToTBO"].ToString() : string.Empty;
+    string WaitingToDeliverPackageToCustomer = this.ViewData.ContainsKey("WaitingToDeliverPackageToCustomer") ? this.ViewData["WaitingToDeliverPackageToCustomer"].ToString() : string.Empty;
+    string PackageDeliveredToCustomer = this.ViewData.ContainsKey("PackageDeliveredToCustomer") ? this.ViewData["PackageDeliveredToCustomer"].ToString() : string.Empty;
+}
+<ul class="list-unstyled">
+    <li>@NumberOfRecievedCards<i class="fa fa-bell text-danger"></i>...</li>
+    <li>@NumberOfRejectCards<i class="fa fa-bell text-danger"></i>...</li>
+    <li>@ApprovedByCardIssuer<i class="fa fa-bell text-danger"></i>...</li>
+    <li>@DispatchPackageToTBO<i class="fa fa-bell text-danger"></i>...</li>
+    <li>@WaitingToDeliverPackageToCustomer<i class="fa fa-bell text-danger"></i>...</li>
+    <li>@PackageDeliveredToCustomer<i class="fa fa-bell text-danger"></i>...</li>
+</ul>

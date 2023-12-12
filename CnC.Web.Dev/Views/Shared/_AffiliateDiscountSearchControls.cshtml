@@ -1,0 +1,40 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@model CnC.Core.Affiliates.AffiliateDiscount
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+    var cardTypes = new CardService().GetCardTypes();
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+
+<div class="row control-padding-bottom">
+    <section class="col col-md-3">
+        <label class="select">
+            Card Type
+            <i style="color:#a2a2a2; font-size: 14px;" class="icon-append"></i>
+        </label>
+        <select class="form-control" style="height:30px;" id="dllCardType" name="CardTypeId">
+            <option value="">
+                -@(customer == null ? "Please select" : localizationService.GetResource("Cnc.PleaseSelect"
+                              , null, "Please Select"))-
+            </option>
+            @foreach (var item in cardTypes)
+            {
+                <option value="@(item.Id)">@item.Name</option>
+            }
+        </select>
+    </section>
+</div>

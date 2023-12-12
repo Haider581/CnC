@@ -1,0 +1,726 @@
+﻿@using BotDetect.Web.Mvc;
+@using CnC.Core
+@using System.Web.UI.WebControls
+@using CnC.Service
+@using CnC.Core.Customers
+@{
+    ViewBag.Title = "New Customer Registration: Step 1 (Personal and Address Info)";
+    var commonController = new CnC.Web.Controllers.CommonController();
+    var countries = commonController.GetCountries();
+
+    bool isCustomer = false;
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    if (userSession == null)
+    { isCustomer = true; }
+    SettingService settingService = new SettingService();
+    int customerMinimumAge = settingService.CustomerMinimumAge;
+    var cust = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (cust != null)
+    {
+        localizationService = new LocalizationService(cust.LanguageId);
+    }
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    #content {
+        padding: 10px 14px !important;
+        position: relative;
+    }
+
+    #main {
+        margin-left: 0px !important;
+        padding: 0;
+        padding-bottom: 52px;
+        min-height: 1000px;
+        position: relative;
+    }
+
+    #CaptchaCode {
+        width: 315px;
+        height: 25px;
+        margin-top: 5px;
+    }
+
+    .minified #main {
+        margin-left: 0px !important;
+    }
+</style>
+<link href="@BotDetect.Web.CaptchaUrls.Absolute.LayoutStyleSheetUrl" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/Jalali/IntlDateDemo.js"></script>
+<script src="~/Scripts/Jalali/IntlDate.js"></script>
+<script src="~/Scripts/Jalali/PersianDate.js"></script>
+<link href="~/Content/skins/aqua/theme.css" rel="stylesheet" />
+<script src="~/Scripts/html2canvas.js"></script>
+<div id="content">
+    <!-- breadcrumb -->
+    <ol class="breadcrumb" style="text-transform: uppercase;">
+        @*<li>@User.Identity.Name.ToLower()</li>*@
+        <li>@(cust == null ? ViewBag.Title : localizationService.GetResource(ViewBag.Title, null, ViewBag.Title))</li>
+    </ol>
+    <section id="widget-grid" class="">
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>
+                    @(cust == null ? "Customer Details" : localizationService.GetResource("Cnc.CustomerDetails", null, "Customer Details"))
+                </h2>
+            </header>
+            <!-- widget div-->
+            <div role="content">
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div id="divEmp" class="widget-body no-padding">
+
+                    <div id="cncLoaderMessage">
+                        @*<span id="spanSuccess" class="spanSuccessColor"><span id="completeSpan" class="text-center text-success spanSuccessColor"><strong><i class='fa fa-check fa-lg'></i> Complete</strong></span><br />KYC form has been saved successfully!<br /><a id="lkGoBack" style="font-size: 14px;" class="spanSuccessColor" href="@Url.Action("NewKYCFormInCustomerLanguage","Customer")">Go back</a></span>*@
+                    </div>
+                    <div id="showMessage"> </div>
+                    @using (Ajax.BeginForm("Signup", "Customer",
+new AjaxOptions
+{
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = "showMessage",
+    OnFailure = "AjaxFailure",
+    //OnSuccess = "onSuccess",
+    OnBegin = "AjaxBegin",
+    OnComplete = "AjaxComplete"
+},
+new
+{
+    @id = "NewCustomerForm",
+    @name = "Signup",
+    @class = "smart-form validatform",
+    role = "form",
+    enctype = "multipart/form-data"
+}))
+                    {
+                        @Html.AntiForgeryToken()
+                        @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+                        <input type="hidden" name="txtAffiliate" id="txtAffiliate" value="@ViewBag.AffiliateId" />
+            <!-- Personal Details - start -->
+
+                        <div id="personalInfoStep1">
+                            <header>@(cust == null ? "Personal Details & Address" : localizationService.GetResource("Cnc.PersonalDetail&Address", null, "Personal Details & Address")) </header>
+                            <fieldset>
+                                <div class="progress progress-sm progress-striped active">
+                                    <div class="progress-bar bg-color-darken" role="progressbar" style="width: 5%"></div>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">First Name</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-text-width"></i>
+                                            @Html.TextBox("txtEngFirstName", "", new { placeholder = "Please Enter in English" })
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label" style="text-align:right">نام</label>
+                                        <label class="input">
+                                            <i class="icon-append fa fa-text-width"></i>
+                                            @Html.TextBox("txtPerFirstName", "", new { Lang = "fa-IR", placeholder = "Please Enter in Persian", onkeypress = "validate(event)", @onCopy = "return false", @onDrag = "return false", @onDrop = "return false", @onPaste = "return false", @autocomplete = "off", })
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">Last Name</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-text-width"></i>
+                                            @Html.TextBox("txtEngLastName", "", new { placeholder = "Please Enter in English", @onCopy = "return false", @onDrag = "return false", @onDrop = "return false", @onPaste = "return false", @autocomplete = "off", })
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label" style="text-align:right">نام خانوادگی</label>
+                                        <label class="input">
+                                            <i class="icon-append fa fa-text-width"></i>
+                                            @Html.TextBox("txtPerLastName", "", new { Lang = "fa-IR", placeholder = "Please Enter in Persian", onkeypress = "validate(event)", @onCopy = "return false", @onDrag = "return false", @onDrop = "return false", @onPaste = "return false", @autocomplete = "off", })
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6" title="English">
+                                        <label class="label">Date Of Birth(yyyy/mm/dd)</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-calendar"></i>
+                                            @Html.TextBox("txtEngDateOfBirth", null, new { @class = "datepicker", @placeholder = "Please Enter in English", @readonly = "true", })
+                                            <em id="fortxtEngDateOfBirthError" style="display:none" class="invalid">You are Under Age </em>
+                                        </label>
+                                    </section>
+                                    <section class="col col-6" title="Persian">
+                                        <label class="label" style="text-align:right">تاریخ تولد</label>
+                                        <label class="input">
+                                            <i class="icon-append fa fa-calendar"></i>
+                                            <input type="hidden" id="hfPerDateOfBirth" name="hfPerDateOfBirth" value="" />
+                                            @*<input id="txtPerDateOfBirth" type="text" Lang="fa-IR" />*@
+                                            @Html.TextBox("txtPerDateOfBirth", null, new { @style = "padding-right: 35px;", @placeholder = "Please Enter in Persian", @readonly = "true", @onCopy = "return false", @onDrag = "return false", @onDrop = "return false", @onPaste = "return false", @autocomplete = "off", })
+                                            @*<img id="date_btn_1" src="~/Content/skins/aqua/cal.png" style="vertical-align: top;" />  Lang = "fa-IR",*@
+                                            @*<script type="text/javascript">
+                                                    Calendar.setup({
+                                                        inputField: "txtPerDateOfBirth",   // id of the input field
+                                                        button: "date_btn_1",   // trigger for the calendar (button ID)
+                                                        ifFormat: "%Y-%m-%d",       // format of the input field
+                                                        dateType: 'jalali',
+                                                        langNumbers: true,
+                                                        weekNumbers: false
+                                                    });
+                                                </script>*@
+                                            @*@Html.TextBox("txtPerDateOfBirth", null, new { @class = "datepicker", @placeholder = "Please Enter in Persain", @readonly = "true" })*@
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6" title="English">
+                                        <label class="label">Address</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-map-marker"></i>
+                                            @Html.TextBox("txtEngAddress", null, new { @placeholder = "Please Enter in English" })
+                                        </label>
+                                    </section>
+                                    <section class="col col-6" title="Persian">
+                                        <label class="label" style="text-align:right">ادرس</label>
+                                        <label class="input">
+                                            <i class="icon-append fa fa-map-marker"></i>
+                                            @Html.TextBox("txtPerAddress", null, new { Lang = "fa-IR", @placeholder = "Please Enter in Persain", onkeypress = "validate(event)", @onCopy = "return false", @onDrag = "return false", @onDrop = "return false", @onPaste = "return false", @autocomplete = "off", })
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6" title="English">
+                                        <label class="label">Address 2</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-map-marker"></i>
+                                            @Html.TextBox("txtEngAddress2", null, new { @placeholder = "Please Enter in English" })
+                                        </label>
+                                    </section>
+                                    <section class="col col-6" title="Persian">
+                                        <label class="label" style="text-align:right">ادرس 2</label>
+                                        <label class="input">
+                                            <i class="icon-append fa fa-map-marker"></i>
+                                            @Html.TextBox("txtPerAddress2", null, new { Lang = "fa-IR", @placeholder = "Please Enter in Persain", onkeypress = "validate(event)", @onCopy = "return false", @onDrag = "return false", @onDrop = "return false", @onPaste = "return false", @autocomplete = "off", })
+                                        </label>
+                                    </section>
+                                </div>
+                                @if (isCustomer)
+                                {
+                                    <div class="row">
+                                        <section class="col col-6" title="Password">
+                                            <label class="label">Password</label>
+                                            <label class="input">
+                                                <i class="icon-prepend fa fa-map-marker"></i>
+                                                @Html.Password("txtPassword", null, new { @placeholder = "Please Enter in Password" })
+                                            </label>
+                                        </section>
+                                        <section class="col col-6" title="Persian">
+                                            <label class="label">Re-Type Password</label>
+                                            <label class="input">
+                                                <i class="icon-append fa fa-map-marker"></i>
+                                                @Html.Password("txtRePassword", null, new { @placeholder = "Please Re-Type Password", @onCopy = "return false", @onDrag = "return false", @onDrop = "return false", @onPaste = "return false", @autocomplete = "off", })
+                                            </label>
+                                        </section>
+                                    </div>
+                                }
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">Gender</label>
+                                        <label class="select">
+                                            <i class="icon-append fa fa-comment"></i>
+                                            @Html.DropDownList("ddlGender", EnumHelper.GetSelectList(typeof(Gender)), " -Please Select- ")
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label">Marital Status</label>
+                                        <label class="select">
+                                            <i class="icon-append fa fa-comment"></i>
+                                            @Html.DropDownList("ddlMaritalStatus", EnumHelper.GetSelectList(typeof(MaritalStatus)), " -Please Select- ")
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">National ID #</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-hashtag">#</i>
+                                            @Html.TextBox("txtNIC")
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label">Passport No.</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-hashtag">#</i>
+                                            @Html.TextBox("txtPassportNo")
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">Nationality</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-flag-o"></i>
+                                            @Html.TextBox("txtNationality", "Iranian", new { @readonly = true })
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label">Postal Code</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-hashtag">#</i>
+                                            @Html.TextBox("txtPostalCode")
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">Country</label>
+                                        <label class="select">
+                                            <i class="icon-append fa fa-comment"></i>
+                                            @Html.DropDownList("ddlCountry", new SelectList(countries, "Id", "Name")@*, "- Please Select -"*@)
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label">City</label>
+                                        <label class="select">
+                                            <i class="icon-append fa fa-comment"></i>
+                                            <select class="form-control" id="ddlCity" name="ddlCity">
+                                                @*<option>- Please Select Country -</option>*@
+                                            </select>
+                                        </label>
+                                    </section>
+                                </div>
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">Email</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-envelope-o"></i>
+                                            @Html.TextBox("txtEmail")
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label">Contact No.</label>
+                                        <label class="input">
+                                            <i class="icon-prepend fa fa-phone"></i>
+                                            @Html.TextBox("txtContactNo")
+                                        </label>
+                                    </section>
+                                </div>
+                                <header>Upload Doc</header>
+                                <div class="row">
+                                    <section class="col col-6">
+                                        <label class="label">National ID Scanned Copy (Persian)</label>
+                                        <label class="input">
+                                            <i class="icon-append fa fa-file-image-o"></i>
+                                            <input class="checkFileType" readonly="readonly" type="File" name="NICDocCustomer" id="NICDocCustomer" value="Browse" accept="image/jpeg, image/png" data-val="true" data-val-required="File is required" />
+                                            <em id="forNICDocCustomerError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>
+                                        </label>
+                                    </section>
+                                    <section class="col col-6">
+                                        <label class="label">Passport Scanned Copy (Persian)</label>
+                                        <label class="input">
+                                            <i class="icon-append fa fa-file-image-o"></i>
+                                            <input class="checkFileType" type="File" readonly="readonly" name="PassportDocCustomer" id="PassportDocCustomer" value="Browse" accept="image/jpeg, image/png" data-val="true" data-val-required="File is required" />
+                                            <em id="forPassportDocCustomerError" style="display:none" class="invalid">Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!</em>
+                                        </label>
+                                    </section>
+                                </div>
+                                <input type="hidden" id="hfCustomerId" name="hfCustomerId" value="" />
+                                <input type="hidden" id="hfIsCustomer" value="@isCustomer" />
+                            </fieldset>
+                            <footer>
+                                <fieldset style="background: none;">
+                                    @if (isCustomer)
+                                    {
+
+                                        MvcCaptcha exampleCaptcha = new MvcCaptcha("ExampleCaptcha");
+                                        @Html.Captcha(exampleCaptcha)
+                                        @Html.TextBox("CaptchaCode")
+                                        <span id="capchaMessage" style="display: inline; margin-bottom: 5px; padding: 10px; float: none; width: 100%; color: red;">
+                                        </span>
+
+                                        @*<div class="row">
+                                                <div style="float: right">
+                                                    <div class="g-recaptcha" data-sitekey="6Ld6fRkUAAAAAEhnvGaWTmgUhX_4Vh6FXQGExGDa" data-callback="correctCaptcha"></div>
+                                                    <span id="capchaMessage" style="display: inline; margin-bottom: 5px; padding: 10px; float: none; width: 100%; color: red;">
+                                                    </span>
+                                                </div>
+                                            </div>*@
+                                    }
+                                    <div class="row">
+                                        <button type="submit" name="submitAction" id="btnSaveInfoStep1" class="btn btn-primary">Save</button>
+                                    </div>
+                                </fieldset>
+                            </footer>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    <script src="~/Scripts/FarsiType.js"></script>
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/Customer/Signup.js"></script>
+}
+<script>
+    $(document).ready(function () {
+        $(".checkFileType").change(function() {
+            // alert('changed!');
+            var form = $('#NewCustomerForm');
+            form.validate();
+            if (!form.valid()) { return false; };
+        });
+        function validate(evt) {
+            var theEvent = evt || window.event;
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+            var regex = /[0-9]|\./;
+            if (!regex.test(key)) {
+                theEvent.returnValue = false;
+                if (theEvent.preventDefault) theEvent.preventDefault();
+            }
+        }
+        var isCust = $("#hfIsCustomer").val();
+        if (isCust != null && isCust != "") {
+            $("#logout").remove();
+            $("#left-panel").remove();
+            $("#top-right").remove();
+            $('body').addClass("minified");
+
+        }
+
+        //$("#cncLoader").show();
+        var start = new Date();
+        start.setFullYear(start.getFullYear() - 100);
+        var end = new Date();
+        end.setFullYear(end.getFullYear() - @customerMinimumAge);
+        $('.datepicker').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'yy/mm/dd',
+            minDate: start,
+            maxDate: end,
+            yearRange: start.getFullYear() + ':' + end.getFullYear(),
+            onSelect: function (dateText, inst) {
+                var userdob = dateText;
+                runCode(dateText);
+                if (userdob) {
+                    var age = calcAge(userdob);
+                    if (age < (@customerMinimumAge)) {
+                        document.getElementById("fortxtEngDateOfBirthError").style.display = "";
+                        return false;
+                    } else { document.getElementById("fortxtEngDateOfBirthError").style.display = "none"; }
+                }
+            },
+        });
+        $(".datepicker").on("change", function () {
+            var userdob = $('#txtEngDateOfBirth').val();
+            alert("change");
+            if (userdob) {
+                var age = calcAge(userdob);
+                if (age < 18) {
+                    document.getElementById("fortxtEngDateOfBirthError").style.display = "";
+                    return false;
+                } else { document.getElementById("fortxtEngDateOfBirthError").style.display = "none"; }
+            }
+
+        });
+        $("#btnSaveInfoStep1").click(function () {
+            var userdob = $('#txtEngDateOfBirth').val();
+            if (userdob) {
+                var age = calcAge(userdob);
+                if (age < 18) {
+                    document.getElementById("fortxtEngDateOfBirthError").style.display = "";
+                    return false;
+                } else { document.getElementById("fortxtEngDateOfBirthError").style.display = "none"; }
+            }
+
+        });
+        function calcAge(userdob) {
+            var birthday = +new Date(userdob);
+            return ~~((Date.now() - birthday) / (31557600000));
+        }
+
+        function myFunction() {
+            alert('Hello');
+        }
+
+        function runCode(debug) {
+            var tbd = debug.replace('/', ',').replace('/', ',');
+            var str = "var dd = new Date("+"'" + tbd + "'"+");"
+                     +"dd = dd.toPersianDate();";
+            try {
+                str = eval(str).toString();
+                document.getElementById("txtPerDateOfBirth").value = str.substring(0, 10).trim();
+            }catch (ex) {
+                if (str.length > 0) {
+                    str = ex.name + "(" + (ex.number & 0xFFFF) + "): " + ex.message;
+                    alert(str);
+                }
+            }
+        }
+        $('#ddlCountry option:eq(1)').prop('selected', true)
+        var id = $("#ddlCountry").val();
+        if (id != "") {
+            var country = $("#ddlCountry").find("option:selected").text();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCities", "Common")',
+                contentType: "application/json; charset=utf-8",
+                data: { countryId: id },
+                dataType: "json",
+                success: function (data) {
+                    var cmbCity = $('#ddlCity');
+                    cmbCity.empty();
+                    $.each(data,
+                        function (i) {
+
+                            cmbCity.append($('<option></option>').val(data[i].Id).html(data[i].Name));
+                        });
+                    if (country == "Iran" || country == "Pakistan") {
+                        $('#ddlCity option:eq(1)').prop('selected', true);
+
+                    }
+                    else {
+                        cmbCity.empty();
+                        $('#ddlCity option:eq(0)').prop('selected', true);
+                    }
+                }
+            });
+        } else {
+            var cmbCity = $('#ddlCity');
+            cmbCity.empty();
+            $('#ddlCity').attr("disabled", false);
+        }
+
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+
+        $("#personalInfoStep1").show();
+        $("#cardRequestAndDocsStep2").hide();
+        $("#customerSignedCopyStep3").hide();
+
+
+        window.addEventListener("submit", function (e) {
+            document.getElementById("capchaMessage").innerText = "";
+            var form = $('#NewCustomerForm');
+            form.validate();
+            if (!form.valid()) { return false; };
+            $("#cncLoader").show();
+            var form = e.target;
+            if (form.getAttribute("enctype") === "multipart/form-data") {
+                if (form.dataset.ajax) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    var xhr = new XMLHttpRequest();
+                    xhr.open(form.method, form.action);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+
+                            var data = JSON.parse(xhr.responseText);
+                            $("#cncLoader").hide();
+                            if (data.length > 0) {
+
+                                if (data[0] == "200" && data[2] != "") {
+                                    $("#hfCustomerId").val(data[1]);
+                                    if (data[2] != "" && data[2] != null) {
+                                        //Redirect to NewCustomerCardRequests
+                                        document.getElementById("btnSaveInfoStep1").disabled = true;
+
+
+                                        if (data[4] != "" && data[4] != null) {
+
+                                            var iframe = document.createElement('iframe');
+                                            var iframe1 = document.createElement('iframe');
+                                            //==========================
+                                            if (data[3] != "" && data[3] != null) {
+
+
+                                                iframe.name = "englishFrame";
+                                                iframe.id = "englishFrameId";
+                                                iframe.width = "1200";
+                                                $('body').append($(iframe));
+                                                setTimeout(function () {
+                                                    var iframedoc =
+                                                        iframe.contentDocument || iframe.contentWindow.document;
+
+                                                    $('body', $(iframedoc)).html(data[3]);
+                                                    //document.getElementById("englishFrameId").style.display = "none";
+                                                    html2canvas($(iframedoc).contents(),
+                                                    {
+                                                        onrendered: function (canvas) {
+                                                            var a = document.createElement('a');
+                                                            a.name = "englishA";
+                                                            // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+                                                            a.href = canvas.toDataURL("image/jpeg")
+                                                                .replace("image/jpeg", "image/octet-stream");
+                                                            a.download = "EnglishForm-" + data[2] + '.jpg';
+                                                            a.click();
+                                                        }
+                                                    });
+
+                                                },
+                                                    10);
+
+                                                //alert("Please read downloaded forms carefully and upload these forms in Step3.");
+                                            }
+
+                                            if (data[4] != "" && data[4] != null) {
+
+
+                                                iframe1.name = "persianFrame";
+                                                iframe1.id = "persianFrameId";
+                                                iframe1.width = "1200";
+
+                                                $('body').append($(iframe1));
+
+                                                setTimeout(function () {
+                                                    var iframedoc1 =
+                                                        iframe1.contentDocument || iframe1.contentWindow.document;
+                                                    $('body', $(iframedoc1)).html(data[4]);
+                                                    //document.getElementById("persianFrameId").style.display = "none";
+                                                    html2canvas($(iframedoc1).contents(),
+                                                    {
+                                                        onrendered: function (canvas) {
+                                                            var a = document.createElement('a');
+                                                            a.name = "persianA";
+                                                            // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+                                                            a.href = canvas.toDataURL("image/jpeg")
+                                                                .replace("image/jpeg", "image/octet-stream");
+                                                            a.download = "PersianForm-" + data[2] + '.jpg';
+                                                            a.click();
+                                                        }
+                                                    });
+                                                },
+                                                    10);
+                                            }
+
+                                            setTimeout(function () {
+                                                document.getElementById("englishFrameId").style.display = "none";
+                                                document.getElementById("persianFrameId").style.display = "none";
+                                                $("#cncLoaderMessage").append(data[1]);
+                                                $("#cncLoaderMessage").show();
+                                            }, 1000);
+
+                                            //------------------------------
+                                        } else {
+                                            $("#cncLoaderMessage").append(data[1]);
+                                            $("#cncLoaderMessage").show();
+                                        }
+
+
+                                    }
+                                } else if(data[0]=="102") {
+                                    ExampleCaptcha.ReloadImage();
+                                    $("#capchaMessage").html(data[1]);
+                                } else {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-danger fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                                }
+                            }
+                        }
+                    };
+                    xhr.send(new FormData(form));
+                }
+            }
+        }, true);
+
+    });//Ready document
+
+    function Validate(x, y) {
+        str = (document.getElementById('TextBox1')).value;
+        if (str.match(/([\<])([^\>]{1,})*([\>])/i) == null) {
+            y.IsValid = true;
+        }
+        else {
+            y.IsValid = false;
+        }
+    }
+
+    function ValidateForm() {
+        $('#NewCustomerForm').submit(function () {
+            // get the array of all the inputs
+            var $inputs = $('#NewCustomerForm :input');
+            $inputs.each(function () {
+                var str = $(this).val();
+                if (str.match(/([\<])([^\>]{1,})*([\>])/i) != null) {
+                    return false;
+                }
+            });
+        });
+    }
+    function ResetForm() {
+
+        document.getElementById("PassportDocCustomer").value = "";
+        document.getElementById("NICDocCustomer").value = "";
+
+        document.getElementById("txtEngLastName").value = "";
+        document.getElementById("txtPerLastName").value = "";
+        document.getElementById("txtEngDateOfBirth").value = "";
+        document.getElementById("txtPerDateOfBirth").value = "";
+        document.getElementById("txtEngAddress").value = "";
+        document.getElementById("txtPerAddress").value = "";
+        document.getElementById("txtEngAddress2").value = "";
+        document.getElementById("txtPerAddress2").value = "";
+        document.getElementById("txtNIC").value = "";
+        document.getElementById("txtPassportNo").value = "";
+        document.getElementById("txtNationality").value = "";
+        document.getElementById("txtPostalCode").value = "";
+        document.getElementById("txtEmail").value = "";
+        document.getElementById("txtContactNo").value = "";
+    }
+
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+    function AjaxBegin() {
+        //alert("Begain");
+        $("#cncLoader").show();
+
+    }
+    function AjaxComplete(data) {
+        $("#cncLoader").hide();
+        if (data.statusText == "OK") {
+            if (data.responseJSON[0] == "100") {
+                $("#cncLoaderMessage").append(data.responseJSON[1]);
+                $("#cncLoaderMessage").show();
+
+            } else {
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' data-dismiss='alert'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data.responseJSON[1] + "'");
+            }
+        }
+    }
+    function AjaxFailure(ajaxContext) {
+        // alert("AjaxFailure");
+        var response = ajaxContext.responseText;
+        alert("Error Code [" + ajaxContext.ErrorCode + "] " + response);
+    }
+   
+</script>
+<script>
+    var verifyCallback = function (response) {
+        alert("grecaptcha is ready!");
+    };
+
+    var expiredCallback = function () {
+        alert("grecaptcha is expired!");
+    };
+</script>

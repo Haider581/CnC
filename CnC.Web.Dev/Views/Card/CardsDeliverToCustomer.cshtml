@@ -1,0 +1,329 @@
+﻿@using CnC.Core
+@using CnC.Core.Cards
+@using CnC.Service
+@using CnC.Core.Customers
+@model List<CardRequestForm>
+@{
+    ViewBag.Title = "Deliver To Customer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string ConfirmationDialog = System.Configuration.ConfigurationManager.AppSettings["ConfirmationDialog"];
+
+    //var customer = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService();
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .Container {
+        width: 100%;
+    }
+
+    .Content {
+        width: 100%;
+    }
+
+    .Flipped, .Flipped .Content {
+        transform: rotateX(180deg);
+        -ms-transform: rotateX(180deg); /* IE 9 */
+        -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+    }
+
+    .ui-dialog-content {
+        overflow: hidden !important;
+    }
+
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget content -->
+    <div class="widget-body">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+            <!-- row -->
+            <div class="row">
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>@localizationService.GetResource("Search", null, "Search") @ViewBag.Title</h2>
+                        </header>
+                        <!-- widget div-->
+                        <div role="content">
+                            <!-- widget edit box -->
+                            <div class="jarviswidget-editbox">
+                                <!-- This area used as dropdown edit box -->
+                            </div>
+                            <!-- end widget edit box -->
+                            <!-- widget content -->
+                            <div class="widget-body">
+                                @*<div id="cncLoader"></div>*@
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <div id="showMessage"> </div>
+                                @using (Html.BeginForm("CardsDeliverToCustomer", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCardRequests" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                                    <fieldset>
+                                        @{Html.RenderPartial("_CardRequestSearchControl");}
+                                        <div class="row">
+                                            @{Html.RenderPartial("_SearchButtons");}
+                                        </div>
+                                    </fieldset>
+                                                }
+                            </div>
+                            <!-- end widget content -->
+                            <div class="Container Flipped">
+                                <div class="Content">
+                                    <div class="table-responsive" style="padding-bottom:50px;">
+                                        @{
+                                            if (Model != null && Model.Count > 0)
+                                            {
+                                                <table class="table table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th title="Request No">@localizationService.GetResource("Cnc.Request#", null, "Request #")</th>
+                                                            <th title="Customer Full Name">@localizationService.GetResource("Cnc.FullName", null, "Full Name")</th>
+                                                            <th>@localizationService.GetResource("Cnc.NationalID", null, "National ID #")</th>
+                                                            <th title="Request Date">@localizationService.GetResource("Cnc.RequestDate", null, "Request Date")<i class="fa fa-fw fa-calendar txt-color-black hidden-md hidden-sm hidden-xs"></i></th>
+                                                            <th title="Payment Method">@localizationService.GetResource("Cnc.PaymentMode", null, "Payment Mode")</th>
+                                                            <th>@localizationService.GetResource("Cnc.CardType", null, "Card Type")</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var cardRequestForm in Model.Where(x => x.CardRequests.Count > 0).ToList())
+                                                        {
+                                                            string paymentDesc = string.Empty;
+                                                            int i = 0;
+                                                            foreach (var payment in cardRequestForm.Payments)
+                                                            {
+                                                                paymentDesc = paymentDesc + "" +
+                                                                                (payment.PaymentMethodId == (int)PaymentMethod.RAHYAB
+                                                                                || payment.PaymentMethodId == (int)PaymentMethod.Admin
+                                                                                ? "Manual" : ((PaymentMethod)payment.PaymentMethodId).ToString())
+                                                                                + ",";
+                                                                paymentDesc = paymentDesc.Trim(',');
+                                                            }
+                                                            <text>
+                                                                @if (i == 0)
+                                                                {
+                                                                    i = 1;
+                                                                    <text>
+                                                                        <tr>
+                                                                            <td>@cardRequestForm.Id</td>
+                                                                            <td>@cardRequestForm.Customer.User.FullName</td>
+                                                                            <td>@cardRequestForm.Customer.NIC</td>
+                                                                            <td>@cardRequestForm.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                            <td>@paymentDesc</td>
+                                                                            @{
+                                                                                string cardDesc = string.Empty;
+                                                                                // string fmCrId = string.Empty;
+                                                                                cardDesc = cardRequestForm.CardRequests[0].CardType.Name;
+                                                                                var cardRequestStatus = cardRequestForm.CardRequests[0].StatusString;
+                                                                                // fmCrId = cardRequestForm.Id + "-" + cardRequestForm.CardRequests[0].Id + "#" + cardRequestForm.Customer.CardServiceProviderClientId;
+
+                                                                            }
+                                                                            <td>@cardDesc</td>
+                                                                            @*<td>@cardRequestStatus</td>*@
+                                                                            <td>
+                                                                                @if (cardRequestForm.CardRequests[0].DispatchedToTBOOn != null && cardRequestForm.CardRequests[0].DispatchedToCustomerOn == null && cardRequestForm.CardRequests[0].DeliveredToCustomerOn == null)
+                                                                                {
+                                                                                    <a onclick='ConfirmationDialog("@cardRequestForm.CardRequests[0].Id");' style="cursor:pointer" id="dialog_link">@localizationService.GetResource("Cnc.Delivered", null, "Delivered")</a>
+                                                                                    @*<a onclick='PostCardInfo("@cardRequestForm.CardRequests[0].Id");' style="cursor:pointer" id="dialog_link">Delivered</a>*@
+
+                                                                                }
+
+                                                                            </td>
+                                                                        </tr>
+                                                                    </text>
+                                                                                    cardRequestForm.CardRequests.RemoveAt(0);
+                                                                                }
+                                                                @foreach (var cardRequest in cardRequestForm.CardRequests)
+                                                                {
+                                                                    <text>
+                                                                        <tr>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td class="CardType">@cardRequest.CardType.Name</td>
+                                                                            @*<td>
+                                                                                    @cardRequest.StatusString
+                                                                                </td>*@
+                                                                            <td>
+                                                                                @{
+//string tempVal = cardRequestForm.Id + "-" + cardRequest.Id + "#" + cardRequestForm.Customer.CardServiceProviderClientId; ;
+                                                                                }
+                                                                                @if (cardRequest.DispatchedToTBOOn != null && cardRequest.DispatchedToCustomerOn == null && cardRequest.DeliveredToCustomerOn == null)
+                                                                                {
+                                                                                    <a onclick='ConfirmationDialog("@cardRequest.Id");' style="cursor:pointer" id="dialog_link">@localizationService.GetResource("Cnc.Delivered", null, "Delivered")</a>
+                                                                                    @*<a onclick='PostCardInfo("@cardRequest.Id");' style="cursor:pointer" id="dialog_link">Delivered</a>*@
+                                                                                    @*<a onclick='UpdateCard("@tempVal");' style="cursor:pointer" id="card_failed">Failed</a>*@
+                                                                                }
+                                                                            </td>
+                                                                        </tr>
+                                                                    </text>
+                                                                                    }
+                                                            </text>
+                                                                                    }
+                                                    </tbody>
+                                                </table>
+                                                                                        using (Html.BeginForm("CardsDeliverToCustomer", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCardRequests" }))
+                                                                                        {
+                                                                                            { Html.RenderPartial("_Pagination"); }
+                                                                                        }
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                                            <button class="close" data-dismiss="alert">×</button>
+                                                                                            <i class="fa-fw fa fa-cube"></i>
+                                                                                            <strong>@localizationService.GetResource("Cnc.Sorry", null, "Sorry")! </strong>@localizationService.GetResource("Cnc.NoRecord", null, "No Records Found")
+                                                                                        </div>
+                                                                                    }
+                                        }
+                                    </div>
+                                    <input id="hfCustomerId" name="hfCustomerName" type="hidden" />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end widget div -->
+                    </div>
+                    <!-- end widget -->
+                </article>
+                <!-- WIDGET END -->
+            </div>
+            <!-- end row -->
+        </section>
+        <!-- end widget grid -->
+    </div>
+    <!-- end widget content -->
+    <div id="confirmation_dialog" title="Dialog Simple Title">
+        <p>
+            @localizationService.GetResource(ConfirmationDialog, null, ConfirmationDialog)
+        </p>
+    </div>
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+    <script src="~/Scripts/Validation/Card/SearchCardRequests.js"></script>
+    <script src="~/Scripts/Validation/Card/CardInfo.js"></script>
+}
+@section pagespecific {
+    <script>
+
+        $(document).ready(function () {
+
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+            $('#confirmation_dialog').dialog({
+                autoOpen: false,
+                width: 400,
+                resizable: false,
+                modal: true,
+                title: '@localizationService.GetResource("Cnc.Confirmation",null,"Confirmation")',
+                buttons: [{
+                    html: "<i class='fa fa-check'></i>&nbsp; @localizationService.GetResource("Cnc.Yes",null,"Yes")",
+                    "class": "btn btn-primary",
+                    click: function () {
+                        var hv = $('#hfCustomerId').val();
+                        //alert(hv);
+
+                        PostCardInfo(hv);
+                        //$(this).dialog("close");
+                    }
+                }, {
+                    html: "<i class='fa fa-times'></i>&nbsp; @localizationService.GetResource("Cnc.Cancel", null, "Cancel")",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }]
+            });
+        });
+
+        function ConfirmationDialog(rf) {
+            if (rf != "") {
+                $("#hfCustomerId").val(rf);
+                $('#confirmation_dialog').dialog('open');
+            }
+            return false;
+        }
+        function PostCardInfo(hv) {
+
+            if (hv != "") {
+                $("#cncLoader").show();
+                CheckIsValid();
+                $.ajax({
+                    url: "/Card/SetCardStatusDeliveredToCustomer",
+                    contentType: "application/json; charset=utf-8",
+                    data: { key: hv },
+                    dataType: "json",
+                    success: function (data) {
+                        $("#cncLoader").hide();
+                        if (data[0] == "200") {
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+
+                        } else {
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>'@localizationService.GetResource("Cnc.Error",null,"Error")'!</strong> '" + data[1] + "'");
+                        }
+
+                    },
+                    error: function () {
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>'@localizationService.GetResource("Cnc.Error",null,"Error")'!</strong><strong>'@localizationService.GetResource("Cnc.Fail", null,"Fail")'!</strong> An error occured while updating. Please try again. ");
+                    }
+                });
+            } else {
+                alert("Missing required values.");
+            }
+
+        }
+
+        function UpdatePanelDiv() {
+            $("#showMessage").empty();
+            $("#showMessage").hide();
+        }
+
+    </script>
+
+}
+

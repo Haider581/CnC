@@ -1,0 +1,194 @@
+﻿@model CnC.Core.Discounts.DiscountPromotion
+    @using CnC.Service;
+    @{
+        ViewBag.Title = "Add Discount Promotion";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+        var cardTypes = new CardService().GetCardTypes();
+    }
+    <style>
+        .control-padding-bottom {
+            padding-bottom: 20px;
+        }
+    </style>
+    <!-- breadcrumb -->
+    <ol class="breadcrumb">
+        <li>Admin</li>
+        <li><strong>@ViewBag.Title</strong></li>
+    </ol>
+    <!-- end breadcrumb -->
+    <!-- MAIN CONTENT -->
+    <div id="content">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+            <!-- row -->
+            <div class="row">
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i></span>
+                            <h2>Add Discount Promotion</h2>
+                        </header>
+                        <!-- widget div-->
+                        <div>
+                            @if (ViewBag.MessageSuccess != null)
+                            {
+                                <div class="alert alert-success fade in">
+                                    <button class="close" data-dismiss="alert">
+                                        ×
+                                    </button>
+                                    <i class="fa-fw fa fa-check"></i>
+                                    <strong>Success</strong> @ViewBag.MessageSuccess
+                                </div>
+                            }
+                            @if (ViewBag.MessageFailure != null)
+                            {<div class="alert alert-danger fade in">
+                            <button class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong> @ViewBag.MessageFailure
+                        </div> }
+                            <!-- widget edit box -->
+                            <div class="jarviswidget-editbox">
+                            </div>
+                            <!-- end widget edit box -->
+                            <!-- widget content -->
+                            <div class="widget-body">
+                                @using (Html.BeginForm())
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                    <div class="row control-padding-bottom">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div class="col-md-6 control-padding-bottom">
+                                                    <label class="control-label"><strong>Card Type</strong> *</label>
+                                                    @Html.DropDownListFor(model => model.CardTypeId,
+                                           new SelectList(cardTypes.OrderBy(c => c.Name),
+                                           "Id", "Name", "---Please Select---"),
+                                           new { htmlAttributes = new { @class = "form-control" } })
+                                                    @Html.ValidationMessageFor(model => model.CardTypeId, "",
+                                               new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div class="col-md-6 control-padding-bottom">
+                                                    <label class="control-label"><strong>Discount</strong> *</label>
+                                                    @*@Html.LabelFor(model => model.Address.Email, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                    @Html.EditorFor(model => model.Discount, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Discount" } })
+                                                    @Html.ValidationMessageFor(model => model.Discount, "", new { @class = "text-danger" })
+                                                </div>
+                                                <div class="col-md-6 control-padding-bottom">
+                                                    <label class="control-label"><strong>Is Percent</strong> *</label>
+                                                    @*@Html.LabelFor(model => model.Address.Company, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                    @Html.CheckBoxFor(model => model.IsPercent, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter company name" } })
+                                                    @Html.ValidationMessageFor(model => model.IsPercent, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div class="col-md-6 control-padding-bottom">
+                                                    <label class="control-label"><strong>Starts From</strong></label>
+                                                    @Html.EditorFor(model => model.StartOn, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Start Date" } })
+                                                    @Html.ValidationMessageFor(model => model.StartOn, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div class="col-md-6 control-padding-bottom">
+                                                    @Html.LabelFor(model => model.EndOn, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                    @Html.EditorFor(model => model.EndOn, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter End Date" } })
+                                                    @Html.ValidationMessageFor(model => model.EndOn, "", new { @class = "text-danger" })
+                                                </div>
+                                                <div class="col-md-6 control-padding-bottom">
+                                                    <label class="control-label"><strong>Is Active</strong> *</label>
+                                                    @Html.CheckBoxFor(model => model.Active,
+                                               new { htmlAttributes = new { @class = "form-control" } })
+                                                    @Html.ValidationMessageFor(model => model.Active, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div class="col-md-12">
+                                                    <a href="@Url.Action("DiscountPromotions", "Admin")" name="btnAffiliates" id="btnAffiliates" value="" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                        <span style="padding:10px;">Back To Discount Promotions</span>
+                                                        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-backward"></i></span>
+                                                    </a>
+                                                    <button formnovalidate="formnovalidate" type="submit" name="btnCancel" id="btnCancel" value="Cancel" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                        <span style="padding:10px;">Cancel</span>
+                                                        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-refresh"></i></span>
+                                                    </button>
+                                                    <button type="submit" name="btnSave" id="btnSave" value="Save" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                        <span style="padding:10px;">Save</span>
+                                                        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-save"></i></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <!-- end widget content -->
+                        </div>
+                        <!-- end widget div -->
+                    </div>
+                    <!-- end widget -->
+                </article>
+                <!-- WIDGET END -->
+            </div>
+            <!-- end row -->
+        </section>
+        <!-- end widget grid -->
+    </div>
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }
+
+    <script>
+        $('#ddlCountry option:eq(1)').prop('selected', true)
+        //$('#ddlCountry').attr("disabled", true);
+        var id = $("#Address_CountryId").val();
+        if (id != "") {
+            var country = $("#Address_CountryId").find("option:selected").text();
+            //CheckIsValid();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCities", "Common")',
+                contentType: "application/json; charset=utf-8",
+                data: { countryId: id },
+                dataType: "json",
+                success: function (data) {
+                    var cmbCity = $('#Address_CityId');
+                    cmbCity.empty();
+                    //cmbCity.append($('<option></option>').val("-1").html("- Please Select -"));
+                    $.each(data,
+                        function (i) {
+
+                            cmbCity.append($('<option></option>').val(data[i].Id).html(data[i].Name));
+                        });
+                    if (country == "Iran" || country == "Pakistan") {
+                        $('#Address_CityId option:eq(1)').prop('selected', true);
+
+                    }
+                    else {
+                        cmbCity.empty();
+                        $('#Address_CityId option:eq(0)').prop('selected', true);
+
+                    }
+                }
+            });
+        } else {
+            var cmbCity = $('#Address_CityId');
+            cmbCity.empty();
+            $('#Address_CityId').attr("disabled", false);
+            //cmbCity.append($('<option></option>').val("0").html("Select City"));
+        }
+
+    </script>

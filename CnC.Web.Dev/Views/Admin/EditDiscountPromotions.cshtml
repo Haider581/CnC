@@ -1,0 +1,162 @@
+﻿@model CnC.Core.Discounts.DiscountPromotion
+@using CnC.Service;
+@{
+    ViewBag.Title = "Edit Discount Promotion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var cardTypes = new CardService().GetCardTypes();
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Edit Discount Promotion</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {<div class="alert alert-danger fade in">
+                            <button class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong> @ViewBag.MessageFailure
+                        </div> }
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                @Html.HiddenFor(model => model.Id)
+                                <div class="row control-padding-bottom">
+
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.Label("Card Type", htmlAttributes:
+                                               new { @class = "control-label", @style = "font-weight: 700;" })
+
+                                                @Html.DropDownListFor(model => model.CardTypeId,
+                                           new SelectList(cardTypes.OrderBy(c => c.Name),
+                                           "Id", "Name", "---Please Select---"),
+                                           new { htmlAttributes = new { @class = "form-control" } })
+                                                @Html.ValidationMessageFor(model => model.CardTypeId, "",
+                                               new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.Label("Discount", htmlAttributes:
+                                               new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Discount,
+                                               new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter display name" } })
+                                                @Html.ValidationMessageFor(model => model.Discount, "",
+                                               new { @class = "text-danger" })
+                                            </div>
+                                            <label class="checkbox-inline">
+                                                @Html.EditorFor(model => model.IsPercent)
+                                                @Html.ValidationMessageFor(model => model.IsPercent, "", new { @class = "text-danger" })
+                                                Is Percent
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.Label("Starts From",
+                                               htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.StartOn,
+                                               new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter controller name" } })
+                                                @Html.ValidationMessageFor(model => model.StartOn,
+                                               "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                        <label class="checkbox-inline">
+                                            @Html.EditorFor(model => model.Active)
+                                            @Html.ValidationMessageFor(model => model.Active, "", new { @class = "text-danger" })
+                                            Is Active
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <div class="col-md-12 control-padding-bottom">
+                                                @Html.Label("Ends On", htmlAttributes:
+                                               new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.EndOn,
+                                               new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Ends On" } })
+                                                @Html.ValidationMessageFor(model => model.EndOn, "",
+                                               new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <a href="@Url.Action("DiscountPromotions", "Admin")" name="btnActions" id="btnActions" value="" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Back To Discount and Promotions</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-backward"></i></span>
+                                                </a>
+                                                <button type="submit" name="btnSave" id="btnSave" value="Save" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Save</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-save"></i></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

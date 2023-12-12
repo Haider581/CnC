@@ -1,0 +1,240 @@
+﻿@model CnC.Core.Cards.CardType
+
+@{
+    ViewBag.Title = "AddCardType";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-credit-card"></i> </span>
+                        <h2>Add New Card Type</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {<div class="alert alert-danger fade in">
+                            <button class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong> ViewBag.MessageFailure
+                        </div> }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <div class="row control-padding-bottom">
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" }) *
+                                                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter name of card type" } })
+                                                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                @Html.LabelFor(model => model.Fee, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" }) *
+                                                @Html.EditorFor(model => model.Fee, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter fee for card type" } })
+                                                @Html.ValidationMessageFor(model => model.Fee, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Reload Limit</strong></label> *
+                                                @*@Html.LabelFor(model => model.ReloadLimit, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.ReloadLimit, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Reload Limit for card type" } })
+                                                @Html.ValidationMessageFor(model => model.ReloadLimit, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Reload Day Limit</strong></label> *
+                                                @*@Html.LabelFor(model => model.ReloadDayLimit, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.ReloadDayLimit, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Reload Day Limit for card type" } })
+                                                @Html.ValidationMessageFor(model => model.ReloadDayLimit, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Maximum Reload</strong></label> *
+                                                @*@Html.LabelFor(model => model.MaximumReload, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.MaximumReload, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter maximum reload limit for card type" } })
+                                                @Html.ValidationMessageFor(model => model.MaximumReload, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Minimum Reload At A Time</strong></label> *
+                                                @*@Html.LabelFor(model => model.MinimumReloadAtATime, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.MinimumReloadAtATime, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter minimum reload at a time limit for card type"} })
+                                                @Html.ValidationMessageFor(model => model.MinimumReloadAtATime, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Maximum Reload At A Time</strong></label> *
+                                                @*@Html.LabelFor(model => model.MaximumReloadAtATime, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.MaximumReloadAtATime, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter maximum reload at a time limit of card type"} })
+                                                @Html.ValidationMessageFor(model => model.MaximumReloadAtATime, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Max Quantity</strong></label> *
+                                                @*@Html.LabelFor(model => model.MaxQuantity, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.MaxQuantity, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter max quantity for card type" } })
+                                                @Html.ValidationMessageFor(model => model.MaxQuantity, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                @Html.LabelFor(model => model.Requirements, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Requirements, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter requirements for card type" } })
+                                                @Html.ValidationMessageFor(model => model.Requirements, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Top Up Service Fee Percentage</strong></label> *
+                                                @*@Html.LabelFor(model => model.TopUpServiceFeePercentage, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.TopUpServiceFeePercentage, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter fee of card type" } })
+                                                @Html.ValidationMessageFor(model => model.TopUpServiceFeePercentage, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <label class="control-label"><strong>Top Up Service Fee Minimum</strong></label> *
+                                                @*@Html.LabelFor(model => model.TopUpServiceFeeMinimum, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })*@
+                                                @Html.EditorFor(model => model.TopUpServiceFeeMinimum, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter top up service fee minimum limit for card type" } })
+                                                @Html.ValidationMessageFor(model => model.TopUpServiceFeeMinimum, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 control-padding-bottom">
+                                        <div class="form-group">                                            
+                                            <div class="col-md-12">
+                                                <label class="checkbox-inline">
+                                                    @Html.EditorFor(model => model.IsReloadable)
+                                                    @Html.ValidationMessageFor(model => model.IsReloadable, "", new { @class = "text-danger" })
+                                                    Is Reloadable
+                                                </label>
+                                                <label class="checkbox-inline" style="padding-left:100px;">
+                                                    @Html.EditorFor(model => model.IsProofOfSourceOfFundsRequired)
+                                                    @Html.ValidationMessageFor(model => model.IsProofOfSourceOfFundsRequired, "", new { @class = "text-danger" })
+                                                    Is Proof Of Source Of Funds Required
+                                                </label>
+                                                <label class="checkbox-inline" style="padding-left:100px;">
+                                                    @Html.EditorFor(model => model.IsProofOfAddressRequired)
+                                                    @Html.ValidationMessageFor(model => model.IsProofOfAddressRequired, "", new { @class = "text-danger" })
+                                                    Is Proof Of Address Required
+                                                </label>
+                                                <label class="checkbox-inline" style="padding-left:100px;">
+                                                    @Html.EditorFor(model => model.IsActive)
+                                                    @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+                                                    Is Active
+                                                </label>
+                                            </div>
+                                        </div>                                       
+                                    </div> 
+                                    <div class="col-sm-6 control-padding-bottom">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter description for card type" } })
+                                                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>                                                                                                                                       
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <a href="@Url.Action("CardTypes", "Admin")" name="btnBackToList" id="btnBackToList" value="" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Back To Card Types</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-backward"></i></span>
+                                                </a>
+                                                <button formnovalidate="formnovalidate" type="submit" name="btnCancel" id="btnCancel" value="Cancel" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Cancel</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-refresh"></i></span>
+                                                </button>
+                                                <button type="submit" name="btnSearch" id="btnSearch" value="" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Save</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-save"></i></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

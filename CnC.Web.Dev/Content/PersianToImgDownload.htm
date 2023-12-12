@@ -1,0 +1,486 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+
+    <style type="text/css">
+        div, b {
+            direction: rtl;
+            lang: 'fa';
+        }
+
+        div, b, span, p {
+           text-align: left;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .main {
+            max-height: 100px;
+            overflow-y: hidden;
+        }
+
+        .sub {
+            float: right;
+        }
+    </style>
+</head>
+<body style="width: 210mm;height: 297mm;background-color:#ffffff" dir="rtl">
+    
+    <div style="padding:15px;text-align: left">
+        
+        <div class="col-lg-12" style="border: solid windowtext 1.0pt;background-color:#ffffff">
+            <div class="row" style="background-color:#1f3864;padding: 5px;">
+                <p style="padding: 0;color:white;margin: 0;text-align: left">الف: اطلاعات هويتي متقاضي</p>
+            </div>
+
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    <b style="text-align: left">1.نام:</b>
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 30%;">{[FirstName]}</div>
+            </div>
+
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    <b style="text-align: left">2. نام خانوادگي:</b>
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 30%;">{[LastName]}</div>
+            </div>
+
+            <table width="100%">
+                <tr>
+                    <td width="28%"><span> <b style="text-align: left">2. جنسيت:</b> </span> <input type="checkbox" {[MaleCheckbox]} /><span> مرد</span> <input type="checkbox" {[FemaleCheckbox]} /><span>زن </span></td>
+
+                    <td width="25%"><span> <b style="text-align: left">3. وضعيت تاهل:</b> </span> <input type="checkbox" {[MaritalSingleCheckbox]}/><span> مجرد     </span> <input type="checkbox" {[MaritalMarriedCheckbox]}/><span>متاهل  </span></td>
+                </tr>
+                <tr>
+                    <td width="28%">
+                        <div class="main">
+                            <div class="sub" style="padding: 0px;">
+                                <b style="text-align: left">4. تاريخ تولد: (روز/ماه/سال):</b>
+                            </div>
+                            <div class="sub" style="border-bottom: solid windowtext 1.0pt;">{[DateOfBirth]}</div>
+                        </div>
+                    </td>
+
+                    <td width="25%">
+                        <div class="main">
+                            <div class="sub" style="padding: 0px;">
+                                <b style="text-align: left">5. مليت:</b> <input type="checkbox" {[IranianNationCheckbox]} /><span> ايراني       </span> <input type="checkbox" />ساير:
+                            </div>
+                            <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: %;">{[Nationality]}</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    <b>6.  کد ملي:</b>
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;">{[NationalIdentificationNumber]}</div>
+                <div class="sub" style="padding: 3px;">
+                    <b> شماره گذرنامه:</b>
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;">{[PassportNumber]}</div>
+                <span style="font-size: small;">(لطفاً کپي رنگي کارت ملي و گذرنامه پيوست نماييد)</span>
+            </div>
+        </div>
+        <!--Section B. Address Details-->
+        <div class="col-lg-12" style="border: solid windowtext 1.0pt;background-color:#ffffff">
+            <div class="row" style="background-color:#1f3864;padding: 5px;">
+                <p style="padding: 0;color:white;margin: 0;"><b>ب. مشخصات ارتباطي</b></p>
+            </div>
+
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    <b>1. آدرس:</b>
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 87%;">{[Address]}</div>
+            </div>
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    2.کد پستي
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 13%;">{[PostalCode]}</div>
+                <div class="sub" style="padding: 3px;">
+                    3. شهر
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 13%;">{[City]}</div>
+                <div class="sub" style="padding: 3px;">
+                    4. پست الکترونيک
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 13%;">{[E-mailAddress]}</div>
+                <div class="sub" style="padding: 3px;">
+                    5. تلفن همراه
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 13%;">{[MobileNumber]}</div>
+            </div>
+            <div style="padding: 3px;"><b>6. تاييد آدرس (لطفاً يکي از مدارک را به پيوست ارسال نماييد)  </b><!--<span>(Please enclose one of the following valid documents copy):</span>--></div>
+            <div style="padding: 3px;font-size: small;"> <input type="checkbox"><span>سند مالکيت/اجاره به نام و با آدرس اعلامي  </span> <input type="checkbox"><span> آخرين قبض برق   </span> <input type="checkbox"><span>آخرين قبض گاز  </span></div>
+        </div>
+        <div class="col-lg-12" style="border: solid windowtext 1.0pt;background-color:#ffffff">
+            <div class="row" style="background-color:#1f3864;padding: 5px;">
+                <p style="padding: 0;color:white;margin: 0;"><b>ج: سفارش کارت اعتباري ارزي </b></p>
+            </div>
+            <div style="padding:3px">
+
+                <b>
+                    <span lang="FA" style="font-size:10.5pt;line-height:115%;font-family:&quot;B Lotus&quot;">
+                        لطفاً
+                        نوع و تعداد
+                        کارت&zwnj;هاي
+                        درخواستي را
+                        مطابق با
+                        جدول زير
+                        اعلام فرماييد:
+                        <o:p></o:p>
+                    </span>
+                </b>
+
+            </div>
+            <div style="margin: 2%;">
+                <!--Table -->
+
+                <table class="MsoNormalTable" dir="rtl" border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+   mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-table-dir:
+   bidi;mso-border-insideh:.5pt solid windowtext;mso-border-insidev:.5pt solid windowtext">
+                    <tbody>
+                        <tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes">
+                            <td width="156" style="width:117.0pt;border:solid windowtext 1.0pt;
+    mso-border-alt:solid windowtext .5pt;background:#F2F2F2;mso-background-themecolor:
+    background1;mso-background-themeshade:242;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="RTL" style="text-align:center;
+    line-height:115%">
+                                    <b>
+                                        <span lang="FA" style="font-size:10.5pt;line-height:
+    115%;font-family:&quot;B Lotus&quot;">شرح</span>
+                                    </b><b><span dir="LTR" style="font-size:10.5pt;line-height:115%"><o:p></o:p></span></b>
+                                </p>
+                            </td>
+                            <td width="174" style="width:130.5pt;border:solid windowtext 1.0pt;
+    border-right:none;mso-border-right-alt:solid windowtext .5pt;mso-border-alt:
+    solid windowtext .5pt;background:#F2F2F2;mso-background-themecolor:background1;
+    mso-background-themeshade:242;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">Black</span></b><b><span lang="FA" dir="RTL" style="font-size:10.5pt;line-height:115%;font-family:&quot;B Lotus&quot;"><o:p></o:p></span></b></p>
+                            </td>
+                            <td width="180" style="width:135.0pt;border:solid windowtext 1.0pt;
+    border-right:none;mso-border-right-alt:solid windowtext .5pt;mso-border-alt:
+    solid windowtext .5pt;background:#F2F2F2;mso-background-themecolor:background1;
+    mso-background-themeshade:242;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">Platinum<o:p></o:p></span></b></p>
+                            </td>
+                            <td width="160" style="width:120.35pt;border:solid windowtext 1.0pt;
+    border-right:none;mso-border-right-alt:solid windowtext .5pt;mso-border-alt:
+    solid windowtext .5pt;background:#F2F2F2;mso-background-themecolor:background1;
+    mso-background-themeshade:242;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">Gold (Prefunded/Gift)<o:p></o:p></span></b></p>
+                            </td>
+                        </tr>
+                        <tr style="mso-yfti-irow:1">
+                            <td width="156" style="width:117.0pt;border:solid windowtext 1.0pt;
+    border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:
+    solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="RTL" style="text-align:center;
+    line-height:115%">
+                                    <b>
+                                        <span lang="FA" style="font-size:10.5pt;line-height:
+    115%;font-family:&quot;B Lotus&quot;">تعداد</span>
+                                    </b><b><span dir="LTR" style="font-size:10.5pt;line-height:115%"><o:p></o:p></span></b>
+                                </p>
+                            </td>
+                            <td width="174" style="width:130.5pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">………..<o:p></o:p></span></b></p>
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">(Max 2)<o:p></o:p></span></b></p>
+                            </td>
+                            <td width="180" style="width:135.0pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">………..<o:p></o:p></span></b></p>
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">(Max 2)<o:p></o:p></span></b></p>
+                            </td>
+                            <td width="160" style="width:120.35pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">………..<o:p></o:p></span></b></p>
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">(Max 99)<o:p></o:p></span></b></p>
+                            </td>
+                        </tr>
+                        <tr style="mso-yfti-irow:2">
+                            <td width="156" style="width:117.0pt;border:solid windowtext 1.0pt;
+    border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:
+    solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="RTL" style="text-align:center;
+    line-height:115%">
+                                    <b>
+                                        <span lang="FA" style="font-size:10.5pt;line-height:
+    115%;font-family:&quot;B Lotus&quot;">امکانات</span>
+                                    </b><b><span dir="LTR" style="font-size:10.5pt;line-height:115%"><o:p></o:p></span></b>
+                                </p>
+                            </td>
+                            <td width="174" style="width:130.5pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed">
+                                    <b>
+                                        <span lang="FA" dir="RTL" style="font-size:10.5pt;line-height:115%;font-family:&quot;B Lotus&quot;">
+                                            بارگذاري
+                                            تا 50000 يورو
+                                            درسال<o:p></o:p>
+                                        </span>
+                                    </b>
+                                </p>
+                            </td>
+                            <td width="180" style="width:135.0pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed">
+                                    <b>
+                                        <span lang="FA" dir="RTL" style="font-size:10.5pt;line-height:115%;font-family:&quot;B Lotus&quot;">
+                                            بارگذاري
+                                            تا 2500 يورو
+                                            درسال
+                                        </span>
+                                    </b><b>
+                                        <span style="font-size:
+    10.5pt;line-height:115%"><o:p></o:p></span>
+                                    </b>
+                                </p>
+                            </td>
+                            <td width="160" style="width:120.35pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed">
+                                    <b>
+                                        <span lang="FA" dir="RTL" style="font-size:10.5pt;line-height:115%;font-family:&quot;B Lotus&quot;">
+                                            کارت
+                                            هديه حداکثر 250
+                                            يورو
+                                        </span>
+                                    </b><b>
+                                        <span style="font-size:10.5pt;
+    line-height:115%"><o:p></o:p></span>
+                                    </b>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr style="mso-yfti-irow:3">
+                            <td width="156" style="width:117.0pt;border:solid windowtext 1.0pt;
+    border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:
+    solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="RTL" style="text-align:center;
+    line-height:115%">
+                                    <b>
+                                        <span lang="FA" style="font-size:10.5pt;line-height:
+    115%;font-family:&quot;B Lotus&quot;">
+                                            هزينه
+                                            صدور کارت
+                                        </span>
+                                    </b><b><span dir="LTR" style="font-size:10.5pt;line-height:115%"><o:p></o:p></span></b>
+                                </p>
+                            </td>
+                            <td width="174" style="width:130.5pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">€20.00<o:p></o:p></span></b></p>
+                            </td>
+                            <td width="180" style="width:135.0pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">€12.00<o:p></o:p></span></b></p>
+                            </td>
+                            <td width="160" style="width:120.35pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed"><b><span style="font-size:10.5pt;line-height:115%">€9.00<o:p></o:p></span></b></p>
+                            </td>
+                        </tr>
+                        <tr style="mso-yfti-irow:4;mso-yfti-lastrow:yes">
+                            <td width="156" style="width:117.0pt;border:solid windowtext 1.0pt;
+    border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:
+    solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="RTL" style="text-align:center;
+    line-height:115%">
+                                    <b>
+                                        <span lang="FA" style="font-size:10.5pt;line-height:
+    115%;font-family:&quot;B Lotus&quot;">
+                                            ضرورت
+                                            ارسال اسناد
+                                            (به
+                                            دستورالعمل
+                                            مراجعه شود)
+                                        </span>
+                                    </b><b><span dir="LTR" style="font-size:10.5pt;line-height:115%"><o:p></o:p></span></b>
+                                </p>
+                            </td>
+                            <td width="174" style="width:130.5pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed">
+                                    <b>
+                                        <span style="font-size:10.5pt;line-height:115%;font-family:Wingdings;mso-ascii-font-family:
+    &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-char-type:
+    symbol;mso-symbol-font-family:Wingdings">
+                                            <span style="mso-char-type:symbol;
+    mso-symbol-font-family:Wingdings">ü</span>
+                                        </span>
+                                    </b><b><span style="font-size:10.5pt;line-height:115%"><o:p></o:p></span></b>
+                                </p>
+                            </td>
+                            <td width="180" style="width:135.0pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed">
+                                    <b>
+                                        <span style="font-size:10.5pt;line-height:115%;font-family:Wingdings;mso-ascii-font-family:
+    &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-char-type:
+    symbol;mso-symbol-font-family:Wingdings">
+                                            <span style="mso-char-type:symbol;
+    mso-symbol-font-family:Wingdings">ü</span>
+                                        </span>
+                                    </b><b><span style="font-size:10.5pt;line-height:115%"><o:p></o:p></span></b>
+                                </p>
+                            </td>
+                            <td width="160" style="width:120.35pt;border-top:none;border-left:solid windowtext 1.0pt;
+    border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
+    solid windowtext .5pt;mso-border-right-alt:solid windowtext .5pt;
+    mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt">
+                                <p class="MsoNormal" align="center" dir="LTR" style="text-align:center;
+    line-height:115%;direction:ltr;unicode-bidi:embed">
+                                    <b>
+                                        <span lang="FA" dir="RTL" style="font-size:10.5pt;line-height:115%;font-family:&quot;B Lotus&quot;">
+                                            نيازي
+                                            نيست
+                                        </span>
+                                    </b><b>
+                                        <span style="font-size:10.5pt;
+    line-height:115%"><o:p></o:p></span>
+                                    </b>
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!--Table -->
+            </div>
+        </div>
+
+        <div class="col-lg-12" style="border: solid windowtext 1.0pt;background-color:#ffffff">
+            <div class="row" style="background-color:#1f3864;padding: 5px;">
+                <p style="padding: 0;color:white;margin: 0;"><b>تاييديه اطلاعات اظهاري</b></p>
+            </div>
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    <b>بدين‌وسيله اينجانب</b>
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 20%;">{[FullName]}</div>
+            </div>
+            <div style="padding: 3px;"> صحت اطلاعات مربوط به اطلاعات هويتي و مشخصات ارتباطي اظهار شده در اين سند را اعلام نموده و موافقت و پذيرش خود را نسبت به شرايط و الزامات و سياست حريم خصوصي که به پيوست اين سند است اعلام مي‌دارم.</div>
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    نام و نام خانوادگي:
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 25%;">{[FullName]}</div>
+                <div class="sub" style="padding: 3px;">
+                    تاريخ:
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 25%;">{[Date]}</div>
+                <div class="sub" style="padding: 3px;">
+                    امضاء:
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 25%;"></div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-12" style="border: solid windowtext 1.0pt;background-color:#ffffff">
+            <div class="row" style="background-color:#1f3864;padding: 5px;">
+                <p style="padding: 0;color:white;margin: 0;"><b>د: تاييديه منابع تامين مالي (تنها براي متقاضيان کارت‌هاي Black با اندوخته بيش از 15 هزار يورو ، به دستورالعمل مراجعه شود)</b></p>
+            </div>
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    <b>بدين‌وسيله اينجانب</b>
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 20%;">{[FullName]}</div>
+            </div>
+            <div style="padding: 3px;"> اعلام مي‌نمايم که در هيچ فعاليت مجرمانه يا پولشويي دخالتي نداشته و منابع تامين مالي اينجانب شفاف بوده و از هيچ فعاليتي که غيرقانوني قلمداد شود تامين نشده‌اند. منابع تامين مالي به شرح ذيل مي‌باشد(لطفا يکي از مدارک مورد نياز ذيل را به پيوست ارسال فرماييد):</div>
+            <table width="100%">
+                <tr>
+                    <td width="%"><span> استخدام   </span> <input type="checkbox" %MaleCheckbox% /><span> مرد</span> <input type="checkbox" %FemaleCheckbox% /><span>بازنشستگي </span> 
+                        <input type="checkbox" %FemaleCheckbox% /><span>سود سهام </span>
+                        <input type="checkbox" %FemaleCheckbox% /><span>وام   </span>
+                        <input type="checkbox" %FemaleCheckbox% /><span>قرادادهاي مشاوره‌اي   </span>
+                    </td>
+
+                    
+                </tr>
+                <tr>
+                    <td width="%">
+                        <span> جبران خسارات     </span> <input type="checkbox" %MaleCheckbox% /><span>  قرارداد فروش</span>
+                        <input type="checkbox" %FemaleCheckbox% /><span>برنده شدن در قرعه‌کشي </span>
+
+                    </td>
+                </tr>
+            </table>
+
+            <div class="main">
+                <div class="sub" style="padding: 3px;">
+                    لطفاً در خصوص ميزان شارژ، دليل نياز به ميزان شارژ اعلامي و تواتر شارژ کارت درخواستي توضيح دهيد:
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 87%;">{[PostalCode]}</div>
+                <div class="sub" style="padding: 3px;">
+                    نام و نام خانوادگي:
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 13%;">{[FullName]}</div>
+                <div class="sub" style="padding: 3px;">
+                    تاريخ:
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 13%;">{[Date]}</div>
+                <div class="sub" style="padding: 3px;">
+                    امضاء:
+                </div>
+                <div class="sub" style="border-bottom: solid windowtext 1.0pt;min-width: 13%;">%تلفن%</div>
+            </div>
+        </div>
+        <!--footer-->
+
+
+        <!--footer-->
+    </div>
+</body>
+</html>

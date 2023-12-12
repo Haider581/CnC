@@ -1,0 +1,273 @@
+﻿@using CnC.Core
+@using System.Web.UI.WebControls
+@model CnC.Core.Customers.Customer
+@{
+    ViewBag.Title = "My Profile ";
+    var commonController = new CnC.Web.Controllers.CommonController();
+    var countries = commonController.GetCountries();
+}
+<div id="content">
+    <div class="row">
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-user fa-fw "></i>
+                @ViewBag.Title
+            </h1>
+            @if (Model != null)
+            {
+                <h3 style="color: green;">Current Status: @Model.StatusString</h3>
+            }
+            @*@Html.ActionLink("Click", "ValidateKYCForms", "Customer")*@
+        </div>
+    </div>
+    <section id="widget-grid" class="">
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+                <span class="widget-icon"> <i class="fa fa-list-alt"></i> </span>
+                <h2>Details</h2>
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+            <!-- widget div-->
+            <div role="content">
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+                    @using (Html.BeginForm("NewKYCForm", "Customer", FormMethod.Post, new { @id = "kycForm", @name = "kycForm", @class = "smart-form", role = "form", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+            <!-- Personal Details - start -->
+                        <fieldset>
+                            <div class="row">
+                                <section class="col col-6">
+                                    <label class="label">First Name</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-text-width"></i>
+                                        <input type="text" readonly="readonly" value="@Model.User.FirstName" />
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Last Name</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-text-width"></i>
+                                        <input type="text" readonly="readonly" value="@Model.User.LastName" />
+                                    </label>
+                                </section>
+                                @{
+                                    Gender gender;
+                                    gender = (Gender)Model.GenderId;
+                                }
+                                <section class="col col-6">
+                                    <label class="label">Gender</label>
+                                  
+                                    <label class="input">
+                                        @if (gender.ToString() == "Male")
+                                        {
+                                            <i class="icon-append fa fa-male"></i>                                            
+                                        }
+                                        @if (gender.ToString() == "Female")
+                                        {
+                                            <i class="icon-append fa fa-female"></i>
+                                        }                                                                            
+                                        <input type="text" readonly="readonly" value="@gender" />
+                                        @*@Html.DropDownList("Gender", EnumHelper.GetSelectList(typeof(Gender)), "- Please Select -",new { disabled = "true" })*@
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Date Of Birth</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-calendar"></i>
+                                        @Html.TextBoxFor(m => m.DateOfBirth, "{0:d MMM yyyy}", new { disabled = "true" })
+                                    </label>
+                                </section>
+                                @{
+                                    MaritalStatus mStatus = (MaritalStatus)Model.MaritalStatusId;
+                                }
+                                <section class="col col-6">
+                                    <label class="label">Marital Status</label>
+                                    <label class="input">
+                                        @if (@mStatus.ToString() == "Married")
+                                        {
+                                            <i class="icon-append" style="font-size: 22px;">&#9901;</i>
+                                        }
+                                        @if (@mStatus.ToString() == "Divorced")
+                                        {
+                                            <i class="icon-append" style="font-size: 22px;">&#9902;</i>
+                                        }
+                                        @if (@mStatus.ToString() == "Single")
+                                        {
+                                            <i class="icon-append" style="font-size: 22px;">&#9900;</i>
+                                        }
+                                        @if (@mStatus.ToString() == "Widowed")
+                                        {
+                                            <i class="icon-append" style="font-size: 22px;">&#9900;</i>
+                                        }                                       
+                                        <input type="text" readonly="readonly" value="@mStatus.ToString()" />
+                                        @*@Html.DropDownList("MaritalStatus", EnumHelper.GetSelectList(typeof(MaritalStatus)), new { disabled = "true" })*@
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">National ID #</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                        @Html.TextBoxFor(x => x.NIC, new { disabled = "true" })
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Passport #</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                        @Html.TextBoxFor(x => x.PassportNo, new { disabled = "true" })
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Nationality</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-flag-o"></i>
+                                        @Html.TextBoxFor(x => x.Nationality, new { disabled = "true" })
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Address</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-map-marker"></i>
+                                        @Html.TextBoxFor(x => x.Address, new { disabled = "true" })
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Postal Code</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                        @Html.TextBoxFor(x => x.PostalCode, new { disabled = "true" })
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Country</label>
+                                    <label class="select">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @{
+                                            var tempCountires = countries.Select(x => new SelectListItem
+                                            {
+                                                Value = x.Id.ToString(),
+                                                Text = x.Name,
+                                                Selected = (x.Id == Model.CountryId)
+                                            });
+                                        }
+                                        @Html.DropDownList("CountryDDL", new SelectList(tempCountires, "Value", "Text"), "- Please Select -", new { disabled = "true" })
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">City</label>
+                                    <label class="select">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        <select class="form-control" id="CityDDL" name="CityDDL" disabled="disabled">
+                                            @*<option>- Please Select Country -</option>*@
+                                        </select>
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Email</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-envelope-o"></i>
+                                        @Html.TextBoxFor(x => x.User.Email, new { disabled = "true" })
+                                    </label>
+                                </section>
+                                <section class="col col-6">
+                                    <label class="label">Contact No.</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa fa-phone"></i>
+                                        @Html.TextBoxFor(x => x.ContactNo, new { disabled = "true" })
+                                    </label>
+                                </section>
+                            </div>
+                        </fieldset>
+            <!-- Personal Details - end -->
+
+            <!-- Cards - start -->
+
+
+            <!-- Submit button - start -->
+                                            <footer>
+                                                @*<button type="submit" name="btnSearch" id="btnSearch" class="btn btn-primary">Register</button>*@
+                                            </footer>
+
+
+            <!-- Submit button - end -->
+                                            }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+@section pagespecific {
+    <script src="~/Scripts/Validation/Customer/NewKycForm.js"></script>
+    <script>
+
+
+        @if (Model != null)
+                {
+                    <text>
+
+        $(document).ready(function () {
+            $('#CountryDDL').val(@(Model.CountryId));
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCities", "Common")',
+                contentType: "application/json; charset=utf-8",
+                data: { countryId: @(Model.CountryId) },
+                dataType: "json",
+                success: function (data) {
+                    debugger;
+                    $('#CityDDL').empty();
+                    $('#CityDDL').append($('<option></option>').val("-1").html("- Please Select -"));
+                    $.each(data, function (i) {
+
+                        $('#CityDDL').append($('<option></option>').val(data[i].Id).html(data[i].Name)
+                            );
+                    });
+                    $("#CityDDL").val(@(Model.CityId));
+                }
+            });
+        });
+
+        var cmbCity = $('#CityDDL');
+        $("#CountryDDL").change(function () {
+            debugger;
+            var id = $("#CountryDDL").val();
+            if (id != "") {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetCities", "Common")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { countryId: id },
+                    dataType: "json",
+                    success: function (data) {
+                        debugger;
+                        cmbCity.empty();
+                        cmbCity.append($('<option></option>').val("-1").html("- Please Select -"));
+                        $.each(data, function (i) {
+
+                            cmbCity.append($('<option></option>').val(data[i].Id).html(data[i].Name)
+                                );
+                        });
+                    }
+                });
+            } else {
+
+                cmbCity.empty();
+                cmbCity.append($('<option></option>').val("0").html("Select City"));
+            }
+        })
+
+        </text>
+                }
+
+    </script>
+}

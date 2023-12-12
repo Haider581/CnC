@@ -1,0 +1,62 @@
+﻿@using CnC.Web.Controllers;
+@using CnC.Core.Accounts;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int ticketId = Convert.ToInt32(Request["ticketId"]);
+    if (Session["CurrentSession"] == null)
+    {
+        Response.Redirect("/Account/Login");
+    }
+    var userSession = Session["CurrentSession"] as User;
+    int SessionUserId = Convert.ToInt32(userSession.Id);
+    var showMessages = new TicketController();
+    var getTicketsData = showMessages.GetMessages(ticketId);
+    var ticketData = showMessages.GetTicketById(ticketId);
+}
+
+<style type="text/css">
+    .ScrollStyle {
+        max-height: 350px;
+        overflow-y: scroll;
+    }
+</style>
+
+
+<div id="content">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+               Messages
+                <span>                    
+
+                </span>
+            </h1>
+        </div>
+
+    </div>
+    <section id="widget-grid" class="">
+        <div class="ScrollStyle">
+            <label>@ticketData.Subject   </label><br />
+            @foreach (var item in getTicketsData)
+            {
+                <label>Message Created on  </label> @item.CreatedOn;
+                <br />
+
+                <label>User Name  </label> @item.User.Username
+                <br />
+                <label>Message  </label> @item.Message;
+                <hr />
+            }
+
+        </div>
+
+        @using (Html.BeginForm("AddMessage", "Ticket", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+        {
+            <textarea name="txtPost" rows="4" cols="50" title="Enter the message"></textarea>
+            @Html.Hidden("ticketId", ticketId)
+            <button type="submit" class="btn btn-primary">Send</button>
+        }
+    </section>
+</div>

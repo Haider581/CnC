@@ -1,0 +1,162 @@
+﻿@model CnC.Core.CnCSetting
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+@{
+    ViewBag.Title = "Localization Enable/Dissable";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string value = string.Empty;
+    string enable = "Enable";
+    string disable = "Disable";
+    if (Model.Value.ToLower() == "true")
+    {
+        value = "Enable";
+    }
+    else
+    {
+        value = "Disable";
+    }
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Configuration</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Localization Setting</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {<div class="alert alert-danger fade in">
+                            <button class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong> ViewBag.MessageFailure
+                        </div> }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @if (Model != null)
+                            {
+
+                                <div class="table-responsive" style="overflow-x: hidden">
+
+                                    @using (Html.BeginForm())
+                                    {
+                                        @Html.AntiForgeryToken()
+
+                                        <table class="table table-bordered">
+                                            <tr>
+
+                                                <th class="col-xs-2">
+                                                    @Html.DisplayName("Name")
+                                                </th>
+                                                <th class="col-xs-3">
+                                                    @Html.DisplayName("Value")
+                                                </th>
+                                                <th class="col-xs-2">
+                                                    @Html.DisplayName("Description")
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <td class="wraptext">
+                                                    @Html.HiddenFor(modelItem => Model.Id)
+                                                    @Html.HiddenFor(modelItem => Model.Name)
+                                                    <lable>Localization</lable>
+                                                </td>
+
+                                                <td class="wraptext">
+                                                    @if (value == "Enable")
+                                                    {
+                                                        <input type="radio" name="Value" checked="checked" value="True"> @value
+                                                        <input type="radio" name="Value" value="False">@disable
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="radio" name="Value" value="True">@enable
+                                                        <input type="radio" name="Value" checked="checked" value="False"> @value
+                                                    }
+                                                </td>
+                                                <td class="wraptext">
+                                                    @Html.HiddenFor(modelItem => Model.Description)
+                                                    <lable>
+                                                        Currently Localization is
+                                                        <strong>
+                                                            @value
+                                                        </strong>
+                                                    </lable>
+                                                </td>
+
+                                            </tr>
+
+                                        </table>
+                                        <button type="submit" name="btnSave" id="btnSave" value="Save" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                            <span style="padding:10px;">Update</span>
+                                            <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-save"></i></span>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info fade in" style="margin-top:5px;">
+                                    <button class="close" data-dismiss="alert">×</button>
+                                    <i class="fa-fw fa fa-cube"></i>
+                                    <strong>Sorry! </strong> No Records Found
+                                </div>
+                            }
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>

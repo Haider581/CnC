@@ -1,0 +1,225 @@
+﻿@using CnC.Core
+@using CnC.Service
+@using CnC.Core.Cards
+@model List<Card>
+@{
+    ViewBag.Title = "Cards";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .Container {
+        width: 100%;
+    }
+
+    .Content {
+        width: 100%;
+    }
+
+    .Flipped, .Flipped .Content {
+        transform: rotateX(180deg);
+        -ms-transform: rotateX(180deg); /* IE 9 */
+        -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+    }
+</style>
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Search @ViewBag.Title</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+
+                            @using (Html.BeginForm("Cards", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCards" }))
+                            {
+                                <fieldset>
+                                    @{Html.RenderPartial("_TopUpRequestSearchControl");}
+                                    @{Html.RenderPartial("_SearchButtons");}
+                                </fieldset>
+                                        }
+                        </div>
+                        <!-- end widget content -->
+                        <div class="Container Flipped">
+                            <div class="Content">
+                                <div class="table-responsive" style="padding-bottom:50px;">
+                                    @if (Model != null && Model.Count > 0)
+                                    {
+                                        <table class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th title="Customer ID">ID</th>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th title="National ID #">National ID #</th>
+                                                    <th>Card #</th>
+                                                    <th>Type</th>
+                                                    <th title="Creation Date"><i class="fa fa-fw fa-calendar txt-color-black hidden-md hidden-sm hidden-xs"></i>Date</th>
+                                                    @*<th>Status</th>
+                                                        <th>Balance (€)</th>
+                                                        <th title="Top Up History">TUH</th>
+                                                        <th title="Payment Transaction History">PTH</th>*@
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{int i = 0; }
+                                                @foreach (var item in Model)
+                                                {
+                                                    <text>
+                                                        <tr>
+                                                            <td>@item.CardRequest.CardRequestForm.Customer.Id</td>
+                                                            <td>@item.CardRequest.CardRequestForm.Customer.User.FirstName</td>
+                                                            <td>@item.CardRequest.CardRequestForm.Customer.User.Email</td>
+                                                            <td>@item.CardRequest.CardRequestForm.Customer.NIC</td>
+                                                            <td>@item.Number</td>
+                                                            <td>@item.CardRequest.CardType.Name</td>
+                                                            <td>@item.CardRequest.CardIssuerRespondedOn.Value.ToString("yyyy/MM/dd HH:mm")</td>
+                                                            @*<td>
+                                                                    @Enum.GetName(typeof(CardStatus), item.Status)
+
+                                                                    @if (item.Status == 0)
+                                                                    {
+                                                                        <a href='#' rel='tooltip' title=''>Block </a><a href='#' rel='tooltip' title=''>Refund/Close </a>
+                                                                    }
+                                                                    else if (item.Status == 1)
+                                                                    {
+                                                                        <a href='#' rel='tooltip' title=''>UnBlock </a><a href='#' rel='tooltip' title=''>Refund/Close </a>
+                                                                    }
+
+                                                                </td>
+                                                                <td>@item.Balance</td>
+                                                                <td> <a data-toggle="modal" data-target="@(@String.Format("#topUpHistory_{0}", i))">View </a> </td>
+                                                                <td> <a data-toggle="modal" data-target="@(@String.Format("#paymentpHistory_{0}", i))">View </a> </td>*@
+                                                        </tr>
+                                                    </text>
+                                                    i = i + 1;
+                                                }
+                                            </tbody>
+                                        </table>
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>
+                                                            <div class="alert alert-info">
+                                                                <strong>Info!</strong> No card information found.
+                                                            </div>
+                                                        </text>
+                                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@foreach (var item in Model)
+{
+    @*@Html.Partial("_ViewTopUpHistory", item, new ViewDataDictionary { { "indexNumber", topUpHistoryPopUpIndex } })
+        topUpHistoryPopUpIndex = topUpHistoryPopUpIndex + 1;*@
+}
+@foreach (var item in Model)
+{
+    @*@Html.Partial("_ViewPaymentHistory", item, new ViewDataDictionary { { "indexNumber", paymentHistoryPopUpIndex } })
+        paymentHistoryPopUpIndex = paymentHistoryPopUpIndex + 1;*@
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+    <script>
+        // Wait for the DOM to be ready
+        $(function () {
+            // Initialized form validation on the SearchKYCForms form.
+            // It has the name attribute "SearchKYCForms"
+            $("form[name='SearchTopUpRequests']").validate({
+                // Specify validation rules
+                rules: {
+                    // The key name on the left side is the name attribute
+                    // of an input field. Validation rules are defined on the right side
+                    txtCardNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+                    },
+                    txtNICNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+                    },
+                    txtCreatedDateFrom: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+                    },
+                    txtCreatedDateTo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+
+                    },
+                    txtDeliveryDateFrom: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+
+                    },
+                    txtDeliveryDateTo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+
+                    },
+                    // Specify validation error messages
+                    messages: {
+                        Email: "Please enter a valid email address",
+                        digits: "Please enter only digits.",
+                        date: "Please enter a valid date.",
+                    },
+                    // Make sure the form is submitted to the destination defined
+                    // in the "action" attribute of the form when valid
+                    submitHandler: function (form) {
+                        form.submit();
+                    }
+                }
+            });
+        });
+    </script>
+}

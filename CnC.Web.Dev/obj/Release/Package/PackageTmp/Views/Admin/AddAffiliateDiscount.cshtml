@@ -1,0 +1,442 @@
+﻿@model IEnumerable<CnC.Core.Affiliates.Affiliate>
+@using CnC.Service;
+@{
+    ViewBag.Title = "Add Affiliate Discount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int totalCount = 0;
+    var cardTypes = new CardService().GetAllCardTypes(out totalCount);
+}
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i></span>
+                        <h2>Add Affiliate Discount</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {
+                            <div class="alert alert-danger fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-times"></i>
+                                <strong>Error!</strong> @ViewBag.MessageFailure
+                            </div>
+                        }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm())
+                            {
+                                <div class="widget-body">
+                                    <div id="showMessage">
+                                    </div>
+                                    <div id="cncLoaderMessage">
+                                    </div>
+                                    <fieldset>
+                                        @{ Html.RenderPartial("_AffiliateSearchControl", new CnC.Core.Affiliates.Affiliate());}
+                                        <div class="row" style="padding-bottom:20px;">
+                                            <div class="col-sm-12">
+                                                @{Html.RenderPartial("_SearchButtons");}
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    @if (Model != null && Model.Count() > 0)
+                                    {
+                                        <div class="table-responsive" style="overflow-x: hidden">
+                                            <table class="table table-bordered">
+                                                <tr>
+                                                    <th class="col-md-2">
+                                                        @Html.DisplayName("Id - Name")
+                                                    </th>
+                                                    <th class="col-md-3">
+                                                        @Html.DisplayName("Card/s") <br />
+                                                        @{
+                                                            var allCardIds = string.Empty;
+                                                        }
+                                                        <input type="checkbox" value="@allCardIds" name="chkAllCardsOfColumn" id="chkAllCardsOfColumn" /> All
+
+                                                        @foreach (var card in cardTypes)
+                                                        {
+                                                            <input type="checkbox" class="chkCards" onclick="CheckAllCheckBoxesOfSameKind('@card.Name')" value="@card.Id" name="@card.Name" />@card.Name
+
+                                                            allCardIds = card.Id + ",";
+                                                        }
+
+                                                    </th>
+                                                    <th class="col-md-1">
+                                                        @Html.DisplayName("Discount")
+                                                        <br />
+                                                        <input type="text" onkeyup="GetValue()" style="width:50px;" name="txtDiscountAll" id="txtDiscountAll" />
+                                                    </th>
+                                                    <th class="col-xs-1">
+                                                        @Html.DisplayName("Active")
+                                                        <br />
+                                                        <input width="20" type="checkbox" name="chkIsActiveAll" id="chkIsActiveAll" /> All
+                                                    </th>
+                                                    <th class="col-md-1">
+                                                        @Html.DisplayName("Percent")
+                                                        <br />
+                                                        <input type="checkbox" name="chkIsPercentAll" id="chkIsPercentAll" /> All
+                                                    </th>
+                                                    <th class="col-xs-2">
+                                                        @Html.DisplayName("Starts From")
+                                                        <br />
+                                                        <input class="datepicker" style="width:100px;" type="text" name="txtFrom" id="txtDateFromAll" />
+                                                    </th>
+                                                    <th class="col-xs-1">
+                                                        @Html.DisplayName("Ends On")
+                                                        <br />
+                                                        <input class="datepicker" style="width:100px;" type="text" name="txtTo" id="txtDateToAll" />
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayName("All")
+                                                        <input type="checkbox" name="chkSelectAll" id="chkSelectAll" />
+                                                    </th>
+                                                </tr>
+                                                @{ int i = 0;}
+                                                @foreach (var item in Model)
+                                                {
+                                                    i++;
+                                                    <tr>
+                                                        <td>
+                                                            @item.Id - @item.Address.FirstName
+                                                        </td>
+                                                        <td class="wraptext col-md-3">
+                                                            <input type="checkbox" value="@allCardIds"
+                                                                   class="chkAllCardsOfRow" id="@item.Id" onclick="CheckAllCardsInTd(this.id)" /> All
+                                                            @foreach (var card in cardTypes)
+                                                            {
+                                                                <input type="checkbox" class="@item.Id" value="@card.Id" name="@card.Name" />@card.Name
+
+                                                                allCardIds = card.Id + ",";
+                                                            }
+                                                        </td>
+                                                        <td class="wraptext col-md-1">
+                                                            <input style="width:50px;" type="text" id="txtDiscount" name="txtDiscount" />
+                                                        </td>
+                                                        <td class="wraptext">
+                                                            <input type="checkbox" class="chkIsActive" name="chkIsActive" id="chkIsActive" />
+                                                        </td>
+                                                        <td class="wraptext">
+                                                            <input type="checkbox" class="chkIsPercent" name="chkIsPercent" id="chkIsPercent" />
+                                                        </td>
+                                                        <td class="wraptext">
+                                                            <input class="datepicker datepickerFrom" style="width:100px;" type="text" name="txtDateFrom" />
+                                                        </td>
+                                                        <td>
+                                                            <input class="datepicker datepickerTo" style="width:100px;" type="text" name="txtDateTo" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="checkbox" class="chkSelect" name="chkSelect" id="chkSelect" />
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </table>
+                                        </div>
+                                                        Html.RenderPartial("_Pagination");
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                            <button class="close" data-dismiss="alert">×</button>
+                                                            <i class="fa-fw fa fa-cube"></i>
+                                                            <strong>Sorry! </strong> No Records Found
+                                                        </div>
+                                                    }
+                                </div>
+                                                    }
+
+                            <button type="button" style="padding: 5px 10px;" name="btnSaveDiscounts"
+                                    id="btnSaveDiscounts" class="btn btn-primary btn-lg pull-right">
+                                <span class="glyphicon glyphicon-saved"></span> save
+                            </button>
+
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+@section Scripts {
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+}
+<script>
+    $('#chkAllCardsOfColumn').change(function () {
+        var cards = @Html.Raw(Json.Encode(cardTypes));
+        for (i = 0; i < cards.length; i++) {
+            $('tbody tr td input[name=' + cards[i].Name + ']').prop('checked', $(this).prop('checked'));
+        }
+        $('.chkAllCardsOfRow').attr('disabled','disabled');
+        $('.chkCards').attr('disabled','disabled');
+        if($(this). prop("checked") == false){
+            $('.chkAllCardsOfRow').removeAttr('disabled','disabled');
+            $('.chkCards').removeAttr('disabled','disabled');
+            $('.chkCards').removeAttr('checked');
+        }
+    });
+
+    function CheckAllCheckBoxesOfSameKind(cardName){
+        if($(this). prop("checked") == false){
+            $('tbody tr td input[name='+cardName+']').prop('unchecked', $('input[name='+cardName+']').prop('unchecked'));
+        }
+        else{
+            $('tbody tr td input[name='+cardName+']').prop('checked', $('input[name='+cardName+']').prop('checked'));
+        }
+    }
+
+    function CheckAllCardsInTd(id){
+        if($('#'+id). prop("checked") == false){
+            $('.'+id).removeAttr('checked');
+        }
+        else{
+            $('.'+id).prop('checked','checked');
+        }
+    }
+
+    function GetValue(){
+        $('tbody tr td input[name=txtDiscount]').val($('#txtDiscountAll').val());
+    }
+
+    $('#chkIsActiveAll').change(function () {
+        $('tbody tr td input[name=chkIsActive]').prop('checked', $(this).prop('checked'));
+        $('.chkIsActive').attr('disabled','disabled');
+        if($(this). prop("checked") == false){
+            $('.chkIsActive').removeAttr('disabled','disabled');
+        }
+    });
+
+    $('#chkIsPercentAll').change(function () {
+        $('tbody tr td input[name=chkIsPercent]').prop('checked', $(this).prop('checked'));
+        $('.chkIsPercent').attr('disabled','disabled');
+        if($(this). prop("checked") == false){
+            $('.chkIsPercent').removeAttr('disabled','disabled');
+        }
+    });
+
+    $('#chkSelectAll').change(function () {
+        $('tbody tr td input[name=chkSelect]').prop('checked', $(this).prop('checked'));
+        $('.chkSelect').attr('disabled','disabled');
+        if($(this). prop("checked") == false){
+            $('.chkSelect').removeAttr('disabled','disabled');
+        }
+    });
+
+    $('#btnSaveDiscounts').on('click',function(){
+        var table = $("table tbody");
+        cardTypeIds=[];
+        isActive=[];
+        isPercent=[];
+        var listAffiliateDiscount=[];
+        table.find('tr').not(":first").each(function (i) {
+            var $tds = $(this).find('td');
+            if($tds.eq(7).find('input[type="checkbox"]').is(":checked")){
+                var affiliateDiscount= {AffiliateId:"",CardTypeId:"",Discount:"",IsPercent:"",StartOn:""
+                                        ,EndOn:"",Active:"",CardTypeIds:""};
+                var $tds = $(this).find('td'),
+                    affiliateId = $tds.eq(0).text(),
+                  affiliateDiscountcardIds= $tds.eq(1).find('input[type="checkbox"]').each(function(){
+                      if ($(this).is(":checked")) {
+                          if ( $(this).attr('value').indexOf(",") > -1 ) {
+                          }
+                          else{
+                              cardTypeIds.push($(this).attr('value'))
+                          }
+                      }
+                  }),
+                    discount = $tds.eq(2).find('input[type="text"]').val(),
+                    active=$tds.eq(3).find('input[type="checkbox"]').each(function(){
+                        if ($(this).is(":checked")) {
+                            isActive.push("1")
+                        }
+                        else{
+                            isActive.push("0")
+                        }
+                    });
+                percent=$tds.eq(4).find('input[type="checkbox"]').each(function(){
+                    if ($(this).is(":checked")) {
+                        isPercent.push("1")
+                    }
+                    else{
+                        isPercent.push("0")
+                    }
+                });
+                startDate=$tds.eq(5).find('input[type="text"]').val(),
+                 endDate=$tds.eq(6).find('input[type="text"]').val();
+
+                affiliateDiscount.AffiliateId=parseInt(affiliateId.slice(0,affiliateId.indexOf("-")).replace(/\s/g, ""));
+                affiliateDiscount.CardTypeId=0;
+                affiliateDiscount.CardTypeIds=cardTypeIds;
+                affiliateDiscount.Discount=parseInt(discount);
+                if(isActive==1){
+                    affiliateDiscount.Active=true;
+                }
+                if(isPercent==0){
+                    affiliateDiscount.Active=false;
+                }
+
+                if(isPercent==1){
+                    affiliateDiscount.IsPercent=true;
+                }
+                if(isPercent==0){
+                    affiliateDiscount.IsPercent=false;
+                }
+                affiliateDiscount.StartOn=startDate;
+                affiliateDiscount.EndOn=endDate;
+
+                listAffiliateDiscount.push(affiliateDiscount);
+                cardTypeIds=[];
+                isActive=[];
+                isPercent=[];
+            }
+        });
+
+        if(listAffiliateDiscount!=null && listAffiliateDiscount.length>0){
+            var check=  ValidateForm(listAffiliateDiscount);
+            if(check==true){
+
+                $("#cncLoader").show();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddNewAffiliateDiscounts", "Admin")',
+                    dataType: "json",
+                    data: {
+                        affiliateDiscounts: listAffiliateDiscount
+                    },
+                    success: function (data) {
+                        if(data[0]=="200"){
+                            $("#cncLoader").hide();
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                        }else {
+                            $("#cncLoader").hide();
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                    },
+                    error:function (data) {
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<i class='fa-fw fa fa-times'></i><strong>Error!</strong> Unable to process");
+
+                    }
+                });
+            }
+            else{
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<i class='fa-fw fa fa-times'></i><strong>Error!</strong> Missing Required Fields");
+                window.scrollTo(0, 0);
+            }
+        }
+        else{
+            $("#showMessage").removeClass("alert alert-danger fade in");
+            $("#showMessage").empty();
+            $("#showMessage").show();
+            $("#showMessage").addClass("alert alert-danger fade in");
+            $("#showMessage").append("<i class='fa-fw fa fa-times'></i><strong>Error!</strong> Kindly select Atleast one Record");
+            window.scrollTo(0, 0);
+        }
+    });
+
+    function ValidateForm(listAffiliateDiscount){
+        var isValid=false;
+        for(i=0;i<listAffiliateDiscount.length;i++){
+            if(listAffiliateDiscount[i].AffiliateId=="" || listAffiliateDiscount[i].CardTypeIds==""
+                || listAffiliateDiscount[i].StartOn=="" ||listAffiliateDiscount[i].EndOn==""
+                || listAffiliateDiscount[i].Discount==""){
+                isValid=true;
+            }
+            if(isValid==true){
+                break;
+            }
+        }
+        if(isValid==true){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    $(document).ready(function () {
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+
+        $("#txtDateFromAll").datepicker({
+            dateFormat: 'mm/dd/yy',
+            onSelect: function (selected) {
+                $("#txtDateToAll").datepicker("option", "minDate", selected)
+                $('.datepickerFrom').val(selected)
+            }
+        });
+
+        $("#txtDateToAll").datepicker({
+            dateFormat: 'mm/dd/yy',
+            onSelect: function (selected) {
+                $("#txtDateToAll").datepicker("option", "maxDate", selected)
+                $('.datepickerTo').val(selected)
+            }
+        });
+
+        $(".datepicker").datepicker({
+            dateFormat: 'mm/dd/yy',
+            onSelect: function (selected) {
+                $("txtDateTo").datepicker("option", "minDate", selected)
+
+            }
+        });
+    });
+</script>

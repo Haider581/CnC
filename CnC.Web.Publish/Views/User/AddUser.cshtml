@@ -1,0 +1,162 @@
+﻿@using CnC.Core;
+@using CnC.Service;
+@{
+    ViewBag.Title = "Add New TBO Agent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    List<string> skipRoles = new List<string>();
+    skipRoles.Add("Customer");
+    skipRoles.Add("TBOAdmin");
+
+    var rolesList = new CnC.Web.Controllers.UserController().GetRoles(skipRoles);
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/User/user.js"></script>
+}
+<!-- MAIN CONTENT -->
+<div id="content">
+
+
+
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+
+        <!-- row -->
+        <div class="row">
+
+            <!-- NEW WIDGET START -->
+            <article class="col-sm-12 col-md-12 col-lg-12">
+
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget jarviswidget-color-darken" id="wid-id-0" data-widget-editbutton="false" data-widget-deletebutton="false">
+                    <div>
+
+                        @using (Html.BeginForm("AddUser", "User", FormMethod.Post, new { id = "myform", name = "myform", role = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                            <div class="widget-body">
+
+                                <div class="row">
+                                    <form id="wizard-1" novalidate="novalidate">
+                                        <div id="bootstrap-wizard-1" class="col-sm-12">
+
+                                            <div class="tab-content">
+                                                <div class="tab-pane active" id="tab1">
+                                                    <br>
+                                                    <h3><strong>Add User</strong></h3>
+                                                    <hr />
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                    <input class="form-control input-lg" placeholder="First Name" type="text" name="FirstName" id="FirstName">
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                    <input class="form-control input-lg" placeholder="Last Name" type="text" name="LastName" id="LastName">
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                    <input class="form-control input-lg" placeholder="UserName" type="text" name="Username" id="Username">
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+                                                                    <input class="form-control input-lg" placeholder="Password" type="password" name="Password" id="Password">
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-envelope fa-fw"></i></span>
+                                                                    <input class="form-control input-lg" placeholder="email@address.com" type="text" name="Email" id="Email">
+
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                    @Html.DropDownList("ddlRoles", new SelectList(rolesList, "Id", "Name"), "- Select Role -", new { @class = "form-control input-lg" })
+
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <div class="checkbox">
+                                                                    <label><input type="checkbox" id="Status" name="Status" checked>Is Active</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <button type="submit" class="btn btn-primary btn-lg">
+                                                                    <span class="glyphicon glyphicon-saved"></span> Save
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                        }
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+
+
+
+        </div>
+
+        <!-- end row -->
+
+    </section>
+    <!-- end widget grid -->
+</div>

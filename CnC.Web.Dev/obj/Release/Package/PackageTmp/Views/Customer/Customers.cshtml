@@ -1,0 +1,564 @@
+﻿@using CnC.Core.Accounts
+@using CnC.Service;
+@using CnC.Core.Customers
+@model List<Customer>
+
+@{
+    ViewBag.Title = "Customers (KYC Form)";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userSession = Session["CurrentSession"] as User;
+
+    var localizationService = new LocalizationService();
+}
+
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/moment.js"></script>
+<script src="~/Scripts/Jalali/jalali.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*
+        <li>@User.Identity.Name.ToLower()</li>*@
+    <li>
+        @localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)
+    </li>
+</ol>
+<!--MAIN CONTENT-->
+<div id="content">
+    <!--widget grid-->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID(each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title) </h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <div id="dialog_simple" title="Dialog Simple Title" style="overflow: hidden;">
+                            <div class="widget-body no-padding">
+                                <form id="card-info-form2" name="CardInfoApprove" autocomplete="off" class="smart-form" style=" margin-top 18px; margin-bottom 18px; margin-left 18px; margin-right 18px;">
+                                    @*<header>
+                                            Card Info
+                                        </header>*@
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.FirstName", null, "First Name")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-text-width"></i>
+                                                    <input type="text" readonly="readonly" id="txtFName" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.LastName", null, "Last Name") </label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-text-width"></i>
+                                                    <input type="text" readonly="readonly" id="txtLName" />
+                                                </label>
+                                            </section>
+
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Gender", null, "Gender")</label>
+                                                <label class="input">
+                                                    <input type="text" id="txtGender" readonly="readonly" value="" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.DateofBirth", null, "Date of Birth")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-calendar"></i>
+                                                    <input type="text" readonly="readonly" id="txtDateOfBirth" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.MaritalStatus", null, "Marital Status")</label>
+                                                <label class="input">
+                                                    <input type="text" id="txtMarital" readonly="readonly" value="" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.NationalId", null, "National ID #")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                                    <input type="text" readonly="readonly" id="txtNic" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Passport#", null, "Passport #") </label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                                    <input type="text" readonly="readonly" id="txtPassportNoo" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Nationality", null, "Nationality")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-flag-o"></i>
+                                                    <input type="text" readonly="readonly" id="txtNationality" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Address", null, "Address") </label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-map-marker"></i>
+                                                    <input type="text" readonly="readonly" id="txtAddress" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.PostalCode", null, "Postal Code") </label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                                    <input type="text" readonly="readonly" id="txtPostalCode" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Country", null, "Country") </label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-comment"></i>
+                                                    <input type="text" readonly="readonly" id="txtCountry" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.City", null, "City")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-comment"></i>
+                                                    <input type="text" readonly="readonly" id="txtCity" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Email", null, "Email")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-envelope-o"></i>
+                                                    <input type="text" readonly="readonly" id="txtUserEmail" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Contact#", null, "Contact #")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa fa-phone"></i>
+                                                    <input type="text" readonly="readonly" id="txtContactNo" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.BillingEmail", null, "Billing Email")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-envelope-o"></i>
+                                                    <input type="text" readonly="readonly" id="txtEmailForShopping" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.BillingAddress", null, "Billing Address")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa fa-phone"></i>
+                                                    <input type="text" readonly="readonly" id="txtBillingAddress" />
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        @using (Html.BeginForm("Customers", "Customer", FormMethod.Post,
+new { @class = "smart-form", role = "form", name = "SearchCustomers" }))
+                        {
+                            <div class="widget-body">
+                                @*<div id="cncLoader"></div>*@
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <div id="showMessage">
+                                </div>
+
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary("", new { @class = "text-danger" })
+                                <fieldset>
+                                    @{Html.RenderPartial("_CustomersSearch");}
+                                    <div class="row">
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </div>
+                                </fieldset>
+
+                            </div>
+                        <!-- end widget content -->
+                                            <div class="table-responsive">
+                                                @{
+                                                    if (Model != null && Model.Count > 0)
+                                                    {
+                                                        <table class="table table-bordered table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>@localizationService.GetResource("Cnc.FirstName", null, "First Name")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.LastName", null, "Last Name")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.Email", null, "Email")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.NationalId", null, "National ID #")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.Passport#", null, "Passport #")</th>
+                                                                    @*<th>@localizationService.GetResource("Cnc.ClientId", null, "Client Id")</th>*@
+                                                                    <th>@localizationService.GetResource("Cnc.Gender", null, "Gender")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.RegistrationDate", null, "Registration Date")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.Status", null, "Status")</th>
+                                                                    <th></th>
+                                                                    @if (userSession.IsTBOAdmin || userSession.IsTBOSuperAgent)
+                                                                    {
+                                                                        @*<th></th>*@
+                                                                        <th></th>
+                                                                    }
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @{
+                                                                    foreach (var item in Model)
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@item.User.FirstName</td>
+                                                                            <td>@item.User.LastName</td>
+                                                                            <td>@item.User.Email</td>
+                                                                            <td>@item.NIC</td>
+                                                                            <td>@item.PassportNo</td>
+                                                                            <td>@item.Gender</td>
+                                                                            <td>@item.User.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                            <td>@item.StatusString</td>
+                                                                            <td><a onclick='OpenDialog("@item.Id");' style="cursor:pointer" id="dialog_link">@localizationService.GetResource("Cnc.Details", null, "Details")</a></td>
+
+                                                                            @if (userSession.IsTBOAdmin || userSession.IsTBOSuperAgent)
+                                                                            {
+                                                                                <td>
+                                                                                    @Html.ActionLink("Edit", "EditCustomer",
+                                                         new
+                                                         {
+                                                             editId = new CnC.Web.Helper.Utility()
+                                                         .UrlSafeEncrypt(item.Id.ToString())
+                                                         })
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                                        Html.RenderPartial("_Pagination");
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                            <button class="close" data-dismiss="alert">×</button>
+                                                                            <i class="fa-fw fa fa-cube"></i>
+                                                                            <strong>@localizationService.GetResource("Cnc.Sorry", null, "Sorry")! </strong>@localizationService.GetResource("Cnc.NoRecord", null, "No Records Found")
+                                                                        </div>
+                                                                    }
+                                                }
+
+                                            </div>
+                                                                    }
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+
+        <input type="hidden" id="hfCustomerId" name="hfCustomerId" />
+
+        <div id="dialogResetPassword" title="Dialog failed">
+            <form name="formPassword" id="idFormPassword">
+                <fieldset>
+                    <div class="row">
+                        <section class="col col-6">
+                            <label class="label">New Password</label>
+                            <label class="input" style="width:200px">
+                                <label></label>
+                                @Html.TextBox("txtPassword", null, new { @class = "form-control", placeholder = "New password" })
+                            </label>
+                        </section>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts
+        {
+
+}
+@section pagespecific
+        {
+    <script src="~/Scripts/Validation/Customer/Signup.js"></script>
+    <script src="~/Scripts/FarsiType.js"></script>
+
+    <script>
+        $(document).ready(function () {            
+            localStorage.ulselectorid = "#left-panel > nav > ul > li:nth-child(1) > ul";            
+        });
+        $(".subul li").click(function () {           
+            localStorage.ulselectorid = $(this).closest('ul').attr('id');          
+        });
+    </script>
+    <script>
+        $('#CustomerStatus').on('change', function () {            
+        })
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        $('#dialog_simple').dialog({
+            autoOpen: false,
+            width: 1000,
+            resizable: false,
+            modal: true,
+            title: "Customer Details",
+
+        });
+
+        /*
+        CUSTOMER CARD DETAILS
+        */
+        function CardDetails(customerId) {
+            window.location.href = '@Url.Action("CustomerCards", "Card")?customerId=' + customerId;
+        }
+        /*
+        * DIALOG HEADER ICON
+        */
+
+        function OpenDialog(rf) {
+            CustomerProfile(rf);
+            $('#dialog_simple').dialog('open');
+            return false;
+        }
+
+        function CustomerProfile(rf) {
+            $("#cncLoader").show();
+            $.ajax({
+                url: '@Url.Action("CustomerProfile", "Customer")',
+                contentType: "application/json; charset=utf-8",
+                data: { customerId: rf },
+                dataType: "json",
+                success: function (data) {
+
+                    $("#cncLoader").hide();
+                    if (data[0] == "200") {
+                        $("#txtFName").val(data[1].FirstName);
+                        $("#txtLName").val(data[1].LastName);
+
+                        var src = data[1].DateOfBirth;
+                        src = src.replace(/[^0-9 +]/g, '');
+                        var myDate = new Date(parseInt(src) + 1);
+                        var convertedDate = moment(myDate).format('YYYY-MM-DD');
+
+                        $("#txtDateOfBirth").val(convertedDate);
+                        $("#txtNic").val(data[1].NIC);
+                        $("#txtPassportNoo").val(data[1].PassportNo);
+                        $("#txtNationality").val(data[1].Nationality);
+                        $("#txtAddress").val(data[1].Address);
+                        $("#txtPostalCode").val(data[1].PostalCode);
+                        $("#txtUserEmail").val(data[1].EmailAddress);
+                        $("#txtContactNo").val(data[1].ContactNo);
+                        $("#txtEmailForShopping").val(data[1].EmailForShopping);
+                        $("#txtBillingAddress").val(data[1].BillingAddress);
+
+                        $("#txtCity").val(data[1].CityName);
+                        $("#txtCountry").val(data[1].CountryName);
+                        $("#txtGender").val(data[1].Gender);
+                        $("#txtMarital").val(data[1].MaritalStatus);
+
+
+                    } else {
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                    }
+                },
+                error: function (data) {
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Unable to process. May be you don't have permissions");
+
+                }
+            });
+
+        }
+
+        function ClearForm() {
+            document.getElementById("txtClientId").value = "";
+            document.getElementById("txtFailure").value = "";
+            $("#hfFormId").val("");
+        }
+        function PostCardInfo(key, ffrom) {
+
+            var keyId = $("#hfFormId").val();
+            var customerClientId = document.getElementById("txtClientId").value;
+            var failureReason = $("#txtFailure").val();
+            if (key == "f") {
+                if (keyId != "" && failureReason != "") {
+
+                } else {
+                    alert("Unable to update. Missing required values.");
+                    return false;
+                }
+            } else if (key == "a") {
+                if (keyId != "" && customerClientId != "") {
+
+                } else {
+                    alert("Unable to update. Missing required values.");
+                    return false;
+                }
+            }
+            if (keyId != "") {
+                $("#cncLoader").show();
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("SetCustomerApprovedOrDeclined", "Customer")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { key: keyId, failureReason: failureReason, clientId: customerClientId },
+                    dataType: "json",
+                    success: function (data) {
+                        $(ffrom).dialog("close");
+                        $("#cncLoader").hide();
+                        if (data[0] == "200") {
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+
+                        } else {
+
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                    },
+                    error: function () {
+                        $(ffrom).dialog("close");
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+                    }
+                });
+            } else {
+
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Missing required values. ");
+            }
+            //return false;
+        }
+
+        function UpdatePanelDiv() {
+            $("#showMessage").empty();
+            $("#showMessage").hide();
+        }
+
+        function ResetPassword(userId) {
+            if (userId != "") {
+                $("#hfCustomerId").val(userId);
+                $("#txtPassword").val("");
+                $('#dialogResetPassword').dialog('open');
+            }
+
+            return false;
+        }
+
+        $('#dialogResetPassword').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Reset password",
+            buttons: [
+                {
+                    html: "Update password",
+                    "class": "btn btn-warning",
+                    click: function () {
+                        var form = $('#idFormPassword');
+                        form.validate();
+                        if (!form.valid()) {
+                            return false;
+                        };
+                        PostNewPassword();
+                    }
+                },
+                {
+                    html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+        function PostNewPassword() {
+            var customerId = $('#hfCustomerId').val();
+            if (customerId != "") {
+                var password = $("#txtPassword").val();
+                $("#cncLoader").show();
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("ResetPassword", "User")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { userId: customerId, password: password },
+                    dataType: "json",
+                    success: function (results) {
+                        $("#cncLoader").hide();
+                        if (results != null && results != "") {
+                            if (results[0] == "100") {
+                                $('#showMessage').html('<strong>Success!</strong>' + results[1]);
+                                $("#showMessage").show();
+                                $('#dialogResetPassword').dialog('close')
+                            }
+                            else {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").html('<strong>Fail!</strong>' + results[1]);
+                                $("#showMessage").show();
+                                $('#dialogResetPassword').dialog('close')
+                            }
+                        }
+
+                    },
+                    error: function () {
+                        $("#showMessage").html('<strong>Fail!</strong> An error occured changing the password. Please try again.');
+                        $("#showMessage").show();
+                        $('#dialogResetPassword').dialog('close')
+                    }
+                });
+            } else {
+                alert("Missing required values.");
+            }
+        }
+
+    </script>
+}

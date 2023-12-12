@@ -1,0 +1,300 @@
+﻿@model IEnumerable<CnC.Core.Messages.EmailAccount>
+@{
+    ViewBag.Title = "EmailAccounts";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Email Accounts</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            <div class="alert alert-success" id="showMessage" style="display:none;">
+                            </div>
+                            @if (Model != null && Model.Count() > 0)
+                            {
+
+                                <div class="table-responsive" style="overflow-x: hidden">
+
+                                    @using (Html.BeginForm())
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+                                        <fieldset>
+                                            @{ Html.RenderPartial("_EmailAccountsSearchControls",
+   new CnC.Core.Messages.EmailAccount());}
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    @{Html.RenderPartial("_SearchButtons");}
+
+                                                </div>
+                                            </div>
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    <a href="@Url.Action("AddEmailAccount", "Admin")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                                        <span style="padding:10px;">Add New Email Account</span>
+                                                        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                        </fieldset>
+                                        @*<p>
+                                                @Html.ActionLink("Create New", "AddSetting")
+                                            </p>*@
+                                                        <table class="table table-bordered">
+                                                            <tr>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayNameFor(model => model.Email)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    Name
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.Host)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.Port)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.Username)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.Password)
+                                                                </th>
+                                                                <th></th>
+                                                                <th></th>
+                                                            </tr>
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Email)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.DisplayName)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Host)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Port)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Username)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Password)
+                                                                    </td>
+                                                                    <td>
+                                                                        <a onclick='SendEmail("@item.Id")'
+                                                                           style="cursor:pointer" id="ResetPassword">
+                                                                            Send Email
+                                                                        </a>
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.ActionLink("Edit", "EditEmailAccount", new { id = item.Id })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </table>
+
+                                                            Html.RenderPartial("_Pagination");
+                                                        }
+                                </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                <button class="close" data-dismiss="alert">×</button>
+                                                                <i class="fa-fw fa fa-cube"></i>
+                                                                <strong>Sorry! </strong> No Records Found
+                                                            </div>
+                                                        }
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <input type="hidden" id="hfItemId" name="hfItemId" />
+        <div id="dialogSendEmail" title="Dialog failed">
+            <fieldset>
+                <div class="row">
+                    <section class="col col-6">
+                        <label class="label">Subject</label>
+                        <label class="input">
+                            <label></label>
+                            @Html.TextBox("txtSubject", null
+                           , new
+                           {
+                               @class = "form-control"
+                               ,
+                               placeholder = "Please Enter Subject"
+                           }
+                           )
+                        </label>
+                    </section>
+                    <section class="col col-6">
+                        <label class="label">Email</label>
+                        <label class="input">
+                            <label></label>
+                            @Html.TextBox("txtEmail", null
+                           , new
+                           {
+                               @class = "form-control"
+                               ,
+                               placeholder = "Please enter Email Address"
+                           }
+                           )
+                        </label>
+                    </section>
+                    <section class="col col-6">
+                        <label class="label">Body</label>
+                        <label class="input">
+                            <label></label>
+                            @Html.TextBox("txtBody", null
+                           , new
+                           {
+                               @class = "form-control"
+                               ,
+                               placeholder = "Please enter Email Body"
+                           }
+                           )
+                        </label>
+                    </section>
+                </div>
+            </fieldset>
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+
+@section pagespecific {
+    <script>
+        function SendEmail(itemId) {
+            if (itemId != "") {
+                $("#hfItemId").val(itemId);
+                $("#txtSubject").val("");
+                $("#txtEmail").val("");
+                $("#txtBody").val("");
+
+                $('#dialogSendEmail').dialog('open');
+            }
+
+            return false;
+        }
+
+        $('#dialogSendEmail').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Send Email",
+            buttons: [
+                {
+                    html: "Send",
+                    "class": "btn btn-success",
+                    click: function () {
+                        PostSendEmail();
+                    }
+                },
+                {
+                    html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+        function PostSendEmail() {
+            var emailAccountId = $('#hfItemId').val();
+            if (emailAccountId != "") {
+                var email = $("#txtEmail").val();
+                var subject = $("#txtSubject").val();
+                var body = $("#txtBody").val();
+                CheckIsValid();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("SendEmailFromEmailAccount", "Admin")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { emailAccountId: emailAccountId, email: email, subject: subject, body: body },
+                    dataType: "json",
+                    success: function (results) {
+                        if (results != null && results != "") {
+                            if (results[0] == "100") {
+                                $('#showMessage').html('<strong>Success!</strong>' + results[1]);
+                                $("#showMessage").show();
+                                $('#dialogSendEmail').dialog('close')
+                            }
+                            else {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").html('<strong>Fail!</strong>' + results[1]);
+                                $("#showMessage").show();
+                                $('#dialogSendEmail').dialog('close')
+                            }
+                        }
+
+                    },
+                    error: function () {
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").html('<strong>Fail!</strong> An error occured while sending an Email. Please try again.');
+                        $("#showMessage").show();
+                        $('#dialogSendEmail').dialog('close')
+                    }
+                });
+            } else {
+                alert("Missing required values.");
+            }
+        }
+    </script>
+}

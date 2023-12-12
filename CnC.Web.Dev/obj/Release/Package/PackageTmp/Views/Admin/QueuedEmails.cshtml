@@ -1,0 +1,205 @@
+﻿@model IEnumerable<CnC.Core.Messages.QueuedEmail>
+
+@{
+    ViewBag.Title = "QueuedEmails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Queued Emails</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @if (Model != null && Model.Count() > 0)
+                            {
+
+                                <div class="table-responsive" style="overflow-x: hidden">
+
+                                    @using (Html.BeginForm("QueuedEmails", "Admin", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+                                        <fieldset>
+                                            @{ Html.RenderPartial("_QueuedEmailsSearchControls", new CnC.Core.Messages.QueuedEmail());}
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    @{Html.RenderPartial("_SearchButtons");}
+
+                                                </div>
+                                            </div>
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    <a href="@Url.Action("AddQueuedEmail", "Admin")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                                        <span style="padding:10px;">Add New Queued Email</span>
+                                                        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                        </fieldset>
+                                        @*<p>
+                                                @Html.ActionLink("Create New", "AddSetting")
+                                            </p>*@
+                                                        <table class="table table-bordered">
+                                                            <tr>
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.CreatedOn)
+                                                                    </th>*@
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.Priority)
+                                                                    </th>*@
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.From)
+                                                                </th>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayNameFor(model => model.FromName)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.To)
+                                                                </th>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayNameFor(model => model.ToName)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.CC)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.Bcc)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.Subject)
+                                                                </th>
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.Body)
+                                                                    </th>*@
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.SendTries)
+                                                                    </th>
+                                                                    <th>
+                                                                        @Html.DisplayNameFor(model => model.SentOn)
+                                                                    </th>
+                                                                    <th>
+                                                                        @Html.DisplayNameFor(model => model.EmailAccountId)
+                                                                    </th>*@
+                                                                <th></th>
+                                                            </tr>
+
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.CreatedOn)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(modelItem => item.Priority)
+                                                                        </td>*@
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.From)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.FromName)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.To)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.ToName)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.CC)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Bcc)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Subject)
+                                                                    </td>
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.Body)
+                                                                        </td>*@
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.SendTries)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(modelItem => item.SentOn)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(modelItem => item.EmailAccountId)
+                                                                        </td>*@
+                                                                    <td>
+                                                                        @Html.ActionLink("Edit", "EditQueuedEmail", new { id = item.Id })
+                                                                        @*@Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                                                                            @Html.ActionLink("Delete", "Delete", new { id=item.Id })*@
+                                                                    </td>
+                                                                </tr>
+                                                            }
+
+                                                        </table>
+
+                                                            Html.RenderPartial("_Pagination");
+                                                        }
+                                </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                <button class="close" data-dismiss="alert">×</button>
+                                                                <i class="fa-fw fa fa-cube"></i>
+                                                                <strong>Sorry! </strong> No Records Found
+                                                            </div>
+                                                        }
+
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+

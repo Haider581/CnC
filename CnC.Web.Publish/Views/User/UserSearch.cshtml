@@ -1,0 +1,252 @@
+﻿@using CnC.Core;
+@using CnC.Core.Accounts
+@model List<User>
+@{
+    ViewBag.Title = "User Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<string> skipRoles = new List<string>();
+    skipRoles.Add("Customer");
+    skipRoles.Add("TBOAdmin");
+    var rolesList = new CnC.Web.Controllers.UserController().GetRoles(skipRoles);
+}
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget jarviswidget-color-darken" id="wid-id-0" data-widget-editbutton="false" data-widget-deletebutton="false">
+                    <!-- widget options:
+                    -->
+                    <!-- widget div-->
+                    <div>
+                        @using (Html.BeginForm("UserSearch", "User", FormMethod.Post, new { role = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+						<!-- end widget edit box -->
+						<!-- widget content -->
+                            <div class="widget-body">
+                                <div class="row">                                  
+                                    <div id="bootstrap-wizard-1" class="col-sm-12">
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="tab1">
+                                                <br>
+                                                <h3><strong>Users</strong></h3>
+                                                <hr />
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                <input class="form-control input-lg" placeholder="First name" type="text" name="firstName" id="firstName">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                <input class="form-control input-lg" placeholder="Last Name" type="text" name="lastName" id="lastName">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                @Html.DropDownList("ddlRoles", new SelectList(rolesList, "Id", "Name"), "- Select Role -", new { @class = "form-control input-lg" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <div class="checkbox">
+                                                                <label><input type="checkbox" id="Status" name="Status" checked>Is Active</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                    @Html.TextBox("txtRegistrationDateFrom", null, new { @class = "form-control input-lg  datepicker", placeholder = "Registration Date From" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>
+                                                                    @Html.TextBox("txtRegistrationDateTo", null, new { @class = "form-control input-lg datepicker", placeholder = "Registration Date To" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-4">
+                                                        <div class="form-group">
+                                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                                <span class="glyphicon glyphicon-search"></span> Search
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                        
+							<!-- widget content -->
+                            @*<div class="widget-body no-padding">
+                                <div class="alert alert-success" id="msgPwd" style="display:none;">
+                                </div>                                
+                            </div>*@
+                            <div class="alert alert-success" id="msgPwd" style="display:none;">
+                            </div>
+                            <div class="table-responsive">
+                                @if (Model != null)
+                                {
+                                    <table class="table table-bordered table-striped table-hover" id="UserTable">
+                                        <thead>
+                                            <tr>
+                                                <th>First Name</th>
+                                                <th>Last Name</th>
+                                                <th>Email</th>
+                                                <th>Created On</th>
+                                                <th>Status</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var user in Model)
+                                                {
+                                                    UserStatus userStatus = (UserStatus)@user.Status;
+                                                    <tr>
+                                                        <td>@user.FirstName</td>
+                                                        <td>@user.LastName</td>
+                                                        <td>@user.Email</td>
+                                                        <td>@user.CreatedOn</td>
+                                                        <td>
+                                                            @userStatus
+                                                        </td>
+                                                        <td>
+                                                            <a onclick='ResetPassword("@user.Id");' style="cursor:pointer" id="ResetPassword">Reset Password</a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                                }
+                                                else
+                                                {
+                                                    <text>
+                                                        <div class="alert alert-info">
+                                                            <strong>Info!</strong> No users found.
+                                                        </div>
+                                                    </text>
+                                                }
+                            </div>
+									<!-- end widget content -->
+                                                    }
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+        <input type="hidden" id="hfUserId" name="hfUserId" />
+        <div id="dialogResetPassword" title="Dialog failed">
+            <fieldset>
+                <div class="row">
+                    <section class="col col-6">
+                        <label class="label">New Password</label>
+                        <label class="input">
+                            <label></label>
+                            @Html.TextBox("txtPassword", null, new { @class = "form-control", placeholder = "New password" })
+                        </label>
+                    </section>
+                </div>
+            </fieldset>
+        </div>
+    </section>
+    <!-- end widget grid -->
+</div>
+
+@section pagespecific {
+    <script>
+        function ResetPassword(userId) {
+            if (userId != "") {
+                $("#hfUserId").val(userId);
+                $("#txtPassword").val("");
+                $('#dialogResetPassword').dialog('open');
+            }
+
+            return false;
+        }
+
+        $('#dialogResetPassword').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Reset password",
+            buttons: [
+				{
+				    html: "Update password",
+				    "class": "btn btn-warning",
+				    click: function () {
+				        PostNewPassword();
+				    }
+				},
+				{
+				    html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				    "class": "btn btn-default",
+				    click: function () {
+				        $(this).dialog("close");
+				    }
+				}
+            ]
+        });
+        function PostNewPassword() {
+            var userId = $('#hfUserId').val();
+            if (userId != "") {
+                var password = $("#txtPassword").val();
+                $.ajax({
+                    url: '@Url.Action("ResetPassword", "User")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { userId: userId, password: password },
+                    dataType: "json",
+                    success: function (results) {
+                        $("#msgPwd").html('<strong>Success!</strong> Password has been reset successfully.');
+                        $("#msgPwd").show();
+                        $('#dialogResetPassword').dialog('close')
+                    },
+                    error: function () {
+                        $("#msgPwd").html('<strong>Fail!</strong> An error occured changing the password. Please try again.');
+                        $("#msgPwd").show();
+                        $('#dialogResetPassword').dialog('close')
+                    }
+                });
+            } else {
+                alert("Missing required values.");
+            }
+        }
+    </script>
+}

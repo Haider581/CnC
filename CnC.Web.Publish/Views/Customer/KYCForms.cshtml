@@ -1,0 +1,264 @@
+﻿@using CnC.Core
+@using CnC.Core.Customers
+@model List<KYC>
+@{
+    ViewBag.Title = "KYC Forms";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget content -->
+    <div class="widget-body">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+            <!-- row -->
+            <div class="row">
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>Search @ViewBag.Title</h2>
+                        </header>
+                        <!-- widget div-->
+                        <div role="content">
+                            <!-- widget edit box -->
+                            <div class="jarviswidget-editbox">
+                                <!-- This area used as dropdown edit box -->
+                            </div>
+                            <!-- end widget edit box -->
+                            <!-- widget content -->
+                            <div class="widget-body">
+                                @using (Html.BeginForm("KYCForms", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchKYCForms" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                                    <fieldset>
+                                        <div class="row">
+                                            <div class="col col-lg-12">
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">KYC Form #</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-hashtag">#</i>
+                                                            @Html.TextBox("txtKYFFormNo")
+                                                        </label>
+                                                    </section>
+                                                    <section class="col col-6">
+                                                        <label class="label">Email</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-envelope-o"></i>
+                                                            @Html.TextBox("txtEmail")
+                                                        </label>
+                                                    </section>
+                                                </div>
+                                            </div>
+                                            <div class="col col-lg-12">
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">National ID # </label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-hashtag">#</i>
+                                                            @Html.TextBox("txtNICNo", Request["txtNICNo"], new { placeholder = "National ID #" })
+                                                        </label>
+                                                    </section>
+                                                    <section class="col col-6">
+                                                        <label class="label">Status</label>
+                                                        <label class="select">
+                                                            <i style="color:#a2a2a2;" class="icon-append"></i>
+                                                            @Html.DropDownList("RequestFormStatus", EnumHelper.GetSelectList(typeof(RequestFormStatus)), " -Please Select- ")
+                                                        </label>
+                                                    </section>
+                                                </div>
+                                            </div>
+                                            <div class="col col-lg-12">
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">Passport #</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-hashtag">#</i>
+                                                            @Html.TextBox("txtPassportNo", Request["txtPassportNo"], new { placeholder = "Passport No." })
+                                                        </label>
+                                                    </section>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <button type="submit" name="btnSearch" id="btnSearch" class="btn btn-labeled btn-primary" style="float:right;">
+                                                <span style="padding:10px;">Search</span>
+                                                <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-search"></i></span>
+                                            </button>
+                                        </div>
+                                    </fieldset>
+                                }
+                            </div>
+                            <!-- end widget content -->
+                            <div class="table-responsive">
+
+                                @{
+
+                                    if (Model.Count > 0)
+                                    {
+                                        <table class="table table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Form #</th>
+                                                    <th>First Name</th>
+                                                    <th>Last Name</th>
+                                                    <th>Email</th>
+                                                    <th>National ID # </th>
+                                                    <th>Passport #</th>
+                                                    <th>Adress</th>
+                                                    <th>City</th>
+                                                    <th>Current Status</th>
+                                                    <th>Update Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                @{
+                                                    foreach (var item in Model)
+                                                    {
+                                                        //var requestFormStatus = new CnC.Service.CardService().GetRequestFormStatus(item.CardRequestForm);
+
+                                                        <tr>
+                                                            <td>@item.CardRequestForm.Id</td>
+                                                            <td>@item.Customer.User.FirstName</td>
+                                                            <td>@item.Customer.User.LastName</td>
+                                                            <td>@item.Customer.User.Email</td>
+                                                            <td>@item.Customer.NIC</td>
+                                                            <td>@item.Customer.PassportNo</td>
+                                                            <td>@item.Customer.Address</td>
+                                                            <td>@item.Customer.City.Name</td>
+                                                            <td>@item.CardRequestForm.Status.ToString()</td>
+                                                            <td>
+                                                                @{
+                                                                    string[] updateAction = new string[2];
+                                                                    if (item.CardRequestForm.Status == RequestFormStatus.WaitingForSignature)
+                                                                    {
+                                                                        updateAction[0] = "Upload Signed KYC Form";
+                                                                        updateAction[1] = "UploadSignedKYCForm"; //we can also trim to make it method on controller
+                                                                    }
+                                                                    else if (item.CardRequestForm.Status == RequestFormStatus.PaymentNotConfirmed)
+                                                                    {
+                                                                        updateAction[0] = "Confirm Payment"; //Need to discuss
+                                                                        updateAction[1] = "ConfirmPayment";
+                                                                    }
+                                                                    else if (item.CardRequestForm.Status == RequestFormStatus.SentToCardIssuer)
+                                                                    {
+                                                                        updateAction[0] = "Sent To LAMDA"; //Need to discuss
+                                                                        updateAction[1] = "SentToCardIssuer";
+                                                                    }
+
+                                                                }
+                                                                <a href="@Url.Action(@updateAction[1],"Customer")">@updateAction[0]</a>
+                                                                @*<form method="post" id="UpdateRequestForm" action="@Url.Action("UpdateStatus", "Customer")">
+                                                                    <a href="@Url.Action(@updateAction[1],"Customer")">@updateAction[0]</a>
+                                                                    <ol>
+                                                                        <li>@Html.ActionLink("Forgot Password", "UpdateRequestFormStatus", "Customer")</li>
+                                                                    </ol>
+                                                                    </form>*@
+                                                            </td>
+                                                        </tr>
+                                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                            <button class="close" data-dismiss="alert">×</button>
+                                                                            <i class="fa-fw fa fa-cube"></i>
+                                                                            <strong>Sorry! </strong>No Records Found
+                                                                        </div>
+                                                                    }
+                                }
+                            </div>
+                        </div>
+                        <!-- end widget div -->
+
+                    </div>
+                    <!-- end widget -->
+
+                </article>
+                <!-- WIDGET END -->
+            </div>
+            <!-- end row -->
+        </section>
+        <!-- end widget grid -->
+
+    </div>
+    <!-- end widget content -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+    <script>
+        // Wait for the DOM to be ready
+        $(function () {
+            // Initialized form validation on the SearchKYCForms form.
+            // It has the name attribute "SearchKYCForms"
+            $("form[name='SearchKYCForms']").validate({
+                // Specify validation rules
+                rules: {
+                    // The key name on the left side is the name attribute
+                    // of an input field. Validation rules are defined on the right side
+
+                    txtEmail: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        email: true
+
+                    },
+                    txtKYFFormNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+
+                    },
+                    txtNICNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+
+                    },
+                    txtPassportNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+
+                    },
+                    // Specify validation error messages
+                    messages: {
+                        Email: "Please enter a valid email address",
+                        digits: "Please enter only digits.",
+                    },
+                    // Make sure the form is submitted to the destination defined
+                    // in the "action" attribute of the form when valid
+                    submitHandler: function (form) {
+                        form.submit();
+                    }
+                }
+            });
+        });
+    </script>
+
+}

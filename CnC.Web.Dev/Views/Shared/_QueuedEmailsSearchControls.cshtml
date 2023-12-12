@@ -1,0 +1,71 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@model CnC.Core.Messages.QueuedEmail
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<div class="row" style="padding-bottom:20px;">
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>Email Subject</strong></label>
+                @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter subject", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>Email From</strong></label>
+                @Html.EditorFor(model => model.From, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Email From", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>Email To</strong></label>
+                @Html.EditorFor(model => model.To, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Email To", @type = "text" } })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@*<div class="row">
+    <section class="col col-3">
+        <label>Email Subject</label>
+        <label class="input">
+            @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control" } })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>Email From</label>
+        <label class="input">
+            @Html.EditorFor(model => model.From, new { htmlAttributes = new { @class = "form-control" } })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>To</label>
+        <label class="input">
+            @Html.EditorFor(model => model.To, new { htmlAttributes = new { @class = "form-control" } })
+        </label>
+    </section>
+</div>*@
+
+

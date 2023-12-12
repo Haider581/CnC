@@ -1,0 +1,430 @@
+﻿
+@{
+    ViewBag.Title = "KYC Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+			<!-- RIBBON -->
+			<div id="ribbon">
+
+				<span class="ribbon-button-alignment"> 
+					<span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+						<i class="fa fa-refresh"></i>
+					</span> 
+				</span>
+
+				<!-- breadcrumb -->
+				<ol class="breadcrumb">
+					<li>TBO Agent</li><li>KYC Form</li>
+				</ol>
+				<!-- end breadcrumb -->
+
+				<!-- You can also add more buttons to the
+				ribbon for further usability
+
+				Example below:
+
+				<span class="ribbon-button-alignment pull-right">
+				<span id="search" class="btn btn-ribbon hidden-xs" data-title="search"><i class="fa-grid"></i> Change Grid</span>
+				<span id="add" class="btn btn-ribbon hidden-xs" data-title="add"><i class="fa-plus"></i> Add</span>
+				<span id="search" class="btn btn-ribbon" data-title="search"><i class="fa-search"></i> <span class="hidden-mobile">Search</span></span>
+				</span> -->
+
+			</div>
+			<!-- END RIBBON -->
+
+			<!-- MAIN CONTENT -->
+			<div id="content">
+
+				
+				
+				<!-- widget grid -->
+				<section id="widget-grid" class="">
+				
+					<!-- row -->
+					<div class="row">
+				
+						<!-- NEW COL START -->
+						<article class="col-sm-12">
+				
+							<!-- Widget ID (each widget will need unique ID)-->
+							<div class="jarviswidget jarviswidget-color-blueDark" id="wid-id-0" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false">
+								<!-- widget options:
+								usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+				
+								data-widget-colorbutton="false"
+								data-widget-editbutton="false"
+								data-widget-togglebutton="false"
+								data-widget-deletebutton="false"
+								data-widget-fullscreenbutton="false"
+								data-widget-custombutton="false"
+								data-widget-collapsed="true"
+								data-widget-sortable="false"
+				
+								-->
+								<header>
+									<span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+									<h2>KYC Form </h2>
+				
+								</header>
+				
+								<!-- widget div-->
+								<div>
+				
+									<!-- widget edit box -->
+									<div class="jarviswidget-editbox">
+										<!-- This area used as dropdown edit box -->
+				
+									</div>
+									<!-- end widget edit box -->
+				
+									<!-- widget content -->
+                                    <div class="widget-body">
+
+                                        <div class="jarviswidget jarviswidget-color-blueDark" id="wid-id-2" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-colorbutton="false" data-widget-sortable="false" role="widget">
+                                            <!-- widget options:
+            usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+
+            data-widget-colorbutton="false"
+            data-widget-editbutton="false"
+            data-widget-togglebutton="false"
+            data-widget-deletebutton="false"
+            data-widget-fullscreenbutton="false"
+            data-widget-custombutton="false"
+            data-widget-collapsed="true"
+            data-widget-sortable="false"
+
+            -->
+                                            <header role="heading">
+                                                <div class="jarviswidget-ctrls" role="menu">   
+                                                <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a>  
+                                                <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div>
+                                                <div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li></ul></div>
+                                                <ul class="nav nav-tabs pull-left in">
+
+                                                    <li class="active">
+
+                                                        <a data-toggle="tab" href="#hr1" aria-expanded="true"> <i class="fa fa-lg fa-info-circle"></i> <span class="hidden-mobile hidden-tablet"> Search </span> </a>
+
+                                                    </li>
+                                                    <li class="">
+                                                        <a data-toggle="tab" href="#hr2" aria-expanded="false"> <i class="fa fa-lg fa-reorder"></i> <span class="hidden-mobile hidden-tablet"> New KYC Form </span>  </a>
+                                                    </li>
+
+
+                                                </ul>
+                                                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+                                            </header>
+
+                                            <!-- widget div-->
+                                            <div role="content">
+
+                                                <!-- widget edit box -->
+                                                <div class="jarviswidget-editbox">
+                                                    <!-- This area used as dropdown edit box -->
+
+                                                </div>
+                                                <!-- end widget edit box -->
+                                                <!-- widget content -->
+                                                <div class="widget-body">
+
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane active" id="hr1">
+
+                                                            <div class="row show-grid">
+                                                                <div style="margin-left:100px;margin-right:200px !important" class="tab-pane active" id="tab1">
+                                                                    <br>
+                                                                    <h3><strong>Search KYC Form</strong></h3>
+
+                                                                    <div class="row">
+
+                                                                        <div class="col-sm-6">
+                                                                            <div class="form-group">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-addon"><i class="fa fa-bank fa-lg fa-fw"></i></span>
+                                                                                    <input class="form-control input-lg" placeholder="KYC From No" type="text" id="email">
+
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            <div class="form-group">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-addon"><i class="fa fa-bank fa-lg fa-fw"></i></span>
+                                                                                    <input class="form-control input-lg" placeholder="Email Address" type="text" name="email" id="email">
+
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6">
+                                                                            <div class="form-group">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                                                                                    <input class="form-control input-lg" placeholder="CNIC Number" type="text" name="CNIC" id="CNIC">
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            <div class="form-group">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                                                                                    <select name="country" class="form-control input-lg">
+                                                                                        <option value="" selected="selected">Status</option>
+                                                                                        <option value="United States">Active</option>
+                                                                                        <option value="United Kingdom">Blocked</option>
+                                                                                        <option value="Zimbabwe">Closed</option>
+                                                                                    </select>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                       
+                                                                        <div class="col-sm-6">
+                                                                            <div class="form-group">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                                                                                    <input class="form-control input-lg" placeholder="Passport Number" type="text" name="Passport" id="Postport">
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                   
+                                                                        <div class="row">
+                                                                            <div class="col-sm-12">
+                                                                                <ul class="pager wizard no-margin">
+                                                                                    <!--<li class="previous first disabled">
+                    <a href="javascript:void(0);" class="btn btn-lg btn-default"> First </a>
+                    </li>-->
+                                                                                    <li class="previous">
+                                                                                        <a href="javascript:void(0);" class="btn btn-lg btn-default"> Search </a>
+                                                                                    </li>
+                                                                                    <!--<li class="next last">
+                    <a href="javascript:void(0);" class="btn btn-lg btn-primary"> Last </a>
+                    </li>-->
+
+                                                                                </ul>
+                                                                            </div>
+                                                                        </div>
+                                                                   
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane" id="hr2">
+
+                                                            <h2><strong>New KYC Form (New Customer Registration)</strong></h2>
+                                                            <div class="jarviswidget jarviswidget-color-blueDark" id="wid-id-2" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-colorbutton="false" data-widget-sortable="false" role="widget">
+                                                                <!-- widget options:
+        usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+
+        data-widget-colorbutton="false"
+        data-widget-editbutton="false"
+        data-widget-togglebutton="false"
+        data-widget-deletebutton="false"
+        data-widget-fullscreenbutton="false"
+        data-widget-custombutton="false"
+        data-widget-collapsed="true"
+        data-widget-sortable="false"
+
+        -->
+                                                                <header role="heading">
+                                                                    <div class="jarviswidget-ctrls" role="menu">
+                                                                        <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a>
+                                                                        <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a>
+                                                                    </div>
+                                                                    <div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li></ul></div>
+                                                                    <ul class="nav nav-tabs pull-left in">
+
+                                                                        <li class="active">
+
+                                                                            <a data-toggle="tab" href="#hrInner1" aria-expanded="true"> <i class="fa fa-lg fa-info-circle"></i> <span class="hidden-mobile hidden-tablet"> Personal Details </span> </a>
+
+                                                                        </li>
+                                                                        <li class="">
+                                                                            <a data-toggle="tab" href="#hrInner2" aria-expanded="false"> <i class="fa fa-lg fa-reorder"></i> <span class="hidden-mobile hidden-tablet"> Cards </span>  </a>
+                                                                        </li>
+
+                                                                        <li class="">
+                                                                            <a data-toggle="tab" href="#hrInner3" aria-expanded="false"> <i class="fa fa-lg fa-reorder"></i> <span class="hidden-mobile hidden-tablet"> Documents </span>  </a>
+                                                                        </li>
+
+                                                                    </ul>
+                                                                    <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+                                                                </header>
+
+                                                                <!-- widget div-->
+                                                                <div role="content">
+
+                                                                    <!-- widget edit box -->
+                                                                    <div class="jarviswidget-editbox">
+                                                                        <!-- This area used as dropdown edit box -->
+
+                                                                    </div>
+                                                                    <!-- end widget edit box -->
+                                                                    <!-- widget content -->
+                                                                    <div class="widget-body">
+
+                                                                        <div class="tab-content">
+                                                                            <div class="tab-pane active" id="hrInner1">
+
+                                                                                <div class="row show-grid">
+                                                                                    <div style="margin-left:100px;margin-right:200px !important" class="tab-pane active" id="tab1">
+                                                                                        <br>
+                                                                                        <h3><strong>Personal Details</strong></h3>
+
+                                                                                        <div class="row">
+
+                                                                                            <div class="col-sm-6">
+                                                                                                <div class="form-group">
+                                                                                                    <div class="input-group">
+                                                                                                        <span class="input-group-addon"><i class="fa fa-bank fa-lg fa-fw"></i></span>
+                                                                                                        <input class="form-control input-lg" placeholder="KYC From No" type="text" id="email">
+
+                                                                                                    </div>
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                            <div class="col-sm-6">
+                                                                                                <div class="form-group">
+                                                                                                    <div class="input-group">
+                                                                                                        <span class="input-group-addon"><i class="fa fa-bank fa-lg fa-fw"></i></span>
+                                                                                                        <input class="form-control input-lg" placeholder="Email Address" type="text" name="email" id="email">
+
+                                                                                                    </div>
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                        <div class="row">
+                                                                                            <div class="col-sm-6">
+                                                                                                <div class="form-group">
+                                                                                                    <div class="input-group">
+                                                                                                        <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                                                                                                        <input class="form-control input-lg" placeholder="CNIC Number" type="text" name="CNIC" id="CNIC">
+
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-sm-6">
+                                                                                                <div class="form-group">
+                                                                                                    <div class="input-group">
+                                                                                                        <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                                                                                                        <select name="country" class="form-control input-lg">
+                                                                                                            <option value="" selected="selected">Status</option>
+                                                                                                            <option value="United States">Active</option>
+                                                                                                            <option value="United Kingdom">Blocked</option>
+                                                                                                            <option value="Zimbabwe">Closed</option>
+                                                                                                        </select>
+
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row">
+
+                                                                                            <div class="col-sm-6">
+                                                                                                <div class="form-group">
+                                                                                                    <div class="input-group">
+                                                                                                        <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                                                                                                        <input class="form-control input-lg" placeholder="Passport Number" type="text" name="Passport" id="Postport">
+
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+
+
+                                                                                        <div class="row">
+                                                                                            <div class="col-sm-12">
+                                                                                                <ul class="pager wizard no-margin">
+                                                                                                    <!--<li class="previous first disabled">
+                                            <a href="javascript:void(0);" class="btn btn-lg btn-default"> First </a>
+                                            </li>-->
+                                                                                                    <li class="previous">
+                                                                                                        <a href="javascript:void(0);" class="btn btn-lg btn-default"> Search </a>
+                                                                                                    </li>
+                                                                                                    <!--<li class="next last">
+                                            <a href="javascript:void(0);" class="btn btn-lg btn-primary"> Last </a>
+                                            </li>-->
+
+                                                                                                </ul>
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="tab-pane" id="hrInner2">
+
+                                                                                <h2> any data here</h2>
+
+                                                                            </div>
+                                                                            <div class="tab-pane" id="hrInner3">
+
+                                                                                <h2> any data here</h2>
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <!-- end widget content -->
+
+                                                                </div>
+                                                                <!-- end widget div -->
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <!-- end widget content -->
+
+                                            </div>
+                                            <!-- end widget div -->
+
+                                        </div>
+
+
+                                    </div>
+                                    
+									<!-- end widget content -->
+				
+								</div>
+								<!-- end widget div -->
+				
+							</div>
+							
+				
+						</article>
+						<!-- END COL -->
+				
+					</div>
+				
+					<!-- end row -->
+				
+					<!-- START ROW -->
+				
+					
+				
+					<!-- END ROW -->
+				
+				</section>
+				<!-- end widget grid -->
+
+			</div>
+			<!-- END MAIN CONTENT -->
+
+		
+

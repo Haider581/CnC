@@ -1,0 +1,314 @@
+﻿@model IEnumerable<CnC.Core.Accounts.User>
+
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Roles</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {
+                            <div class="alert alert-danger fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-times"></i>
+                                <strong>Error!</strong> ViewBag.MessageFailure
+                            </div>
+                        }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            <div class="alert alert-success" id="msgPwd" style="display:none;">
+                            </div>
+                            <div id="cncLoaderMessage">
+                            </div>
+                            <div id="showMessage">
+                            </div>
+
+                            @using (Html.BeginForm())
+                            {
+                                <fieldset>
+                                    @{ Html.RenderPartial("_UserSearchControls", new CnC.Core.Accounts.User());}
+                                    <div class="row" style="padding-bottom:20px;">
+                                        <div class="col-sm-12">
+                                            @{Html.RenderPartial("_SearchButtons");}
+                                        </div>
+                                    </div>
+                                    @*<div class="row" style="padding-bottom:20px;">
+                                            <div class="col-sm-12">
+                                                <a href="@Url.Action("AddUser", "User")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Add New User</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                                </a>
+                                            </div>
+                                        </div>*@
+
+                                </fieldset>
+                                                if (Model != null && Model.Count() > 0)
+                                                {
+                                                    <div class="table-responsive" style="overflow-x: hidden">
+                                                        @Html.AntiForgeryToken()
+
+                                                        <table class="table table-bordered">
+                                                            <tr>
+                                                                <th class="col-lg-2">
+                                                                    @Html.DisplayNameFor(model => model.FirstName)
+                                                                </th>
+                                                                <th class="col-lg-2">
+                                                                    @Html.DisplayNameFor(model => model.LastName)
+                                                                </th>
+                                                                @*<th class="col-lg-2">
+                                                                        @Html.DisplayNameFor(model => model.Username)
+                                                                    </th>*@
+                                                                <th class="col-lg-2">
+                                                                    @Html.DisplayNameFor(model => model.Email)
+                                                                </th>
+                                                                <th class="col-lg-1">
+                                                                    @Html.DisplayNameFor(model => model.Status)
+                                                                </th>
+                                                                <th class="col-lg-1">
+                                                                    @Html.DisplayName("Role")
+                                                                </th>
+                                                                <th class="col-lg-2">
+                                                                    Created On
+                                                                    @*@Html.DisplayNameFor(model => model.CreatedOn)*@
+                                                                </th>
+                                                                <th class="col-lg-2"></th>
+                                                            </tr>
+
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.FirstName)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.LastName)
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Email)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.UserStatus)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Role.Name)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.CreatedOn)
+                                                                    </td>
+                                                                    <td>
+                                                                        @*@Html.ActionLink("Edit", "EditUser", new { email = item.Email })
+                                                                            |*@
+                                                                        <a onclick='ResetPassword("@item.Id")' style="cursor:pointer" id="ResetPassword">Reset Password</a>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+
+                                                        </table>
+
+                                                    </div>
+                                                    Html.RenderPartial("_Pagination");
+                                                }
+                                                else
+                                                {
+                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                        <button class="close" data-dismiss="alert">×</button>
+                                                        <i class="fa-fw fa fa-cube"></i>
+                                                        <strong>Sorry! </strong> No Records Found
+                                                    </div>
+                                                    }
+                                                }
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <input type="hidden" id="hfUserId" name="hfUserId" />
+        <div id="dialogResetPassword" title="Dialog failed">
+            <form name="formPassword" id="idFormPassword">
+                <fieldset>
+                    <div class="row">
+                        <section class="col col-6">
+                            <label class="label">New Password</label>
+                            <label class="input" style="width:200px">
+                                <label></label>
+                                @Html.Password("txtPassword", null
+                               , new { @class = "form-control", placeholder = "New password", @readonly = "readonly" })
+                                <input type="button" value="Generate Password" onclick="GeneratePassword()" />
+                            </label>
+                        </section>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+@section pagespecific {
+    <script src="~/Scripts/Validation/Customer/Signup.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        function ResetPassword(userId) {
+            if (userId != "") {
+                $("#hfUserId").val(userId);
+                $("#txtPassword").val("");
+                $('#dialogResetPassword').dialog('open');
+            }
+
+            return false;
+        }
+
+        $('#dialogResetPassword').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Reset password",
+            buttons: [
+                {
+                    html: "Update password",
+                    "class": "btn btn-warning",
+                    click: function () {
+                        var form = $('#idFormPassword');
+                        form.validate();
+                        if (!form.valid()) {
+                            return false;
+                        };
+                        $("#cncLoader").show();
+                        PostNewPassword();
+                    }
+                },
+                {
+                    html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+        function PostNewPassword() {
+            var userId = $('#hfUserId').val();
+            if (userId != "") {
+                var password = $("#txtPassword").val();
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("ResetPassword", "User")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { userId: userId, password: password },
+                    dataType: "json",
+                    success: function (results) {
+                        if (results != null && results != "") {
+                            if (results[0] == "100") {
+                                $('#showMessage').html('<strong>Success!</strong>' + results[1]);
+                                $("#showMessage").show();
+                                $("#cncLoader").hide();
+                                $('#dialogResetPassword').dialog('close')
+                            }
+                            else {
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").html('<strong>Fail!</strong>' + results[1]);
+                                $("#showMessage").show();
+                                $('#dialogResetPassword').dialog('close')
+                            }
+                        }
+                    },
+                    error: function () {
+                        $("#showMessage").html('<strong>Fail!</strong> An error occured changing the password. Please try again.');
+                        $("#showMessage").show();
+                        $('#dialogResetPassword').dialog('close')
+                    }
+                });
+            } else {
+                alert("Missing required values.");
+            }
+        }
+
+        function GeneratePassword() {
+            var a = "";
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GeneratePassword", "User")',
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                data: {
+                },
+                success: function (data) {
+                    if (data != null) {
+                        $("#txtPassword").val(data);
+                    }
+                },
+                error: function (e) {
+                }
+
+            });
+        }
+
+    </script>
+}

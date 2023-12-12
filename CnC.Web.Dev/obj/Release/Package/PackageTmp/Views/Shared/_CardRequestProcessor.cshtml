@@ -1,0 +1,25 @@
+﻿@{
+    string valuePassedIn = this.ViewData.ContainsKey("popUpId") ? this.ViewData["popUpId"].ToString() : string.Empty;
+}
+<div class="modal fade" id="@(valuePassedIn)" data-backdrop-limit="1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Pay Online</h4>
+            </div>
+            <div class="modal-body">
+                <button type="button" onclick="window.parent.location.href = '../Payment/CardPaymentSuccess'">Success</button>
+                <button type="button" onclick="window.parent.location.href = '../Payment/CardPaymentFail'">Fail</button>
+               
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>

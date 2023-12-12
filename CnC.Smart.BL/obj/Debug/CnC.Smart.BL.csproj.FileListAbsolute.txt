@@ -1,0 +1,7 @@
+D:\5_10_2017\CnC\CnC\CnC.Smart.BL\bin\Debug\CnC.Smart.BL.dll
+D:\5_10_2017\CnC\CnC\CnC.Smart.BL\bin\Debug\CnC.Smart.BL.pdb
+D:\5_10_2017\CnC\CnC\CnC.Smart.BL\bin\Debug\Newtonsoft.Json.dll
+D:\5_10_2017\CnC\CnC\CnC.Smart.BL\bin\Debug\Newtonsoft.Json.xml
+D:\5_10_2017\CnC\CnC\CnC.Smart.BL\obj\Debug\CnC.Smart.BL.csprojResolveAssemblyReference.cache
+D:\5_10_2017\CnC\CnC\CnC.Smart.BL\obj\Debug\CnC.Smart.BL.dll
+D:\5_10_2017\CnC\CnC\CnC.Smart.BL\obj\Debug\CnC.Smart.BL.pdb

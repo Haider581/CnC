@@ -1,0 +1,125 @@
+﻿@model CnC.Core.Customers.Customer
+@{
+    string valuePassedIn = this.ViewData.ContainsKey("customerId") ? this.ViewData["customerId"].ToString() : string.Empty;
+    
+}
+<div class="modal fade" id="@(String.Format("customerDetails_{0}", valuePassedIn))" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Customer Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>UserId:  </strong> @Model.Id </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>First Name:</strong> @Model.User.FirstName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Last Name:</strong> @Model.User.LastName</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p><strong>Full Name:</strong> @Model.User.FullName</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>DateOfBirth:</strong> @Model.DateOfBirth</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>GenderId:</strong> @Model.GenderId</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Nationality:</strong> @Model.Nationality</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>PassportNo:</strong> @Model.DateOfBirth</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>NIC:</strong> @Model.NIC</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>MaritalStatus:</strong> @Model.MaritalStatus</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p><strong>Address:</strong> @Model.Address</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p><strong>Address2:</strong> @Model.Address2</p>
+                    </div>
+                </div>
+                <div class="row well no-padding">
+                    <div class="col-md-12">
+                        <p><strong>SecurityQuestion:</strong> @Model.SecurityQuestion</p>
+                    </div>
+                    <div class="col-md-12">
+                        <p><strong>Answer:</strong> @Model.Answer</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Country:</strong> @Model.Country</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>City:</strong> @Model.City</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>PostalCode:</strong> @Model.PostalCode</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>First Name:</strong> @Model.User.FirstName</p>
+                    </div>
+                    @*<div class="col-md-6">
+                        <p><strong>ContactNo:</strong> @Model.ContactNo</p>
+                    </div>*@
+                </div>
+                <!--image example-->
+                <div class="row row well no-padding">
+                    <div class="col-md-6">
+                        <p><strong>national-id-card</strong></p>
+                        <img src="~/Documents/iranian-national-id-card.jpg" class="img-responsive" alt="Cinque Terre" width="304">
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>PassportDoc</strong></p>
+                        <img src="~/Documents/PassportDoc.jpg" class="img-responsive" alt="Cinque Terre" width="304">
+                    </div>
+                </div>
+                <div class="row row well no-padding">
+                    <div class="col-md-6">
+                        <p><strong>ProofOfAddress</strong></p>
+                        <img src="~/Documents/ProofOfAddress.jpg" class="img-responsive" alt="Cinque Terre" width="304">
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>SourceOfFunds</strong></p>
+                        <img src="~/Documents/SourceOfFunds.jpg" class="img-responsive" alt="Cinque Terre" width="304">
+                    </div>
+                </div>
+                
+                    
+                <!--image example end-->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>

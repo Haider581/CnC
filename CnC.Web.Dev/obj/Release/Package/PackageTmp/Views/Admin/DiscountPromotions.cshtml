@@ -1,0 +1,166 @@
+﻿@model IEnumerable<CnC.Core.Discounts.DiscountPromotion>
+@using CnC.Service;
+@{
+    ViewBag.Title = "Discounts and Promotions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Discounts & Promotions</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @if (Model != null && Model.Count() > 0)
+                            {
+
+                                <div class="table-responsive" style="overflow-x: hidden">
+
+                                    @using (Html.BeginForm())
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+                                        <fieldset>
+                                            @*@{ Html.RenderPartial("_CncActionSearchControls", new CnC.Core.Accounts.CnCAction());}
+                                                <div class="row" style="padding-bottom:20px;">
+                                                    <div class="col-sm-12">
+                                                        @{Html.RenderPartial("_SearchButtons");}
+                                                    </div>
+                                                </div>*@
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    <a href="@Url.Action("AddDiscountPromotion", "Admin")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                                        <span style="padding:10px;">Add Discount & Promotion</span>
+                                                        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                        </fieldset>
+
+                                        <table class="table table-bordered">
+                                            <tr>
+
+                                                <th class="col-lg-2">
+                                                    @Html.DisplayName("Discount")
+                                                </th>
+                                                <th class="col-lg-2">
+                                                    @Html.DisplayName("Card")
+                                                </th>
+                                                <th class="col-lg-2">
+                                                    @Html.DisplayName("Is Percent")
+                                                </th>
+                                                <th class="col-lg-2">
+                                                    @Html.DisplayName("Starts From")
+                                                </th>
+                                                <th class="col-lg-2">
+                                                    @Html.DisplayName("Ends On")
+                                                </th>
+
+                                                <th class="col-lg-2">
+                                                    @Html.DisplayName("Is Active")
+                                                </th>
+
+                                                <th></th>
+                                            </tr>
+
+                                            @foreach (var item in Model)
+                                            {
+                                                string cardName = new CardService()
+                                                .GetCardType(item.CardTypeId).Name;
+
+                                                <tr>
+                                                    <td class="wraptext">
+                                                        @Html.DisplayFor(modelItem => item.Discount)
+                                                    </td>
+                                                    <td class="wraptext">
+                                                        <label>@cardName</label>
+                                                    </td>
+                                                    <td class="wraptext">
+                                                        @Html.DisplayFor(modelItem => item.IsPercent)
+                                                    </td>
+                                                    <td class="wraptext">
+                                                        @Html.DisplayFor(modelItem => item.StartOn)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.EndOn)
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Active)
+                                                    </td>
+                                                    <td>
+                                                        @Html.ActionLink("Edit", "EditDiscountPromotions"
+                                                       , new
+                                                       {
+                                                           item.Id
+                                                       })
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                        Html.RenderPartial("_Pagination");
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info fade in" style="margin-top:5px;">
+                                    <button class="close" data-dismiss="alert">×</button>
+                                    <i class="fa-fw fa fa-cube"></i>
+                                    <strong>Sorry! </strong> No Records Found
+                                </div>
+                            }
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>

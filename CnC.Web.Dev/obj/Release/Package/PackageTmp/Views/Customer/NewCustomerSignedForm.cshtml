@@ -1,0 +1,489 @@
+﻿@using CnC.Core
+@using System.Web.UI.WebControls
+@using CnC.Service
+@using CnC.Core.Customers
+@{
+    ViewBag.Title = "New Customer Registration: Step 3 (Upload Customer Signed Form)";
+
+    var customerId = ViewBag.CustomerId;
+    bool isCustomer = false;
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    if (userSession != null && userSession.IsCustomer)
+    { isCustomer = true; }
+    var customerSession = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customerSession == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customerSession.LanguageId);
+    }
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<script src="~/Scripts/html2canvas.js"></script>
+<div id="content">
+    <!-- breadcrumb -->
+    <ol class="breadcrumb" style="text-transform: uppercase;">
+        @*
+            <li>@User.Identity.Name.ToLower()</li>*@
+        <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+    </ol>
+    <section id="widget-grid" class="">
+
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>@localizationService.GetResource("Cnc.CustomerSignedForm", null, "Customer Signed Form")</h2>
+                @*<span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>*@
+            </header>
+            <!-- widget div-->
+            <div role="content">
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div id="divEmp" class="widget-body no-padding">
+                    @*<div id="cncLoader"></div>*@
+                    <div id="cncLoaderMessage">
+                        @*<span id="spanSuccess" class="spanSuccessColor"><span id="completeSpan" class="text-center text-success spanSuccessColor"><strong><i class='fa fa-check fa-lg'></i> Complete</strong></span><br />KYC form has been saved successfully!<br /><a id="lkGoBack" style="font-size: 14px;" class="spanSuccessColor" href="@Url.Action(" NewKYCFormInCustomerLanguage","Customer")">Go back</a></span>*@
+                    </div>
+                    <div id="showMessage"> </div>
+                    @using (Ajax.BeginForm("NewCustomerSignedForm", "Customer",
+new AjaxOptions
+{
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = "showMessage",
+    OnFailure = "AjaxFailure",
+    //OnSuccess = "onSuccess",
+    OnBegin = "AjaxBegin",
+    OnComplete = "AjaxComplete"
+
+}, new { @id = "NewCustomerSignedForm", @name = "NewCustomerForm", @class = "smart-form validatform", role = "form", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+                    <!-- Step3 -->
+                    <!--CustomerSignedCopy  Documents - start -->
+                        <header>@localizationService.GetResource("Cnc.AttachCustomerDocsJpgWithoutPersian", null, "Attach Customer Signed Copy, only in png/jpg/jpeg format, file size maximum 1MB") </header>
+                        <fieldset style="padding-bottom:50px;">
+                            <div class="progress progress-sm progress-striped active">
+                                <div class="progress-bar bg-color-darken" role="progressbar" style="width: 90%"></div>
+                            </div>
+                            <div class="row">
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.CustomerSignedCopyPersian", null, "Customer Signed Copy(Persian)")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-file-image-o"></i>
+                                        <input class="checkFileType" type="File" readonly="readonly" name="customerSignedCopyCl" id="customerSignedCopyCl" value="Browse" accept="image/jpeg, image/png" />
+                                        <em id="forcustomerSignedCopyClError" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                    </label>
+                                </section>
+                            </div>
+                            <div class="row">
+                                <section class="col col-6">
+                                    <label class="label">@localizationService.GetResource("Cnc.CustomerSignedCopyEnglish", null, "Customer Signed Copy(English)")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-file-image-o"></i>
+                                        <input class="checkFileType" type="File" readonly="readonly" name="customerSignedCopyEng" id="customerSignedCopyEng" value="Browse" accept="image/jpeg, image/png" />
+                                        <em id="forcustomerSignedCopyEngError" style="display:none" class="invalid"> @localizationService.GetResource("Cnc.AttachedDocsImageFormat", null, "Only image type jpg/png/jpeg/ is allowed and File size must under 1MB!")</em>
+                                    </label>
+                                </section>
+                            </div>
+                            <input type="hidden" id="hfCustomerId" name="hfCustomerId" value="@customerId" />
+                            <input type="hidden" id="hfsubmitActionName" name="hfsubmitActionName" value="" />
+                            <input type="hidden" id="hfIsDownloadId" name="hfIsCallForDownload" value="false" />
+                            @if (isCustomer)
+                            {
+
+                                <div class="row">
+
+                                    <section class="col col-6">
+                                        <div id="notesDiv">
+                                            <p style="font-weight:bold; margin-bottom:10px;">
+                                                @localizationService.GetResource("Upload Singed KYC Form (Step #3)", null, "Upload Singed KYC Form (Step #3)")
+                                            </p>
+                                            <p>
+                                                @localizationService.GetResource("1- Print downloaded KYC form in English and Persian", null, "1- Print downloaded KYC form in English and Persian")
+                                            </p>
+                                            <p>
+                                                @localizationService.GetResource("2. Sign them (Signature must be same as of on National Id Card)", null, "2. Sign them (Signature must be same as of on National Id Card)")
+                                            </p>
+                                            <p>
+                                                @localizationService.GetResource("3. Scan signed KYC forms", null, "3. Scan signed KYC forms")
+                                            </p>
+                                            <p>
+                                                @localizationService.GetResource("4. Upload here", null, "4. Upload here")
+                                            </p>
+                                            <br />
+                                        </div>
+                                        <div id="divDownload">
+                                            <label class="label"><span style="font-weight:bold;">@localizationService.GetResource("Cnc.DownloadAutomatically", null, "Please click on below link to download forms.")</span></label>
+                                            <footer style="background-color:white; border:none;"><button type="submit" style="float:left;" onclick="Download();" name="submitAction" id="btnDownload" class="btn btn-primary" value="Download">@localizationService.GetResource("Cnc.ClickHereToDownload", null, "Click here to Download")</button></footer>
+
+                                        </div>
+                                        <label class="label"><span style="font-weight:bold;">@localizationService.GetResource("Cnc.ResendKycFormEmail", null, "Please click on below link to Resend Kyc forms Email.")</span></label>
+                                        <footer style="background-color:white; border:none; float:left;"><Button class="btn btn-primary" type="Submit" id="btnDownloadKycForms" name="ResendKycEmail" value="Resend Kyc Email">Resend Kyc Email</Button></footer>
+                                        <input type="text" hidden="hidden" name="txtHidden" id="txtHidden" />
+                                    </section>
+                                </div>
+
+                            }
+
+                        </fieldset>
+                        @*<input type="hidden" id="hfIsCustomer" value="@isCustomer" />*@
+                        <footer>
+                            <button type="submit" onclick="Save();" name="submitAction" id="btnSaveInfoStep3" class="btn btn-primary pull-left" value="Save">@localizationService.GetResource("Cnc.Save", null, "Save")</button>
+                            <!-- end  CustomerSignedCopy -->
+                            <!-- End step3 -->
+                            @*<input hidden="hidden" id="hiddenFieldEnglish" name="hiddenFieldEnglish" />
+                                <input hidden="hidden" id="hiddenFieldPersian" name="hiddenFieldPersian" />*@
+
+                        </footer>
+
+                    }
+                    @*@if (isCustomer)
+                        {
+                            <div style="position:absolute; z-index:1000; bottom:90px; left:35px">
+
+                                @using (Ajax.BeginForm("ResendKYCEmail", "Customer", new AjaxOptions
+                                {
+                                    HttpMethod = "POST",
+                                    InsertionMode = InsertionMode.Replace,
+                                    UpdateTargetId = "showMessage",
+                                    OnFailure = "AjaxFailure",
+                                    //OnSuccess = "onSuccess",
+                                    OnBegin = "AjaxBegin",
+                                    OnComplete = "AjaxComplete"
+
+                                }))
+                                {
+                                    <Button class="btn btn-primary" type="Submit" id="btnDownloadKycForms" value="Resend Kyc Email">Resend Kyc Email</Button>
+                                }
+
+                            </div>
+                        }*@
+
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+
+    <script src="~/Scripts/FarsiType.js"></script>
+    <link href="~/Content/skins/aqua/theme.css" rel="stylesheet" />
+    @*
+        <script src="~/Scripts/Jalali/jalali.js"></script>
+        <script src="~/Scripts/Jalali/calendar.js"></script>
+        <script src="~/Scripts/Jalali/calendar-setup.js"></script>
+        <script src="~/Scripts/Jalali/lang/calendar-fa.js"></script>*@
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+
+    <script src="~/Scripts/Validation/Customer/NewKYCFormInCustomerLanguage.js"></script>
+}
+<script>
+    $(document).ready(function () {
+
+        //if (isCust != null && isCust != "") {
+        //    $("#logout").remove();
+        //    $("#left-panel").remove();
+        //    $('body').addClass("minified");
+
+        //}
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+
+        $("#personalInfoStep1").show();
+        $("#cardRequestAndDocsStep2").hide();
+        $("#customerSignedCopyStep3").hide();
+
+        $('#btnDownloadKycForms').on('click', function (e) {
+            $('#txtHidden').val(1);
+        });
+        $("button").click(function () {
+            if (this.id == "btnSaveInfoStep3") {
+                var form = $('#NewCustomerSignedForm');
+                if (!form.valid()) { return false; };
+            }
+        });
+        window.addEventListener("submit", function (e) {
+            
+            CheckIsValid();
+            var isCust;
+            if ("@isCustomer" == "True") {
+                isCust = true;
+            } else {
+                isCust = false;
+            }
+
+            var custSignedFormCl = document.getElementById("customerSignedCopyCl").value;
+            var custSignedFormEng = document.getElementById("customerSignedCopyEng").value;
+            var callFrom = document.getElementById("hfIsDownloadId").value;
+            if (isCust && custSignedFormCl != "" && custSignedFormCl != null && custSignedFormEng != "" && custSignedFormEng != null) {
+                //if (!form.valid()) { return false; };
+            } else if (isCust && custSignedFormCl == "" && custSignedFormEng == "" && callFrom == "true") {
+
+            } else {
+                //if (!form.valid()) { return false; };
+            }
+
+            $("#cncLoader").show();
+            var form = e.target;
+            if (form.getAttribute("enctype") === "multipart/form-data") {
+                if (form.dataset.ajax) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    var xhr = new XMLHttpRequest();
+                    xhr.open(form.method, form.action);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+
+                            var data = JSON.parse(xhr.responseText);
+                            $("#cncLoader").hide();
+                            if (data.length > 0) {
+                                if (data[0] == "200") {
+                                    //Start
+
+                                    if (data[2] == "Step5") {
+
+                                        document.getElementById("btnDownload").disabled = true;
+                                        //Start Form
+
+                                        if (data[2] != "" && data[2] != null) {
+                                            //Redirect to NewCustomerCardRequests
+                                            //document.getElementById("btnTopupNotify").disabled = true;
+
+
+                                            if (data[4] != "" && data[4] != null) {
+
+                                                var iframe = document.createElement('iframe');
+                                                var iframe1 = document.createElement('iframe');
+                                                //==========================
+                                                if (data[3] != "" && data[3] != null) {
+                                                    iframe.name = "englishFrame";
+                                                    iframe.id = "englishFrameId";
+                                                    iframe.width = "1200";
+                                                    $('body').append($(iframe));
+                                                    setTimeout(function () {
+                                                        var iframedoc =
+                                                            iframe.contentDocument || iframe.contentWindow.document;
+
+                                                        $('body', $(iframedoc)).html(data[3]);
+                                                        //document.getElementById("englishFrameId").style.display = "none";
+                                                        html2canvas($(iframedoc).contents(),
+                                                        {
+                                                            onrendered: function (canvas) {                                                                
+                                                                var a = document.createElement('a');
+                                                                a.name = "englishA";
+                                                                document.body.appendChild(a);
+                                                                // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+                                                                a.href = canvas.toDataURL("image/jpeg")
+                                                                    .replace("image/jpeg", "image/octet-stream");
+                                                                a.download = "EnglishForm-" + data[1] + '.jpg';                                                                                                                                
+                                                                a.click();
+                                                                a.remove();
+                                                                //var base64 = canvas.toDataURL();
+                                                                //$('#hiddenFieldEnglish').val(base64);
+                                                            }
+                                                        });
+
+                                                    },
+                                                        1000);
+                                                    @{
+
+                                                    }
+                                                }
+
+                                                if (data[4] != "" && data[4] != null) {
+                                                    iframe1.name = "persianFrame";
+                                                    iframe1.id = "persianFrameId";
+                                                    iframe1.width = "1200";
+
+                                                    $('body').append($(iframe1));
+
+                                                    setTimeout(function () {
+                                                        var iframedoc1 =
+                                                            iframe1.contentDocument || iframe1.contentWindow.document;
+                                                        $('body', $(iframedoc1)).html(data[4]);
+                                                        //document.getElementById("persianFrameId").style.display = "none";
+                                                        html2canvas($(iframedoc1).contents(),
+                                                        {
+                                                            onrendered: function (canvas) {                                                               
+
+                                                                //var a = $("<a>").attr("href", canvas.toDataURL('image/jpeg'))
+                                                                //    .replace("image/jpeg", "image/octet-stream")
+                                                                //    .attr("download", "PersianForm-" + data[1] + '.jpg')
+                                                                //    .appendTo("body");
+                                                                //a[0].click();
+                                                                //a.remove();
+
+                                                                var a = document.createElement('a');
+                                                                a.name = "persianA";
+                                                                document.body.appendChild(a);
+                                                                // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+                                                                a.href = canvas.toDataURL("image/jpeg")
+                                                                    .replace("image/jpeg", "image/octet-stream");
+                                                                a.download = "PersianForm-" + data[1] + '.jpg';                                                                
+                                                                a.click();
+                                                                a.remove();
+                                                                //var base64 = canvas.toDataURL();
+                                                                //$('#hiddenFieldPersian').val(base64);
+                                                                ////$('#btnDownloadKycForms').click();
+                                                            }
+                                                        });
+                                                    },
+                                                        2000);
+                                                }
+
+                                                setTimeout(function () {
+                                                    document.getElementById("englishFrameId").style.display = "none";
+                                                    document.getElementById("persianFrameId").style.display = "none";
+                                                    var iscustt = "@isCustomer";
+                                                    if (iscustt != null && isCust != "") {
+                                                        $("#divDownload").hide();
+                                                    }
+                                                }, 3000);
+
+
+                                                //------------------------------
+                                            } else {
+                                                $("#cncLoaderMessage").append(data[1]);
+                                                $("#cncLoaderMessage").show();
+                                            }
+                                        }
+
+                                        //End Form
+
+                                    } else {
+                                        //Step3 Enabled
+                                        document.getElementById("btnSaveInfoStep3").disabled = true;
+                                        ResetForm();
+                                        $("#cncLoaderMessage").append(data[1]);
+                                        $("#cncLoaderMessage").show();
+                                    }
+
+                                } else if (data[0] == "203") {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").removeClass("alert alert-success fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-success fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'></button> <i class=''></i>'" + data[1] + "'");
+                                    window.scrollTo(0, 0);
+                                }
+                                else if (data[0] == "204") {
+                                    $("#showMessage").removeClass("alert alert-success fade in");
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-danger fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'></button> <i class='fa-fw fa fa-times'></i>'" + data[1] + "'");
+                                }
+                                else if (data[0] == "205") {
+                                    $("#showMessage").removeClass("alert alert-success fade in");
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-danger fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'></button> <i class='fa-fw fa fa-times'></i>'" + data[1] + "'");
+                                }
+                                else {
+                                    $("#showMessage").removeClass("alert alert-danger fade in");
+                                    $("#showMessage").removeClass("alert alert-success fade in");
+                                    $("#showMessage").empty();
+                                    $("#showMessage").show();
+                                    $("#showMessage").addClass("alert alert-danger fade in");
+                                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                                }
+                            }
+                            //}
+                            //}
+                        }
+                    };
+                    xhr.send(new FormData(form));
+                }
+            }
+        }, true);
+
+
+
+    });//Ready document
+
+
+
+    function Save() {
+        $('#txtHidden').val('');
+        document.getElementById("hfIsDownloadId").value = "false";
+    }
+    function Download() {
+        $('#txtHidden').val('');
+        document.getElementById("hfIsDownloadId").value = "true";
+    }
+    function ResetForm() {
+        document.getElementById("customerSignedCopyCl").value = "";
+        document.getElementById("customerSignedCopyEng").value = "";
+
+    }
+
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+    function AjaxBegin() {
+
+        $("#cncLoader").show();
+
+
+    }
+
+    function AjaxComplete(data) {
+        $("#cncLoader").hide();
+        if (data.statusText == "OK") {
+            if (data.responseJSON[0] == "100") {
+                $("#cncLoaderMessage").append(data.responseJSON[1]);
+                $("#cncLoaderMessage").show();
+
+            } else {
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' data-dismiss='alert'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data.responseJSON[1] + "'");
+            }
+        }
+
+        //data.status
+        //200
+        //data.statusText
+        //"OK"
+        //data.responseText
+        //""this is json result""
+
+
+
+    }
+    function AjaxFailure(ajaxContext) {
+        // alert("AjaxFailure");
+        var response = ajaxContext.responseText;
+        alert("Error Code [" + ajaxContext.ErrorCode + "] " + response);
+    }
+
+
+</script>

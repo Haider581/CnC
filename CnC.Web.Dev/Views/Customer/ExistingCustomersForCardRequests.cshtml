@@ -1,0 +1,168 @@
+﻿@using CnC.Core.Cards
+@using CnC.Core.Customers
+@using CnC.Service
+@model List<Card>
+@{
+    ViewBag.Title = "Existing Customers for Card Requests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var customerSession = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customerSession == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customerSession.LanguageId);
+    }
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+
+                        @using (Html.BeginForm("ExistingCustomersForCardRequests", "Customer"
+, FormMethod.Post, new
+{
+    @class = "smart-form",
+    role = "form"
+,
+    name = "ExistingCustomersCardRequests"
+}))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary("", new { @class = "text-danger" })
+                            <div class="widget-body">
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <div id="showMessage"> </div>
+
+                                <fieldset>
+                                    @{ Html.RenderPartial("_CustomerSearchControls");}
+                                    <div class="row">
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </div>
+                                </fieldset>
+
+                            </div>
+
+                        <!-- end widget content -->
+                                            <div class="table-responsive">
+                                                @{
+                                                    if (Model != null && Model.Count > 0)
+                                                    {
+                                                        <table class="table table-bordered table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>@localizationService.GetResource("Cnc.FullName", null, "Full Name")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.Email", null, "Email")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.NationalId", null, "National ID #")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.Passport#", null, "Passport #")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.Gender", null, "Gender")</th>
+                                                                    <th>@localizationService.GetResource("Cnc.RegistrationDate", null, "Registration Date")</th>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @{
+                                                                    foreach (var item in Model)
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@item.CardRequest.CardRequestForm.Customer.User.FullName</td>
+                                                                            <td>@item.CardRequest.CardRequestForm.Customer.User.Email</td>
+                                                                            <td>@item.CardRequest.CardRequestForm.Customer.NIC</td>
+                                                                            <td>@item.CardRequest.CardRequestForm.Customer.PassportNo</td>
+                                                                            <td>@item.CardRequest.CardRequestForm.Customer.Gender</td>
+                                                                            <td>@item.CardRequest.CardRequestForm.Customer.User.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                            @{
+                                                                                var id = new CnC.Web.Helper.Utility().UrlSafeEncrypt(item.CardRequest.CardRequestForm.Customer.UserId.ToString());
+                                                                                id = "/Customer/NewCustomerCardRequests?id=" + id;
+                                                                            }
+                                                                            <td>
+                                                                                <a href="@id" style="cursor:pointer">
+                                                                                    @localizationService.GetResource("Cnc.CreateCardRequest",
+                                                             null, "Create Card Request")
+                                                                                </a>
+                                                                            </td>
+
+
+                                                                        </tr>
+                                                                                }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                                                    Html.RenderPartial("_Pagination");
+
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                                        <button class="close" data-dismiss="alert">×</button>
+                                                                                        <i class="fa-fw fa fa-cube"></i>
+                                                                                        <strong>@localizationService.GetResource("Cnc.Sorry", null, "Sorry")! </strong>@localizationService.GetResource("Cnc.NoRecord", null, "No Records Found")
+                                                                                    </div>
+                                                                                }
+                                                }
+                                            </div>
+                                                                                }
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+    <script src="~/Scripts/Validation/Customer/Customer.js"></script>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+    });
+</script>

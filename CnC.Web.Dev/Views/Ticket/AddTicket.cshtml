@@ -1,0 +1,232 @@
+﻿@using CnC.Core;
+@using CnC.Core.Accounts;
+@using CnC.Service;
+@model  List<CnC.Core.Ticket>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Create Ticket";
+
+    HelpDeskService helpService = new HelpDeskService();
+    UserService Users = new UserService();
+    List<Role>
+        assignedStaff = Users.GetRoles();
+
+    List<QuickTicket>
+        quickTickets = helpService.GetQuickTickets();
+}
+<style>
+    .col-centered {
+        float: none;
+        margin: 0 auto;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<div id="content">
+    <section id="widget-grid" class="">
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+                @*<div class="jarviswidget-ctrls" role="menu">
+                    <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div><div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li></ul></div>*@
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>Create New Ticket</h2>
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+            <!-- widget div-->
+            <div role="content">
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+                    @using (Html.BeginForm("AddTicket", "Ticket", FormMethod.Post, new { @class = "smart-form", autocomplete = "off", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <!-- end widget edit box -->
+                        <div class="col-md-6 col-centered">
+                            <fieldset>
+                                <section>
+                                    <label class="label">Quick Ticket</label>
+                                    <label class="input">
+                                        @*<i class="icon-append fa fa-comment"></i>*@
+                                        @Html.DropDownList(
+                                                        "cmbQuickTicket",
+                                                        new SelectList(
+                                                        quickTickets.Select(x => new { Value = x.Id, Text = x.Name }),
+                                                        "Value",
+                                                        "Text"
+                                                        ), "--Select--", new { @class = "form-control" }
+                                                        )
+                                    </label>
+                                </section>
+                                <section>
+                                    <label class="label">Priority</label>
+                                    <label class="input">
+                                        @*<i class="icon-append fa fa-comment"></i>*@
+                                        @Html.DropDownList("cmbPriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), "--Select--", new { @class = "form-control" })
+                                    </label>
+                                </section>
+                                <section>
+                                    <label class="label">Subject</label>
+                                    <label class="input">
+                                        <i class="icon-prepend fa fa-text-width"></i>
+                                        @Html.TextBox("txtSubject", null, new { @class = "form-control" })
+                                    </label>
+                                </section>
+                                <section>
+                                    <label class="label">Comments</label>
+                                    <label class="input">
+                                        @*<i class="icon-prepend fa fa-lock"></i>*@
+                                        @Html.TextArea("txtComments", new { @class = "form-control", rows = "5" })
+                                    </label>
+                                </section>
+                                <section>
+                                    <label class="label">Attach file</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-file-image-o"></i>
+
+
+                                        <input type="file" class="multiple" name="attachment" multiple="multiple" />
+
+                                    </label>
+                                </section>
+                                <section>
+                                    <button type="submit" style="padding: 5px 10px;" class="btn btn-primary btn-lg">Create Ticket</button>
+                                </section>
+                            </fieldset>
+                        </div>
+                    }
+                </div>
+                <!-- end widget content -->
+            </div>
+        </div>
+    </section>
+    @*<section id="widget-grid" class="">
+
+                @using (Html.BeginForm("AddTicket", "Ticket", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+                {
+                    <div class="table-responsive" id="divTable">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Quick Ticket</th>
+                                <td>
+                                    @Html.DropDownList(
+                                                                "cmbQuickTicket",
+                                                                new SelectList(
+                                                                quickTickets.Select(x => new { Value = x.Id, Text = x.Name }),
+                                                                "Value",
+                                                                "Text"
+                                                                ), "--Select--", new { @class = "form-control" }
+                                                                )
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Priority</th>
+                                <td>
+                                    @Html.DropDownList("cmbPriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), "--Select--", new { @class = "form-control" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Subject</th>
+                                <td>
+                                    @Html.TextBox("txtSubject", null, new { @class = "form-control" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Comments</th>
+                                <td>
+                                    @Html.TextArea("txtComments", new { @class = "form-control" })
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <div id="multiple">
+                                        <input type="file" class="multiple" name="attachment" multiple="multiple" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <button type="submit" class="btn btn-primary">Create Ticket</button>
+                                </td>
+                            </tr>
+                        </table>
+                        </div>
+                        }
+        </section>*@
+</div>
+
+@section pagespecific {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#cmbQuickTicket").change(function () {
+                var end = this.value;
+                if (end != null && end != "") {
+                    $.ajax({
+                        url: "/ticket/GetQuickDataById",
+                        data: {
+                            quickTicketId: end
+                        },
+                        success: function (response) {
+                            MakeTable(response);
+                        },
+                        error: function (error) {
+                            alert("error");
+                        }
+                    })
+                } else {
+                    $("#txtSubject").val('');
+                    $("#cmbPriority")[0].selectedIndex = 0;
+                    $("#cmbAssigned").removeAttr("disabled");
+                    $("#cmbPriority").removeAttr("disabled");
+                    $("#txtSubject").removeAttr('disabled', 'disabled');
+                }
+            }
+        );
+        });
+        $(function () {
+            debugger
+            if (window.FileReader != null) {
+                $('#single').hide();
+                $('.single').prop('disabled', true);
+            } else {
+                $('#multiple').hide();
+                $('.multiple').prop('disabled', true);
+            }
+        });
+        function showAdd() {
+            $("#showdata").show();
+        }
+        function hideData() {
+            $("#showdata").hide();
+        }
+        function ContactInfo(id) {
+            $.post('@Url.Action("Home","Userinfo")', { id: id });
+        }
+        function CheckData(e) {
+            var a = e.g
+            alert("ha");
+        }
+        function MakeTable(Data) {
+            var priority = Data.PriorityId;
+            var rollId = Data.rollId;
+            var subject = Data.Name;
+            $("#cmbPriority").val(priority);
+            $('#txtSubject').val(subject);
+            $("#cmbAssigned").attr('disabled', 'disabled');
+            $("#cmbPriority").attr('disabled', 'disabled');
+            $("#txtSubject").attr('disabled', 'disabled');
+        }
+    </script>
+}

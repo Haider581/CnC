@@ -1,0 +1,43 @@
+﻿@using CnC.Service;
+@using CnC.Core
+@using CnC.Core.Customers;
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<div class="row">
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.NationalID", null, "National ID #")</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtNICNo", Request["txtNICNo"]
+           , new { placeholder = @localizationService.GetResource("Cnc.NationalID", null, "National ID #") })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.CreatedDateFrom", null, "Created Date From")</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtCreatedDateFrom", Request["txtCreatedDateFrom"],
+           new { @class = "datepicker", placeholder = (customer == null ? "Created Date From" : localizationService.GetResource("Cnc.CreatedDateFrom", null, "Created Date From")), @readonly = "true" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.CreatedDateTo", null, "To")</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtCreatedDateTo", Request["txtCreatedDateTo"],
+           new { @class = "datepicker", placeholder = localizationService.GetResource("Cnc.CreatedDateTo", null, "To")
+           , @readonly = "true" })
+        </label>
+    </section>
+</div>
+<script src="~/Scripts/Validation/Partial/_CardRequestSearchControl.js"></script>

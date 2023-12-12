@@ -1,0 +1,48 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@using CnC.Core;
+@model CnC.Core.Messages.LocalizedMessageTemplate
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+    var languages = new CommonService().GetLanguages();
+}
+<div class="row" style="padding-bottom:20px;">
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>Name</strong></label>
+                @Html.EditorFor(model => model.MessageTemplate.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Template Name" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>Language</strong></label>
+                @Html.DropDownListFor(model => model.LanguageId, new SelectList(languages, "Id", "Name"), "---Please Select---", htmlAttributes: new { @class = "form-control input-sm" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>Subject</strong></label>
+                @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control", @placeholder = "Template Subject", @type = "text" } })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+

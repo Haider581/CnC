@@ -1,0 +1,774 @@
+﻿@using CnC.Core
+@using CnC.Service
+@using CnC.Core.Cards
+@using CnC.Core.Customers
+@model List<Card>
+@{
+    ViewBag.Title = "Cards";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var customer = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService();
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .Container {
+        width: 100%;
+    }
+
+    .Content {
+        width: 100%;
+    }
+
+    .Flipped, .Flipped .Content {
+        transform: rotateX(180deg);
+        -ms-transform: rotateX(180deg); /* IE 9 */
+        -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*
+        <li>@User.Identity.Name.ToLower()</li>*@
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <div id="dialog_simple" title="Dialog Simple Title">
+            <div class="widget-body no-padding">
+
+                <div class="Content">
+                    <br />
+                    <h4 style="font-weight:500; margin-left:7px;">@localizationService.GetResource("Cnc.Balance", null, "Balance") :<span id="lblBalance"></span>(€)</h4>
+                    <hr />
+                    <div id="dvTable" style="margin-left: 10px; margin-right: 10px;">
+                    </div>
+                </div>
+            </div>
+            <div id="divPagination">
+                <ul>
+                    <li id="listItemPagination">
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource("Search") @localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+
+                        <div id="dialog_EditCard" title="Dialog Simple Title" style="overflow: hidden;">
+                            <div class="widget-body no-padding">
+                                <form id="card-edit-form" name="CardEdit" autocomplete="off" class="smart-form" style=" margin-top 18px; margin-bottom 18px; margin-left 18px; margin-right 18px;">
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Name", null, "Name")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-text-width"></i>
+                                                    <input type="text" readonly="readonly" id="txtName" />
+                                                </label>
+                                            </section>
+
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Email", null, "Email")</label>
+                                                <label class="input">
+                                                    <input type="text" id="txtEmailAddress" name="txtEmailAddress"
+                                                           readonly="readonly" value="" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.Card#", null, "Card #")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-calendar"></i>
+                                                    <input type="text" id="txtCardNumber" name="txtCardNumber" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.ClientId", null, "Client Id")</label>
+                                                <label class="input">
+                                                    <input type="text" id="txtClientId" name="txtClientId" value="" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.CardId", null, "Card Id")</label>
+                                                <label class="input">
+                                                    <input type="text" id="txtCardId" name="txtCardId" value="" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.CardType", null, "Card Type")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-hashtag" style="font-size: 22px;"></i>
+                                                    <input type="text" readonly="readonly" id="txtCardType" />
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label">@localizationService.GetResource("Cnc.ExpiryDate", null, "Expiry Date")</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-flag-o"></i>
+                                                    <input type="text" readonly="readonly" name="txtExpiryDate" id="txtExpiryDate" />
+                                                </label>
+                                            </section>
+                                            <input name="txtOrgCardId" id="txtOrgCardId" hidden />
+                                            <input name="txtOrgCardNumber" id="txtOrgCardNumber" hidden />
+
+                                            <input name="txtCardTypeID" id="txtCardTypeID" hidden />
+                                            <input name="txtCardRequestId" id="txtCardRequestId" hidden />
+                                            <input name="txtCardTitle" id="txtCardTitle" hidden />
+                                            <input name="txtCardExpiry" id="txtCardExpiry" hidden />
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="dialog_date" title="Dialog Date" style="overflow: hidden;">
+                            <div class="widget-body no-padding">
+                                <form id="card-info-form2" name="CardInfoApprove" autocomplete="off" class="smart-form validatform">
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-12" style="width:100%">
+                                                <label>@localizationService.GetResource("Cnc.From", null, "From"):</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-calendar"></i>
+                                                    @Html.TextBox("txtDateFrom", Request["txtCreatedDateFrom"], new { @class = "datepicker", placeholder = "Date From", @readonly = "true" })
+                                                </label>
+                                            </section>
+                                        </div>
+                                        <div class="row">
+                                            <section class="col col-12" style="width:100%">
+                                                <label>@localizationService.GetResource("Cnc.CreatedDateTo", null, "To"):</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-calendar"></i>
+                                                    @Html.TextBox("txtDateTo", Request["txtCreatedDateTo"], new { @class = "datepicker", placeholder = "Date To", @readonly = "true" })
+                                                </label>
+                                            </section>
+                                        </div>
+
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                        @if (ViewBag.MessageFailure != null)
+                        {
+                            <div class="alert alert-danger fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-times"></i>
+                                <strong>Error!</strong> @ViewBag.MessageFailure
+                            </div>
+                        }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        @using (Html.BeginForm("Cards", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCards" }))
+                        {
+                            <div class="widget-body">
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <fieldset>
+                                    @{Html.RenderPartial("_CustomersCardsSearchControls");}
+                                    <div class="row">
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </div>
+                                </fieldset>
+
+                            </div>
+                        <!-- end widget content -->
+                                            <div class="Container Flipped">
+                                                <div class="Content">
+
+                                                    <div id="showMessage"> </div>
+                                                    <div class="table-responsive" style="padding-bottom:50px;">
+                                                        @if (Model != null && Model.Count > 0)
+                                                        {
+                                                            <table class="table table-striped table-bordered">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>@localizationService.GetResource("Cnc.Name", null, "Name")</th>
+                                                                        <th>@localizationService.GetResource("Cnc.Email", null, "Email")</th>
+                                                                        <th>@localizationService.GetResource("Cnc.Card#", null, "Card #")</th>
+                                                                        <th>@localizationService.GetResource("Cnc.Card Id", null, "Card Id")</th>
+                                                                        <th>@localizationService.GetResource("Cnc.ClientID", null, "Client Id")</th>
+                                                                        <th>@localizationService.GetResource("Cnc.CardType", null, "Card Type")</th>
+                                                                        <th title="Creation Date"><i class="fa fa-fw fa-calendar txt-color-black hidden-md hidden-sm hidden-xs"></i>@localizationService.GetResource("Cnc.CardIssuerDate", null, "Card Issue Date")</th>
+                                                                        <th>@localizationService.GetResource("Cnc.ExpiryDate", null, "Expiry Date")</th>
+                                                                        <th></th>
+                                                                        <th></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @{int i = 0; }
+                                                                    @foreach (var item in Model)
+                                                                    {
+                                                                        <text>
+                                                                            <tr>
+                                                                                @*<td>@item.CardRequest.CardRequestForm.Customer.Id</td>*@
+                                                                                <td>@item.CardRequest.CardRequestForm.Customer.User.FirstName</td>
+                                                                                <td>@item.CardRequest.CardRequestForm.Customer.User.Email</td>
+                                                                                @*<td>@item.CardRequest.CardRequestForm.Customer.NIC</td>*@
+                                                                                @{
+                                                                                    var cardNumber = item.Number;
+                                                                                    if (cardNumber.Length > 4)
+                                                                                    {
+                                                                                        cardNumber = string.Concat("".PadLeft(12, '*'), cardNumber.Substring(cardNumber.Length - 4));
+                                                                                    }
+                                                                                }
+                                                                                <td>@cardNumber</td>
+                                                                                <td>@item.CardRequest.Card.CardServiceProviderCardId</td>
+                                                                                @*<td>@item.CardRequest.Card.Title</td>*@
+                                                                                <td>@item.CardRequest.Card.CardServiceProviderClientId</td>
+                                                                                <td>@item.CardRequest.CardType.Name</td>
+                                                                                <td>@item.CardRequest.CardIssuerRespondedOn.Value.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                                <td>@item.CardRequest.Card.ExpiryDate</td>
+                                                                                <td>
+                                                                                    <a onclick='OpenDialog(@item.Number);' style="cursor:pointer">@localizationService.GetResource("CnC.View", null, "View")</a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <a onclick='DateDialog("@item.Number");' style="cursor:pointer; margin-left:15px;">@localizationService.GetResource("Search", null, "Search")</a>
+                                                                                </td>
+                                                                                @*<button type="submit" name="exportPaymentPendingForConfirmation" onclick="StampHidden(@item.Number)"
+                                                                                            id="btnExportPendingPaymentsId" value="ExportPendingPayments"
+                                                                                            class="btn btn-sm btn-primary" style="margin-right: 10px; margin-left: 10px;">
+                                                                                        <span style="padding: 10px;">Export</span>
+                                                                                        <span class="btn-label" style="left: 0px;">
+                                                                                            <i class="glyphicon glyphicon-download">
+                                                                                            </i>
+                                                                                        </span>
+                                                                                    </button>*@
+
+                                                                                <td>
+                                                                                    <a onclick='CardEditDialog("@item.CardRequest.CardRequestForm.Customer.User.Email","@item.CardRequest.CardType.Id","@item.CardRequest.CardType.Name","@item.CardRequestId");' style="cursor:pointer; margin-left:15px;">@localizationService.GetResource("CnC.Edit", null, "Edit")</a>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </text>
+                                                                                        i = i + 1;
+                                                                                    }
+                                                                </tbody>
+                                                            </table>
+
+                                                                                        Html.RenderPartial("_Pagination");
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <text>
+                                                                                            <div class="alert alert-info">
+                                                                                                <strong>@localizationService.GetResource("Cnc.Info", null, "Info")!</strong> @localizationService.GetResource("Cnc.NoCardInfo", null, "No card info found")
+                                                                                            </div>
+                                                                                        </text>
+                                                                                    }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" name="txtHiddenCardNumber" id="txtHiddenCardNumber" />
+                                                                                    }
+                        <input type="hidden" id="hfCardNumber" />
+
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+    <script src="~/Scripts/Validation/Customer/Customer.js"></script>
+
+    <script>
+        var pageSize = 10;
+        var paymentTransactions;
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+            $('#dialog_EditCard').dialog({
+                autoOpen: false,
+                width: 1000,
+                resizable: false,
+                modal: true,
+                title: "Edit Card",
+                buttons: [
+             {
+                 html: "<i class='fa fa-check'></i>&nbsp; Update",
+                 "class": "btn btn-Success",
+                 click: function () {
+                     UpdateEditCardDetails()
+                 }
+             },
+                {
+                    html: "<i class='fa fa-times'></i>&nbsp; Close",
+                    "class": "btn btn-default",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+                ]
+
+            });
+        });
+
+        function StampHidden(cardNumber) {
+            $('#txtHiddenCardNumber').val(cardNumber);
+        }
+
+        function OpenDialog(cardNumber) {
+            CardBalanceAndTransactions(cardNumber);
+            return false;
+        }
+
+        function CardBalanceAndTransactions(cardNumber) {
+            $("#cncLoader").show();
+            var dateFrom = $("#txtDateFrom").val();
+            var dateTo = $("#txtDateTo").val();
+            if (dateFrom == "" && dateTo == "") {
+                var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth() + 1;
+
+                var yyyy = today.getFullYear();
+                if (dd < 10) {
+                    dd = '0' + dd;
+                }
+                if (mm < 10) {
+                    mm = '0' + mm;
+                }
+                var today = mm + '.' + dd + '.' + yyyy;
+
+                dateTo = today;
+
+                var date = new Date();
+                date.setDate(date.getDate());
+                date.setFullYear(date.getFullYear());
+                var sixMonthPrevDate = (date.getMonth() - 6) + '.' + (date.getDate()) + '.' + (date.getFullYear());
+
+                dateFrom = sixMonthPrevDate
+            }
+            CheckIsValid();
+            $.ajax({
+                type: 'GET',
+                url: "/Card/CardBalanceAndTransactions",
+                cache: false,
+                data: { cardNumber: cardNumber, dateFrom: dateFrom, dateTo: dateTo },
+                success: function (data) {
+                    $("#cncLoader").hide();
+                    if (data[0] == "200") {
+                        $('#dialog_simple').dialog('open');
+                        $("#lblBalance").text(data[1].Balance);
+                        $('#tblBalanceAndTransaction').empty();
+                        paymentTransactions = data[1].PaymentTransactions;
+                        UpdatePanelDiv();
+                        var numberOfPages = CreatePaginationButtons(data[1].PaymentTransactions.length);
+                        CreateAndAppendButtons(numberOfPages);
+
+                        CreateAndAppendRecordsToTable(1);
+
+                    } else {
+                        //show error message
+                        //$("#errordiv").html(data[1]);
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                    }
+                },
+                error: function (req) {
+                }
+            });
+            // we make sure to cancel the default action of the link
+            // because we will be sending an AJAX call
+            return false;
+        };
+
+        function CreatePaginationButtons(totalCountOfList) {
+            var resultDivision = (totalCountOfList / pageSize);
+            var resultRemainder = (totalCountOfList % pageSize);
+            if (resultRemainder == 0) {
+                resultRemainder = 1;
+            }
+            else {
+                resultRemainder = 0;
+            }
+
+            var numberOfPages = resultDivision - resultRemainder;
+            return numberOfPages;
+        }
+
+        function CreateAndAppendButtons(numberOfPages) {
+            var table = "";
+            var html = "";
+            for (i = 1 ; i < numberOfPages + 1 ; i++)
+                html += "<button name=" + "btn" + i + " value=" + i + ' onclick=CreateAndAppendRecordsToTable(' + i + ')' + ">" + i + "</button>";
+            $("#listItemPagination").html(html);
+        }
+
+        function CreateAndAppendRecordsToTable(pageNumber) {
+
+            $('#tblBalanceAndTransaction').empty();
+            var customers = new Array();
+            customers.push(["#", "Date", "Description", "Status", "Type", "Amount", "Fee"]);
+
+            var skipRecords = 0;
+            if (pageNumber != 1) {
+                skipRecords = pageSize * (pageNumber - 1);
+            }
+            var skipedRecordsPaymentTransactions = paymentTransactions.slice(skipRecords);
+
+            skipedRecordsPaymentTransactions = Take(skipedRecordsPaymentTransactions, pageSize);
+
+            for (var i = 0; i < skipedRecordsPaymentTransactions.length; i++) {
+                var src = skipedRecordsPaymentTransactions[i].CreatedOn;
+                src = src.replace(/[^0-9 +]/g, '');
+                var myDate = new Date(parseInt(src));
+
+                var convertedDate = myDate.toISOString().substring(0, 19).replace('T', ' ') + ' GMT';
+
+                var trans;
+                if (skipedRecordsPaymentTransactions[i].IsDebit == true) {
+                    trans = "Out"
+                } else {
+                    trans = "In"
+                }
+                var apvode;
+
+                var desc;
+                if (skipedRecordsPaymentTransactions[i].Description != null
+                    && skipedRecordsPaymentTransactions[i].Description != "") {
+                    desc = skipedRecordsPaymentTransactions[i].Description;
+                } else {
+                    desc = skipedRecordsPaymentTransactions[i].TransactionTypeDescription;
+                }
+                customers.push(["" + (i + 1), convertedDate, desc, skipedRecordsPaymentTransactions[i].Status
+                    , trans
+                    , parseFloat(skipedRecordsPaymentTransactions[i].AccountCurrencyAmount).toFixed(2)
+                        .replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
+                        , skipedRecordsPaymentTransactions[i].AccountServiceFee]);
+            }
+            //------------
+            //Build an array containing Customer records.
+
+            //Create a HTML Table element.
+            table = document.createElement("TABLE");
+            table.border = "1";
+            table.id = "tblBalanceAndTransaction";//classList("");
+            table.className = "table table-striped table-bordered";
+            //Get the count of columns.
+            var columnCount = customers[0].length;
+
+            //Add the header row.
+            var row = table.insertRow(-1);
+            for (var i = 0; i < columnCount; i++) {
+                var headerCell = document.createElement("TH");
+                headerCell.innerHTML = customers[0][i];
+                row.appendChild(headerCell);
+            }
+
+            //Add the data rows.
+            for (var i = 1; i < customers.length; i++) {
+                row = table.insertRow(-1);
+                for (var j = 0; j < columnCount; j++) {
+                    var cell = row.insertCell(-1);
+                    cell.innerHTML = customers[i][j];
+                }
+            }
+
+            var dvTable = document.getElementById("dvTable");
+            dvTable.innerHTML = "";
+            dvTable.appendChild(table);
+        }
+
+        function Take(listOfRecords, maxSize) {
+            var newList = [];
+            if (listOfRecords.length >= maxSize) {
+                for (i = 0; i < maxSize; i++) {
+                    newList[i] = listOfRecords[i];
+                }
+                return newList;
+            }
+            else {
+                for (i = 0; i < listOfRecords.length; i++) {
+                    newList[i] = listOfRecords[i];
+                }
+                return newList;
+            }
+        }
+
+        function DateDialog(rf) {
+            $(".btn-success").attr("disabled", false);
+            $(".btn-default").attr("disabled", false);
+            // var msg = rf + "" + cr;
+            //ClearForm();
+            //if (rf != "") {
+            $("#hfCardNumber").val(rf);
+            //}
+            $('#dialog_date').dialog('open');
+            return false;
+        }
+        $('#dialog_date').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Select Date Range",
+            buttons: [{
+                html: "<i class='fa fa-check'></i>&nbsp; View",
+                "class": "btn btn-success",
+                click: function () {
+
+                    var form = $("#card-info-form2");
+                    form.validate();
+                    if (!form.valid()) {
+                        return false;
+                    };
+                    var cNumber = $("#hfCardNumber").val();
+                    var dateFrom = $("#txtDateFrom").val();
+                    var dateTo = $("#txtDateTo").val();
+                    if (cNumber != "" && cNumber != null && dateFrom != "" && dateFrom != null && dateTo != "" && dateTo != null) {
+                        $("input.btn-default").attr("disabled", true);
+                        UpdatePanelDiv();
+                        $(this).dialog("close");
+                        CardBalanceAndTransactions(cNumber);
+                    } else {
+                        //Error unable to proceed
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Unable to process please select valid date.");
+                    }
+
+                }
+            }, {
+                html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                "class": "btn btn-default",
+                click: function () {
+
+                    //$("input.btn-danger").attr("disabled", true);
+                    //var validator = $("#card-info-form2").validate();
+                    //validator.resetForm();
+                    //$("#card-info-form2").find('.state-error,.input,.smart-form').removeClass('state-error');
+                    $(this).dialog("close");
+                }
+            }]
+        });
+
+        $('#dialog_simple').dialog({
+            autoOpen: false,
+            width: 700,
+            resizable: false,
+            modal: true,
+            title: "Balance and Transactions",
+            buttons: [
+              {
+                  html: "<i class='fa fa-times'></i>&nbsp; Close",
+                  "class": "btn btn-default",
+                  click: function () {
+                      $(this).dialog("close");
+                  }
+              }
+            ]
+        });
+
+        function CardEditDialog(email, cardTypeId, cardName, cardRequestId) {
+            $('#dialog_EditCard').dialog('open');
+            EditCustomerCardId(email, cardTypeId, cardName, cardRequestId)
+            return false;
+        }
+
+        function EditCustomerCardId(email, cardTypeId, cardName, cardRequestId) {
+            $("#cncLoader").show();
+            $.ajax({
+                url: '@Url.Action("EditCardDetails", "Card")',
+                contentType: "application/json; charset=utf-8",
+                data: { email: email, cardTypeId: cardTypeId },
+                dataType: "json",
+                success: function (data) {
+                    $("#cncLoader").hide();
+                    if (data.Customer != null) {
+                        $("#txtName").val(data.Customer.User.FirstName);
+                        $("#txtEmailAddress").val(data.Customer.User.Email);
+                        $("#txtCardNumber").val(data.Number);
+
+                        $("#txtOrgCardNumber").val(data.Number);
+
+                        $("#txtClientId").val(data.CardServiceProviderClientId);
+                        $("#txtCardId").val(data.CardServiceProviderCardId);
+
+                        $("#txtOrgCardId").val(data.CardServiceProviderCardId);
+
+                        $("#txtCardType").val(cardName);
+                        $("#txtExpiryDate").val(data.ExpiryDate);
+                        $("#txtCardTypeID").val(cardTypeId);
+                        $("#txtCardRequestId").val(cardRequestId);
+                        $("#txtCardTitle").val(data.Title);
+                        $("#txtCardExpiry").val(data.ExpiryDate);
+                    } else {
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                    }
+                },
+                error: function (data) {
+                    $("#cncLoader").hide();
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Unable to process. May be you don't have permissions");
+
+                }
+            });
+
+        }
+
+        function UpdateEditCardDetails() {
+            $("#cncLoader").show();
+            var email = $('#txtEmailAddress').val();
+            var clientId = $('#txtClientId').val();
+            var originalCardNumber = $('#txtOrgCardNumber').val();
+            var cardNo = $('#txtCardNumber').val();
+            var originalCardId = $('#txtOrgCardId').val();
+            var cardId = $('#txtCardId').val();
+            var cardRequestId = $('#txtCardRequestId').val();
+            var cardTitle = $('#txtCardTitle').val();
+            var cardExpiry = $('#txtCardExpiry').val();
+            $.ajax({
+                url: '@Url.Action("UpdateCardDetails", "Card")',
+                contentType: "application/json; charset=utf-8",
+                data: {
+                    email: email, cardRequestId: cardRequestId, cardId: cardId
+                    , cardNo: cardNo, clientId: clientId, cardTitle, cardExpiry, originalCardNumber, originalCardId
+                },
+                dataType: "json",
+                success: function (data) {
+
+                    if (data[0] == "200") {
+                        $('#dialog_EditCard').dialog("close");
+                        $("#cncLoader").hide();
+                        $("#cncLoaderMessage").append(data[1]);
+                        $("#cncLoaderMessage").show();
+                    } else {
+                        $('#dialog_EditCard').dialog("close");
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                    }
+                },
+                error: function (data) {
+                    $("#cncLoader").hide();
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Unable to process. May be you don't have permissions");
+
+                }
+            });
+
+        }
+
+        function UpdatePanelDiv() {
+            $("#showMessage").empty();
+            $("#showMessage").hide();
+        }
+        // Wait for the DOM to be ready
+        $(function () {
+            // Initialized form validation on the SearchKYCForms form.
+            // It has the name attribute "SearchKYCForms"
+            $("form[name='SearchTopUpRequests']").validate({
+                // Specify validation rules
+                rules: {
+                    // The key name on the left side is the name attribute
+                    // of an input field. Validation rules are defined on the right side
+                    txtCardNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+                    },
+                    txtNICNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+                    },
+                    txtDateFrom: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+                    },
+                    txtDateTo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+
+                    },
+                    txtDeliveryDateFrom: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+
+                    },
+                    txtDeliveryDateTo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        date: true
+
+                    },
+                    // Specify validation error messages
+                    messages: {
+                        Email: "Please enter a valid email address",
+                        digits: "Please enter only digits.",
+                        date: "Please enter a valid date.",
+                    },
+                    // Make sure the form is submitted to the destination defined
+                    // in the "action" attribute of the form when valid
+                    submitHandler: function (form) {
+                        form.submit();
+                    }
+                }
+            });
+        });
+    </script>
+}

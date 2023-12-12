@@ -1,0 +1,362 @@
+﻿@using CnC.Web.Controllers;
+@using CnC.Service;
+@using CnC.Core
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Get Tickets";
+    HelpDeskService helpService = new HelpDeskService();
+    var getTickets = new TicketController();
+    var userId = ViewBag.Id;
+    List<Ticket> getTicketsData = getTickets.GetAllTickets(userId);
+    List<QuickTicket>
+       quickTickets = helpService.GetQuickTickets();
+}
+
+<div id="content">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+                Tickets
+                <span>
+                    >
+                    @ViewBag.Title
+                </span>
+            </h1>
+        </div>
+
+    </div>
+    <section id="widget-grid" class="">
+
+
+        <div id="test">
+            <div id="filterDiv" style="display: none;">
+                <table>
+                    <tr>
+                        <td>Priority</td>
+                        <td>
+                            @Html.DropDownList("cmbPriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), "--Select--", new { @class = "form-control" })
+                        </td>
+                        <td>Status</td>
+                        <td>
+                            @Html.DropDownList("cmbStatus", EnumHelper.GetSelectList(typeof(TicketStatus)), "--Select--", new { @class = "form-control" })
+                        </td>
+
+                    </tr>
+                    @*}*@
+                </table>
+            </div>
+            <div id="ManageDiv" style="display: none;">
+                <h4>Manage Tickets</h4>
+                @using (Html.BeginForm("AddTicketProcess", "Ticket", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+                    <table id="tblManage" class="table table-bordered">
+
+
+                        <tr>
+                            <th>Subject</th>
+                            <td>
+                                @Html.DropDownList(
+                                "cmbSubject",
+                                new SelectList(
+                                    getTicketsData.Select(x => new { Value = x.Id, Text = x.Subject }),
+                                    "Value",
+                                    "Text"
+                                    ), "--Select--", new { @class = "form-control" }
+                                )
+                            </td>
+                        </tr>
+
+
+
+
+                        <tr>
+
+                            <th>Ticket#</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+
+                            <th>Priority</th>
+                            <td>
+
+                                @Html.DropDownList("cmbManagePriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), new { @class = "form-control" })
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <th>Status</th>
+                            <td>
+
+                                @Html.DropDownList("cmbManageStatus", EnumHelper.GetSelectList(typeof(TicketStatus)), new { @class = "form-control" })
+
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Comments</th>
+                            <td>
+                                @Html.TextArea("txtComments", new { @class = "form-control" })
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                                <input type="hidden" id="hdTicketId" name="hdTicketId" />
+                                <button type="submit" name="btnManageSubmit" class="btn btn-primary">Post</button>
+                            </td>
+                        </tr>
+
+                    </table>
+                }
+            </div>
+            <div id="getTicket" class="table-responsive">
+                <table id="tblTickets" class="table table-bordered">
+
+                    <thead>
+
+                        <tr>
+                            <th>No.</th>
+                            <th>Date</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+
+                    @foreach (var item in getTicketsData)
+                    {
+                        int ticketId = item.Id;
+                        var ticketStatus = item.TicketProcess.Where(x => x.TicketId == ticketId)
+                                                             .Select(p => new { p.CreatedOn, p.TicketStatusId })
+                                                             .LastOrDefault();
+                        <tbody>
+                            <tr data-priorty="@item.SeverityId" data-Status="@ticketStatus" class="trdata">
+
+                                <td>
+                                    @item.TicketNo
+                                </td>
+                                <td>
+                                    @ticketStatus.CreatedOn
+                                </td>
+                                <td>
+                                    <a target="_blank" id="myBtn1" href="/ticket/GetMessagesByTicket?ticketId=@ticketId&SessionUserId=@userId" style="cursor: pointer;"> @item.Subject</a>
+
+                                </td>
+
+                                <td>
+                                    @{ TicketSeverity priority = (TicketSeverity)Enum.ToObject(typeof(TicketSeverity), item.SeverityId);}
+                                    @priority
+                                </td>
+                                <td>
+                                    @{
+
+                                    }
+                                    @{ TicketStatus status = (TicketStatus)Enum.ToObject(typeof(TicketStatus), ticketStatus.TicketStatusId);}
+                                    @status
+
+                                </td>
+                            </tr>
+                        </tbody>
+                                        }
+                </table>
+            </div>
+
+        </div>
+
+        <div id="showdata" class="col-lg-4">
+
+        </div>
+
+        <div id="myModal" class="modal">
+
+            <!-- Modal content -->
+            <div class="modal-content">
+
+
+                <span class="close">&times;</span>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+                <p>Some text in the Modal..</p>
+
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+
+@section pagespecific {
+    <script type="text/javascript">
+        $(function () {
+            $('#linkId').click(function () {
+                $.get(this.href, function (result) {
+                    $(result).dialog();
+                });
+                return false;
+            });
+        });
+
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#id').click(function () {
+            });
+        });
+
+        function HideD() {
+            alert("called");
+            $("#showdata").hide();
+            return false;
+        }
+
+        function ToggleFilter() {
+            if ($('#getTicket').css('display') != 'none') {
+                $("#filterDiv").show();
+            }
+            else {
+                alert('only applied in Get Tickets')
+            }
+        }
+
+        function ShowManageData() {
+            $("#ManageDiv").show();
+            $("#getTicket").hide();
+            $("#filterDiv").hide();
+        }
+        function ShowTickets() {
+            $("#ManageDiv").hide();
+            $("#getTicket").show();
+            $("#filterDiv").hide();
+        }
+
+
+    </script>
+    <script type="text/javascript">
+        var priorty = null;
+        var status = null;
+
+        $(window).load(function () {
+
+        });
+
+        $(document).ready(function () {
+
+            $('#tblTickets').DataTable({
+
+                initComplete: function () {
+
+                    this.api().columns().every(function () {
+                        var column = this;
+                        var select = $('<select><option value=""></option></select>')
+                            .appendTo($(column.footer()).empty())
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
+                    });
+                }
+            });
+
+        });
+
+        function MakeTable(Data, ticket) {
+            var processLength = Data[0].TicketProcess.length;
+            var ticketStatus = Data[0].TicketProcess[processLength - 1].TicketStatusId;
+            $("#cmbManagePriority").removeAttr('disabled', 'disabled');
+            document.getElementById("tblManage").rows[1].cells[1].innerHTML = Data[0].TicketNo;
+            var priority = Data[0].SeverityId;
+
+            $("#cmbManagePriority").val(priority);
+            $("#cmbManageStatus").val(ticketStatus);
+            $("#cmbManagePriority").attr('disabled', 'disabled');
+
+            $("#hdTicketId").val(ticket);
+        }
+
+
+        function MakeTicketTable(Data) {
+            debugger;
+            $("#tblTickets").find(".trdata").remove();
+
+            for (var i = 0; i < Data.length; i++) {
+
+                var tr = '<tr data-priorty="' + Data[i].Severity + '" class="trdata">';
+
+                tr += '<td>';
+                tr += Data[i].TicketNo
+                tr += '</td>';
+                tr += '<td>';
+                tr += Data[i].LastSeenByUserDate;
+                tr += '</td>';
+                tr += '<td>';
+                tr += '<a target="_blank"  id="myBtn1" href="/ticket/GetMessagesByTicket/ticketId=' + Data[i].ticketId + '"  style="cursor:pointer;">' + Data[i].Subject + '</a>';
+                tr += '</td>';
+                tr += '<td>';
+                tr += Data[i].Severity;
+                tr += '</td>';
+                tr += '</tr>';
+                $("#tblTickets").append(tr);
+            }
+        }
+
+        function test() {
+            $('#tblTickets1').find('tr').click(function () {
+                alert('You clicked row ' + ($(this).index()));
+            });
+        }
+    </script>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById('myModal');
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        //btn.onclick = function () {
+        //    modal.style.display = "block";
+        //}
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+}

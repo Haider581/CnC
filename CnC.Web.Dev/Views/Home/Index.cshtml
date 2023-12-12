@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    var cardController = new CnC.Web.Controllers.CardController();
+    var topUpController = new CnC.Web.Controllers.TopUpController();
+    var customerController = new CnC.Web.Controllers.CustomerController();
+    //New Cards Requests Status
+    var totalNumberOfRecievedCards = cardController.GetCardRequestsCountByStatus(cardRequestStatus: CnC.Core.CardRequestStatus.Pending);
+    var totalNumberOfRejectCards = cardController.GetCardRequestsCountByStatus(cardRequestStatus: CnC.Core.CardRequestStatus.RejectedByCardIssuer);
+    var totalApprovedByCardIssuer = cardController.GetCardRequestsCountByStatus(cardRequestStatus: CnC.Core.CardRequestStatus.ApprovedByCardIssuer);
+    var totalDispatchPackageToTBO = cardController.GetCardRequestsCountByStatus(cardRequestStatus: CnC.Core.CardRequestStatus.DispatchPackageToTBO);
+    var totalWaitingToDeliverPackageToCustomer = cardController.GetCardRequestsCountByStatus(cardRequestStatus: CnC.Core.CardRequestStatus.WaitingToDeliverPackageToCustomer);
+    var totalPackageDeliveredToCustomer = cardController.GetCardRequestsCountByStatus(cardRequestStatus: CnC.Core.CardRequestStatus.PackageDeliveredToCustomer);
+    // Request Form Status
+    var totalNumberOfRecievedForms = cardController.GetCardRequestFormsCountByStatus(requestFormStatus: CnC.Core.RequestFormStatus.Pending);
+    var totalNumberOfPaymentConfirmedForms = cardController.GetCardRequestFormsCountByStatus(requestFormStatus: CnC.Core.RequestFormStatus.PaymentConfirmed);
+    //var totalNumberOfPaymentNotConfirmedForms = cardController.GetCardRequestFormsCountByStatus(requestFormStatus: CnC.Core.RequestFormStatus.PaymentNotConfirmed);
+    var totalNumberOfWaitingForSignatureForms = 0;
+    var totalNumberOfSentToCardIssuerForms = cardController.GetCardRequestFormsCountByStatus(requestFormStatus: CnC.Core.RequestFormStatus.SentToCardIssuer);
+    // Request Form Status
+    var totalNumberOfRecievedTopUpRequest = topUpController.GetTopUpRequestsCountByStatus(topUpRequestStatus: CnC.Core.TopUpRequestStatus.Pending);
+    var totalNumberOfUploadedTopUpRequest = topUpController.GetTopUpRequestsCountByStatus(topUpRequestStatus: CnC.Core.TopUpRequestStatus.Uploaded);
+    var totalNumberOfFailedTopUpRequest = topUpController.GetTopUpRequestsCountByStatus(topUpRequestStatus: CnC.Core.TopUpRequestStatus.Failed);
+    var totalNumberOfCancelledTopUpRequest = topUpController.GetTopUpRequestsCountByStatus(topUpRequestStatus: CnC.Core.TopUpRequestStatus.Cancelled);
+    var totalNumberOfHistoryTopUpRequest = topUpController.GetTopUpRequestsCountByStatus(topUpRequestStatus: CnC.Core.TopUpRequestStatus.History);
+}
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Home</li>
+    <li>Dashboard</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <div class="row">
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark"><i class="fa-fw fa fa-home"></i> Dashboard</h1>
+        </div>
+    </div>
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        @*<div class="well well-sm">
+            <div class="input-group">
+                <input class="form-control input-lg" type="text" id="fa-icon-search" placeholder="Type Your Keyword to Search...">
+                <span class="input-group-addon"><i class="fa fa-fw fa-lg fa-search"></i></span>
+            </div>
+        </div>*@
+        <!-- START ROW -->
+        <div class="row">
+            <!-- NEW COL START -->
+            <article class="col-sm-12 col-md-12 col-lg-6">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-2" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-bell"></i> </span>
+                        <h2>KYC Forms (Customer Registration)</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body no-padding">
+                            <ul style="padding:20px;" class="list-unstyled">
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfRecievedForms</span> Number Of Recieved Forms</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfPaymentConfirmedForms</span> Payment Confirmed</li>
+                                @*<li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfPaymentNotConfirmedForms</span> Payment Not Confirmed</li>*@
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfWaitingForSignatureForms</span> Waiting For Signature</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfSentToCardIssuerForms</span> Sent To Card Issuer</li>
+                            </ul>
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- END COL -->
+            <!-- NEW COL START -->
+            <article class="col-sm-12 col-md-12 col-lg-6">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-1" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-bell"></i> </span>
+                        <h2>New Cards Requests</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body no-padding">
+                            <ul style="padding:20px;" class="list-unstyled">
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfRecievedCards</span> Number Of Recieved Cards</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfRejectCards</span> Number Of Reject Cards</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalApprovedByCardIssuer</span> Approved By Card Issuer</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalDispatchPackageToTBO</span> Dispatch Package To TBO</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalWaitingToDeliverPackageToCustomer</span> Waiting To Deliver Package To Customer</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalPackageDeliveredToCustomer</span> Package Delivered To Customer</li>
+                            </ul>
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- END COL -->
+            
+        </div>
+        <!-- END ROW -->
+        <!-- START ROW -->
+        <div class="row">
+                        <!-- NEW COL START -->
+            <article class="col-sm-12 col-md-12 col-lg-6">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-2" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-bell"></i> </span>
+                        <h2>Top Up Requests</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body no-padding">
+                            <ul style="padding:20px;" class="list-unstyled">
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfRecievedTopUpRequest</span> Recieved Top Up Request</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfUploadedTopUpRequest</span> Uploaded</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfFailedTopUpRequest</span> Failed</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfCancelledTopUpRequest</span> Cancelled</li>
+                                <li style="padding-bottom:5px;"><span class="badge bg-color-red  txt-color-white">@totalNumberOfHistoryTopUpRequest</span> History</li>
+                            </ul>
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- END COL -->
+        </div>
+        <!-- END ROW -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->

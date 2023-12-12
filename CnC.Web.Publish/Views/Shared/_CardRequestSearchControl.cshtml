@@ -1,0 +1,34 @@
+﻿
+<div class="row">
+    <section class="col col-3">
+        <label>National ID #</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtNICNo", Request["txtNICNo"], new { placeholder = "National ID #" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>Passport #</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtPassportNo", Request["txtPassportNo"], new { placeholder = "Passport #" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>Created Date From</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtCreatedDateFrom", Request["txtCreatedDateFrom"],
+           new { @class = "datepicker", placeholder = "Date From", @readonly = "true" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>To</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtCreatedDateTo", Request["txtCreatedDateTo"],
+           new { @class = "datepicker", placeholder = "Date To", @readonly = "true" })
+        </label>
+    </section>
+</div>
+<script src="~/Scripts/Validation/Partial/_CardRequestSearchControl.js"></script>

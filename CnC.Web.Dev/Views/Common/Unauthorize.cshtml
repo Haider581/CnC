@@ -1,0 +1,43 @@
+﻿
+@{
+    ViewBag.Title = "Unauthorized Access";
+}
+
+<script src="~/Scripts/jquery-1.12.4.js"></script>
+<div id="content">
+
+    <!-- row -->
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="text-center error-box">
+                        <h1 class="error-text-2 bounceInDown animated"><span class="particle particle--c"></span><span class="particle particle--a"></span><span class="particle particle--b"></span></h1>
+                        <h2 class="font-xl"><strong><i class="fa fa-fw fa-warning fa-lg text-warning"></i> Unauthorized Access</strong></h2>
+                        <br>                        
+                        <div id="divLink">
+                            <a href="/Account/Login" style="font-size:26px; font-weight:bold;">Login</a>
+                        </div>
+                        <br>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- end row -->
+
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+            $("#logout").remove();
+            $("#left-panel").remove();
+            $('body').addClass("minified");
+        });
+</script>

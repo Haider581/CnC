@@ -1,0 +1,24 @@
+﻿@using CnC.Service
+@{
+    ViewBag.Title = "Exchange Rates";
+    var exchangeRate = new ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CurrencyService().SystemCurrency;
+}
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <section id="widget-grid" class="">
+        <h5>
+            Exchange Rate (@Html.Raw(systemCurrency.Code)) = <code>
+                @exchangeRate.Rate @exchangeRate.Currency.Code
+            </code>
+        </h5>        
+    </section>
+</div>
+
+
+

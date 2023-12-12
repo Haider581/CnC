@@ -1,0 +1,89 @@
+﻿@using CnC.Service
+@using CnC.Core.Customers
+@{
+    ViewBag.Title = "New Top Up Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isCustomer = false;
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    if (userSession != null && userSession.IsCustomer)
+    {
+        isCustomer = true;
+    }
+    LocalizationService localizationService = null;
+    if (isCustomer)
+    {
+        var cust = Session["CurrentCustomer"] as Customer;
+        localizationService = new LocalizationService(cust.LanguageId);
+    }
+    if (!isCustomer)
+    {
+        localizationService = new LocalizationService();
+    }
+}
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    <li>@*@User.Identity.Name.ToLower()*@ @localizationService.GetResource("Top Up", null, "Top Up")</li>
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget jarviswidget-color-blueDark" id="wid-cust-cards" data-widget-editbutton="false">
+                    @*<header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>New Top Up Request</h2>
+                        </header>*@
+                    <!-- widget div-->
+                    <h5></h5>
+                    @{ Html.RenderPartial("_CustomerTopupRequest");}
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+    @*<div>
+            Please kindly transfer the amount to the following acount number<br />
+            01-10318056-00-8<br />
+            Or card number<br />
+            6037-6919-9018-1737<br />
+            Account holder name is Rahyab Payam Gostaran Company<br />
+            See the link for more information :<a href="http://usecardservices.ir/fa-ir/%D8%A2%D9%85%D9%88%D8%B2%D8%B4/%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF-%D9%88%D8%A7%D8%B1%DB%8C%D8%B2-%D9%88%D8%AC%D9%87" target="_blank">
+                Click Here
+            </a>
+
+        </div>*@
+
+</div>
+<!-- END MAIN CONTENT -->
+@section pagespecific {
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+
+    @*<script>
+               $(document).ready(function () {
+                   //alert("yes");
+                   //alert(localStorage.ulselectorid);
+                   //localStorage.ulselectorid = "#left-panel > nav > ul > li:nth-child(1) > ul";
+                   //$(localStorage.ulselectorid).css({ display: "block" });
+                   document.getElementById(localStorage.ulselectorid).style.display = 'block';
+                   //$(localStorage.ulselectorid).css({ 'display': "block" });
+               });
+               $(".subul li").click(function () {
+                   alert($(this).closest('ul').attr('id'));
+                   localStorage.ulselectorid = $(this).closest('ul').attr('id');
+                   //$(localStorage.ulselectorid).css({ display: "block" });
+                   //alert(localStorage.ulselectorid);
+               });
+        </script>*@
+}

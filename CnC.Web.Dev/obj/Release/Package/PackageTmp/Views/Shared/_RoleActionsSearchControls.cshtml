@@ -1,0 +1,65 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@using CnC.Core;
+@model CnC.Core.Accounts.RoleActionsRole
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+    int totalCount = 0;
+    var roles = new AdminService().GetAllRoleActions(out totalCount, true)
+        .OrderBy(c => c.Role.Name).Select(c => c.Role).Distinct();
+    var actions = new AdminService().GetAllRoleActions(out totalCount, true)
+        .OrderBy(c => c.CnCAction.ActionName).Select(c => c.CnCAction).Where(c => c.ActionName != null);
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<div class="row control-padding-bottom">
+    <div class="col-sm-12">
+        <div class="form-group">
+            <div class="col-md-4 control-padding-bottom">
+                <label class="control-label"><strong>Role</strong></label>
+                @Html.DropDownListFor(model => model.RoleAction.RoleId, new SelectList(roles, "Id", "Name")
+               , "---Please Select---", htmlAttributes: new { @class = "form-control input-sm" })
+            </div>
+            <div class="col-md-4 control-padding-bottom">
+                <label class="control-label"><strong>Display - Controller/Action</strong></label>
+                @*@Html.DropDownListFor(model => model.RoleAction.ActionId, new SelectList(actions, "Id", "ActionName")
+                    , "---Please Select---", htmlAttributes: new { @class = "form-control input-sm" })*@
+
+                <select class="form-control input-sm" data-val="true"
+                        data-val-number="The field Action Id must be a number."
+                        data-val-required="The Action Id field is required."
+                        id="RoleAction_ActionId" name="RoleAction.ActionId">
+                    <option value="">---Please Select---</option>
+
+                    @foreach (var action in actions)
+                    {
+                        if (!string.IsNullOrEmpty(action.ControllerName) && !string.IsNullOrEmpty(action.ActionName))
+                        {
+                            <option value="@action.Id">
+                                @action.DisplayName - @action.ControllerName/@action.ActionName
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@action.Id">@action.DisplayName</option>
+                        }
+                    }
+                </select>
+
+            </div>
+        </div>
+    </div>
+</div>
+

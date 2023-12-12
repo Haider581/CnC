@@ -1,0 +1,103 @@
+﻿@using CnC.Service;
+@using CnC.Core
+@using CnC.Core.Customers;
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<div class="row">
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.NationalID", null, "National ID #")</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtNICNo", Request["txtNICNo"]
+           , new { placeholder = @localizationService.GetResource("Cnc.NationalID", null, "National ID #") })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.Passport#", null, "Passport #")</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtPassportNo", Request["txtPassportNo"], new { placeholder = @localizationService.GetResource("Cnc.Passport#", null, "Passport #") })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.RegistrationDateFrom", null, "Registration Date From")</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtRegistrationDateFrom", Request["txtRegistrationDateFrom"],
+           new { @class = "datepicker", placeholder = @localizationService.GetResource("Cnc.RegistrationDateFrom", null, "Registration Date From"), @readonly = "true" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.RegistrationDateTo", null, "To")</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtRegistrationDateTo", Request["txtRegistrationDateTo"], new { @class = "datepicker", placeholder = @localizationService.GetResource("Cnc.RegistrationDateTo", null, "To"), @readonly = "true" })
+        </label>
+    </section>
+</div>
+<div class="row">
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.FirstName", null, "First Name")</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtFirstName", Request["txtFirstName"], new { placeholder = @localizationService.GetResource("Cnc.FirstName", null, "First Name") })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.LastName", null, "Last Name")</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtLastName", Request["txtLastName"], new { placeholder = @localizationService.GetResource("Cnc.LastName", null, "Last Name") })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.Email", null, "Email")</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtEmail", Request["txtEmail"], new { placeholder = @localizationService.GetResource("Cnc.Email", null, "Email") })
+        </label>
+    </section>
+    @{
+        var val = Request["ddlCustomerStatus"];
+        var listData = EnumHelper.GetSelectList(typeof(CustomerStatus));
+    }
+    <section class="col col-3">
+        <label>@localizationService.GetResource("Cnc.CustomerStatus", null, "Customer Status")</label>
+        <label class="select">
+            <i class="icon-append fa fa-comment"></i>
+            @if (string.IsNullOrEmpty(val))
+            {
+                @Html.DropDownList("ddlCustomerStatus", listData, " -Please Select- ")
+            }
+            // execute on POST Request
+            else
+            {
+                var selectedData = listData.SingleOrDefault(c => c.Value == val);
+                <select id="ddlCustomerStatus" name="ddlCustomerStatus">
+                    <option class="selected" value="@selectedData.Value">@selectedData.Text</option>
+
+                    @foreach (var item in listData)
+                    {
+                        if (item.Value != val)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    }
+                </select>
+            }
+        </label>
+    </section>
+</div>
+
+<script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+<script src="~/Scripts/Validation/Partial/_CustomerSearchControls.js"></script>

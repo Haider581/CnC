@@ -1,0 +1,175 @@
+﻿@using CnC.Core
+@using CnC.Core.Customers
+@model List<Customer>
+@{
+    ViewBag.Title = "Send to LAMDA";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@ViewBag.Title</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @*<div id="cncLoader"></div>*@
+                            <div id="cncLoaderMessage">
+
+                            </div>
+                            <div id="showMessage"> </div>
+                            @using (Html.BeginForm("SendToCardProvider", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCustomers" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary("", new { @class = "text-danger" })
+                                <fieldset>
+                                    @{Html.RenderPartial("_CustomerSearchControls");}
+                                    @{Html.RenderPartial("_SearchButtons");}
+                                </fieldset>
+                                        }
+                        </div>
+                        <!-- end widget content -->
+                        <div class="table-responsive">
+                            <div class="alert alert-success" id="msgPwd" style="display:none;">
+                            </div>
+                            @{
+                                if (Model != null && Model.Count > 0)
+                                {
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Full Name</th>
+                                                <th>Email</th>
+                                                <th>National ID #</th>
+                                                <th>Passport #</th>
+                                                <th>Reg. Date</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@item.User.FullName</td>
+                                                        <td>@item.User.Email</td>
+                                                        <td>@item.NIC</td>
+                                                        <td>@item.PassportNo</td>
+                                                        <td>@item.User.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                        <td>
+                                                            <a onclick='CustomerCardIssuer("@item.Id"); return false;' style="cursor:pointer" id="btnValidated">Send To LAMDA</a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                                }
+                                                else
+                                                {
+                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                        <button class="close" data-dismiss="alert">×</button>
+                                                        <i class="fa-fw fa fa-cube"></i>
+                                                        <strong>Sorry! </strong>No Records Found
+                                                    </div>
+                                                }
+                            }
+                        </div>
+
+                        <input id="hfCustomerId" name="hfCustomerName" type="hidden" />
+
+                    </div>
+                    <!-- end widget -->
+                </div>
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+    });
+    function CustomerCardIssuer(key) {
+        if (key == "" && key == null) {
+            return false;
+        }
+        $("#cncLoader").show();
+        $.ajax({
+            url: '@Url.Action("UpdateCustomerCardIssuerStatus", "Customer")',
+            contentType: "application/json; charset=utf-8",
+            data: { customerId: key },
+            dataType: "json",
+            success: function (data) {
+                $("#cncLoader").hide();
+                if (data[0] == "200") {
+                    $("#cncLoaderMessage").append(data[1]);
+                    $("#cncLoaderMessage").show();
+
+                } else {
+
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                }
+            },
+            error: function () {
+
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+            }
+        });
+    }
+
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+</script>

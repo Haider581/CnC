@@ -1,0 +1,529 @@
+﻿@using CnC.Core
+@using CnC.Core.Cards
+@using CnC.Service
+@model List<CardRequestForm>
+@{
+    ViewBag.Title = "Card Requests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .Container {
+        width: 100%;
+    }
+
+    .Content {
+        width: 100%;
+    }
+
+    .Flipped, .Flipped .Content {
+        transform: rotateX(180deg);
+        -ms-transform: rotateX(180deg); /* IE 9 */
+        -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+    }
+
+    .ui-dialog-content {
+        overflow: hidden !important;
+    }
+
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget content -->
+    <div id="dialog_simple" title="Dialog Simple Title">
+        <div class="widget-body no-padding">
+            <form id="card-info-form" name="CardInfo" autocomplete="off" class="smart-form">
+                @*<header>
+                        Card Info
+                    </header>*@
+                <fieldset>
+                    <div class="row">
+                        <section class="col col-6">
+                            <label class="label">Client ID</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                @Html.TextBox("txtClientId")
+                            </label>
+                        </section>
+                        <section class="col col-6">
+                            <label class="label">Card ID</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                @Html.TextBox("txtCardId")
+                            </label>
+                        </section>
+                    </div>
+                    <div class="row">
+                        <section class="col col-6">
+                            <label class="label">Card Title</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-text-width"></i>
+                                @Html.TextBox("txtCardTitle")
+                            </label>
+                        </section>
+                        <section class="col col-6">
+                            <label class="label">Card #</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-hashtag" style="font-size: 22px;">#</i>
+                                @Html.TextBox("txtCardNo")
+                            </label>
+                        </section>
+                    </div>
+                    <div class="row">
+                        <section class="col col-6">
+                            <label class="label">Expiry Date</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-calendar"></i>
+                                @Html.TextBox("txtExpiryDate", null, new { @class = "datepicker", @readonly = "true" })
+                            </label>
+                        </section>
+                    </div>
+                    <div class="row">
+                        <div class="alert alert-success fade in" style="display:none">
+                            <button class="close" data-dismiss="alert">×</button>
+                            <i class="fa-fw fa fa-check"></i>
+                            <strong>Success</strong>
+                        </div>
+                        <div class="alert alert-danger fade in" style="display:none">
+                            <button class="close" data-dismiss="alert">×</button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong>
+                        </div>
+                    </div>
+                </fieldset>
+                <input id="hfFormId" name="hfFormName" type="hidden" />
+            </form>
+        </div>
+    </div>
+    <div id="dialog_card_failed" title="Dialog Simple Title">
+        <div class="widget-body no-padding">
+            <form id="card-info-form" name="CardInfo" autocomplete="off" class="smart-form">
+                @*<header>
+                        Card Info
+                    </header>*@
+                <fieldset>
+                    <div class="row">
+                        <section class="col col-12" style="width:100%">
+                            <label class="label">Comments</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-text-width"></i>
+                                @Html.TextBox("txtFailure")
+                            </label>
+                        </section>
+                    </div>
+                    <div class="row">
+                        <div class="alert alert-success fade in" style="display:none">
+                            <button class="close" data-dismiss="alert">×</button>
+                            <i class="fa-fw fa fa-check"></i>
+                            <strong>Success</strong>
+                        </div>
+                        <div class="alert alert-danger fade in" style="display:none">
+                            <button class="close" data-dismiss="alert">×</button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong>
+                        </div>
+                    </div>
+                </fieldset>
+                <input id="hfFormId" name="hfFormName" type="hidden" />
+            </form>
+        </div>
+    </div>
+    <div class="widget-body">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+            <!-- row -->
+            <div class="row">
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>Search @ViewBag.Title</h2>
+                        </header>
+                        <!-- widget div-->
+                        <div role="content">
+                            <!-- widget edit box -->
+                            <div class="jarviswidget-editbox">
+                                <!-- This area used as dropdown edit box -->
+                            </div>
+                            <!-- end widget edit box -->
+                            <!-- widget content -->
+                            <div class="widget-body">
+                                @*<div id="cncLoader"></div>*@
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <div id="showMessage"> </div>
+                                @using (Html.BeginForm("CardRequests", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCardRequests" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                                    <fieldset>
+                                        @{ Html.RenderPartial("_CardRequestSearchControl");}
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </fieldset>
+                                            }
+                            </div>
+                            <!-- end widget content -->
+                            <div class="Container Flipped">
+                                <div class="Content">
+                                    <div class="table-responsive" style="padding-bottom:50px;">
+                                        @{
+                                            if (Model != null && Model.Count > 0)
+                                            {
+                                                <table class="table table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th title="Request No">Req #</th>
+                                                            <th title="Request Date">Req Date</th>
+                                                            <th title="Payment Method">Payment Mode</th>
+                                                            <th title="Customer Full Name">Full Name</th>
+                                                            <th>National ID #</th>
+                                                            <th>Card Types</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var cardRequestForm in Model.Where(x => x.CardRequests.Count > 0).ToList())
+                                                        {
+                                                            string paymentDesc = string.Empty;
+                                                            int i = 0;
+                                                            foreach (var payment in cardRequestForm.Payments)
+                                                            {
+                                                                paymentDesc = paymentDesc + "" +
+                                                                                (payment.PaymentMethodId == (int)PaymentMethod.RAHYAB
+                                                                                || payment.PaymentMethodId == (int)PaymentMethod.Admin
+                                                                                ? "Manual" : ((PaymentMethod)payment.Id).ToString())
+                                                                                + ",";
+                                                                paymentDesc = paymentDesc.Trim(',');
+                                                            }
+                                                            <text>
+                                                                @if (i == 0)
+                                                                {
+                                                                    i = 1;
+                                                                    <text>
+                                                                        <tr>
+                                                                            <td>@cardRequestForm.Id</td>
+                                                                            <td>@cardRequestForm.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                            <td>@paymentDesc</td>
+                                                                            <td>@cardRequestForm.Customer.User.FullName</td>
+                                                                            <td>@cardRequestForm.Customer.NIC</td>
+                                                                            @{
+                                                                                string cardDesc = string.Empty;
+                                                                                string fmCrId = string.Empty;
+                                                                                cardDesc = cardRequestForm.CardRequests[0].CardType.Name;
+                                                                                var cardRequestStatus = cardRequestForm.CardRequests[0].StatusString;
+                                                                                fmCrId = cardRequestForm.Id + "-" + cardRequestForm.CardRequests[0].Id + "#" + cardRequestForm.Customer.CardServiceProviderClientId;
+                                                                            }
+                                                                            <td>@cardDesc</td>
+                                                                            <td>@cardRequestStatus</td>
+                                                                            @*<td>
+                                                                                    @if (cardRequestStatus == CardRequestStatus.Pending.ToString())
+                                                                                    {
+                                                                                        <a onclick='OpenDialog("@fmCrId");' style="cursor:pointer" id="dialog_link">Completed</a>
+                                                                                        <a onclick='UpdateCard("@fmCrId");' style="cursor:pointer" id="card_failed">Failed</a>
+                                                                                    }
+                                                                                </td>*@
+                                                                        </tr>
+                                                                    </text>
+                                                                                    cardRequestForm.CardRequests.RemoveAt(0);
+                                                                                }
+                                                                @foreach (var cardRequest in cardRequestForm.CardRequests)
+                                                                {
+                                                                    <text>
+                                                                        <tr>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td class="CardType">@cardRequest.CardType.Name</td>
+                                                                            <td>
+                                                                                @cardRequest.StatusString
+                                                                            </td>
+                                                                            @*<td>
+                                                                                    @{
+                                                                                        string tempVal = cardRequestForm.Id + "-" + cardRequest.Id + "#" + cardRequestForm.Customer.CardServiceProviderClientId; ;
+                                                                                    }
+                                                                                    @if (cardRequest.StatusString == CardRequestStatus.Pending.ToString())
+                                                                                    {
+                                                                                        <a onclick='OpenDialog("@tempVal");' style="cursor:pointer" id="dialog_link">Completed</a>
+                                                                                        <a onclick='UpdateCard("@tempVal");' style="cursor:pointer" id="card_failed">Failed</a>
+                                                                                    }
+                                                                                </td>*@
+                                                                        </tr>
+                                                                    </text>
+                                                                }
+                                                            </text>
+                                                                                }
+                                                    </tbody>
+                                                </table>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                                        <button class="close" data-dismiss="alert">×</button>
+                                                                                        <i class="fa-fw fa fa-cube"></i>
+                                                                                        <strong>Sorry! </strong>No Records Found
+                                                                                    </div>
+                                                                                }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end widget div -->
+                    </div>
+                    <!-- end widget -->
+                </article>
+                <!-- WIDGET END -->
+            </div>
+            <!-- end row -->
+        </section>
+        <!-- end widget grid -->
+    </div>
+    <!-- end widget content -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/Validation/Card/SearchCardRequests.js"></script>
+    <script src="~/Scripts/Validation/Card/CardInfo.js"></script>
+}
+@section pagespecific {
+    <script>
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        $('#dialog_simple').dialog({
+            autoOpen: false,
+            width: 600,
+            resizable: false,
+            modal: true,
+            title: "Card Info",
+            buttons: [
+                {
+                    html: "<i class='fa fa-trash-o'></i>&nbsp; Save Changes",
+                    "class": "btn btn-success",
+                    click: function () {
+                        PostCardInfo("s", this);
+                    }
+                }, {
+                    html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                    "class": "btn btn-default",
+                    click: function () {
+                        ClearForm();
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+        $('#dialog_card_failed').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Add Reason to Reject",
+            buttons: [
+                {
+                    html: "<i class='fa fa-trash-o'></i>&nbsp; Reject Card",
+                    "class": "btn btn-danger",
+                    click: function () {
+                        PostCardInfo("f", this);
+                    }
+                }, {
+                    html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                    "class": "btn btn-default",
+                    click: function () {
+                        ClearForm();
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+
+        /*
+            * DIALOG HEADER ICON
+            */
+        function OpenDialog(rf) {
+            // var msg = rf + "" + cr;
+            ClearForm();
+            var res = rf.split("#");
+            if (res[1] != "") {
+                document.getElementById("txtClientId").value = res[1];
+                document.getElementById("txtClientId").readOnly = true;
+                $("#hfFormId").val(res[0]);
+            } else {
+                $("#hfFormId").val(rf.replace('#', ''));
+            }
+            $('#dialog_simple').dialog('open');
+            return false;
+        }
+
+        function UpdateCard(rf) {
+            var res = rf.split("#");
+            if (res[1] != "") {
+                $("#hfFormId").val(res[0]);
+            } else {
+                $("#hfFormId").val(rf.replace('#', ''));
+            }
+            $('#dialog_card_failed').dialog('open');
+            //PostCardInfo("f");
+            return false;
+        }
+
+        function ClearForm() {
+            document.getElementById("txtClientId").readOnly = false;
+            $('#CardNumer').val("");
+            $('#CardTitle').val("");
+            $('#txtCardId').val("");
+            $('#txtClientId').val("");
+            $('#txtExpiryDate').val("");
+            $("#hfFormId").val("");
+        }
+
+        function PostCardInfo(rqFrom, obp) {
+            var cardNumber = document.getElementById("txtCardNo").value;
+            var cardTitle = document.getElementById("txtCardTitle").value;
+            var hv = $('#hfFormId').val();
+            var cardExpiry = document.getElementById("txtExpiryDate").value;
+            var customerClientId = document.getElementById("txtClientId").value;
+            var cardId = document.getElementById("txtCardId").value;
+            if (rqFrom == "f") {
+                if (hv != "") {
+                    $("#cncLoader").show();
+                    var failureReason = $("#txtFailure").val();
+                    $.ajax({
+                        url: "/Card/UpdateCardStatusFailed",
+                        contentType: "application/json; charset=utf-8",
+                        data: { key: hv, failureReason: failureReason },
+                        dataType: "json",
+                        success: function (data) {
+                            $("#cncLoader").hide();
+                            if (data[0] == "200") {
+                                $(obp).dialog("close");
+                                $("#cncLoaderMessage").append(data[1]);
+                                $("#cncLoaderMessage").show();
+
+                            } else {
+                                $(obp).dialog("close");
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            }
+
+                        },
+                        error: function () {
+                            $("#cncLoader").hide();
+                            $(obp).dialog("close");
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+                        }
+                    });
+                } else {
+                    alert("Missing required values.");
+                }
+            } else {
+                if (cardNumber != "" &&
+                    cardTitle != "" &&
+                    cardExpiry != "" &&
+                    customerClientId != "" &&
+                    hv != "" &&
+                    customerClientId != "" &&
+                    cardId != "") {
+                    $("#cncLoader").show();
+                    $.ajax({
+                        url: "/Card/UpdateCardStatus",
+                        contentType: "application/json; charset=utf-8",
+                        data: {
+                            key: hv,
+                            cardNumber: cardNumber,
+                            cardTitle: cardTitle,
+                            cardExpiry: cardExpiry,
+                            cardId: cardId,
+                            customerClientId: customerClientId
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            $("#cncLoader").hide();
+                            if (data[0] == "200") {
+                                ClearForm();
+                                $(obp).dialog("close");
+                                $("#cncLoaderMessage").append(data[1]);
+                                $("#cncLoaderMessage").show();
+
+                            } else {
+                                $(obp).dialog("close");
+                                $("#showMessage").removeClass("alert alert-danger fade in");
+                                $("#showMessage").empty();
+                                $("#showMessage").show();
+                                $("#showMessage").addClass("alert alert-danger fade in");
+                                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                            }
+
+                            //if (results.includes("successfully")) {
+
+                            //    //window.location.reload();
+                            //}
+
+                        },
+                        error: function () {
+                            $(obp).dialog("close");
+                            $("#cncLoader").hide();
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+                        }
+                    });
+                } else {
+                    $(obp).dialog("close");
+                    $("#cncLoader").hide();
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> Missing required values. Please try again. ");
+                }
+            }
+        }
+
+        function UpdatePanelDiv() {
+            $("#showMessage").empty();
+            $("#showMessage").hide();
+        }
+
+    </script>
+
+}
+

@@ -1,0 +1,443 @@
+﻿<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+@using CnC.Service
+@{
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    int customerId = userSession.Id;
+    var cardService = new CardService();
+    var cards = cardService.GetCardsReloadable(customerId);
+    var exchangeRate = new ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CurrencyService().SystemCurrency;
+    decimal serviceFeePercent = 0;
+   
+}
+@*<script src="~/Scripts/jquery.dumbformstate-1.0.1.js"></script>*@
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<style>
+    .invalid {
+        color: red !important;
+    }
+</style>
+@using (Html.BeginForm("CustomerNewTopUpRequest", "TopUp", FormMethod.Post, new { @class = "validatform", @id = "newTopupRequestForm", @name = "newTopupRequestForm" }))
+{
+    if (cards != null && cards.Count > 0 )
+    {
+        <div class="widget-body @exchangeRate">
+              @*<div id="cncLoader"></div>*@
+            <div id="cncLoaderMessage"></div>
+            <div id="showMessage"> </div>
+            <h5>
+                Exchange Rate (@Html.Raw(systemCurrency.Code)) = <code>
+                    @exchangeRate.Rate @exchangeRate.Currency.Code
+                </code>
+            </h5>
+            <input type="hidden" value="@customerId" id="hfCustId" name="hfCustId" />
+            <p>
+                <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 1:</span> Enter Top up Amount in € for each card you want to Top up.
+            </p>
+            <p>
+                <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 2:</span> Total Top up Amount to pay in IR will be calculated and in shown under grid.
+            </p>
+            <p>
+                <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 3:</span> Deposit the amount in our bank account and notify here.
+            </p>
+
+            <div class="alert alert-info fade in">
+                <button class="close" data-dismiss="alert">×</button>
+                <i class="fa-fw fa fa-info"></i>
+                <strong>Note!</strong> Top up policy will apply.
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="tblTopUpCards">
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Top up Amount (€)</th>
+                            <th hidden>Min Reload (€)</th>
+                            <th hidden>Max Reload (€)</th>
+                            <th hidden>Reload Limit (€)</th>
+                            <th hidden>Percentage</th>
+                            <th hidden>Minimum Value</th>
+                            @*<th>Top up Amount (IR)</th>*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in cards)
+                    {
+                            <text>
+                                <tr>                                    
+                                    <td style="display: none;">@item.CardRequestId</td>
+                                    <td><label id="lblCardNo">@item.Number</label> </td>
+                                    <td class="CardType"><label id="lblCardType">@item.CardRequest.CardType.Name</label></td>
+                                    <td>Reload Limit (€): @Math.Round(item.CardRequest.CardType.ReloadLimit), Max Reload (€): @Math.Round(item.CardRequest.CardType.MaximumReloadAtATime), Min Reload (€): @Math.Round(item.CardRequest.CardType.MinimumReloadAtATime) </td>
+                                    <td style="width:200px">
+                                        @{ 
+                                            var txtName = "txtTopupAmount" + item.CardRequest.CardType.Name;
+                                        }
+                                        <input type="text" class="input-xs col-md-6 TopupAmountEU" style="width:200px" id="txtTopupAmountEU" name="@txtName" />
+                                        @*@if (item.CardRequest.CardType.Name == "Black")
+                                        {
+                                            <input type="text" class="input-xs col-md-6 TopupAmountEU" style="width:200px" id="txtTopupAmountEU" name="txtTopupAmountEUBlack" />
+                                        }
+                                        else if (item.CardRequest.CardType.Name == "Platinum")
+                                        {
+                                            <input type="text" class="input-xs col-md-6 TopupAmountEU" style="width:200px" id="txtTopupAmountEU" name="txtTopupAmountEUPlatinum" />
+                                        }*@
+                                    </td>
+                                    <td hidden></td>
+                                    <td hidden id="hdnMinimumReloadAtATime" class="MinimumReloadAtATime">@Math.Round(item.CardRequest.CardType.MinimumReloadAtATime)</td>
+                                    <td hidden id="hdnMaximumReloadAtATime" class="MaximumReloadAtATime">@Math.Round(item.CardRequest.CardType.MaximumReloadAtATime)</td>
+                                    <td hidden id="hdnTopUpServiceFeePercentage" class="TopUpServiceFeePercentage">@item.CardRequest.CardType.TopUpServiceFeePercentage</td>
+                                    <td hidden id="hdnTopUpServiceFeeMinimum" class="TopUpServiceFeeMinimum">@item.CardRequest.CardType.TopUpServiceFeeMinimum</td>
+                                    @*<td><input type="text" class="input-xs col-md-6 TopupAmountIR" id="txtTopupAmountIR" name="txtTopupAmountIR" readonly /></td>*@
+                                </tr>
+                            </text>
+                        }
+                    </tbody>                   
+                </table>
+                @*<span id="errmsg"></span>*@
+                <em for="txtTopupAmountEU" class="invalid"></em>
+                <div id="errorTopupAmountEU" class="alert alert-danger" style="display:none;">
+
+                </div>
+                <div id="errmsg" class="alert alert-danger" style="display:none;">
+                    <strong>Required!</strong> Please Enter Top up Amount (€) for each card
+                </div>
+                <div id="divMsg" class="alert alert-danger" style="display:none;">
+                    <strong>Required!</strong> Please Enter Top up Amount (€) for at-least on card
+                </div>
+                <div id="messageBox"></div>
+            </div>
+        </div>
+    <!-- Bank to Bank Transaction -->
+        <div id="bb">
+            <div class="widget-body col-md-6" id="divBank">
+                <div class="smart-form" novalidate="novalidate">
+                    <fieldset>
+                        <header>
+                            Bank To Bank Transaction
+                        </header>
+                        <p style="margin:5px;">
+                            <i class="fa fa-bell text-danger"></i> <i>If the customer has deposited the amount in our Bank account</i>
+                        </p>
+                        <section>
+                            <label class="label">Transaction Tracking/Reference No.</label>
+                            <label class="input">
+                                <input type="text" name="txtTopupTransactionNo" id="txtTopupTransactionNo">
+                            </label>
+                        </section>
+                        <section>
+                            <label class="label">Your Account No.</label>
+                            <label class="input">
+                                @Html.TextBox("txtTopupAccountNo")
+                            </label>
+                        </section>
+                        <section>
+                            <label class="label">Name</label>
+                            <label class="input">
+                                @Html.TextBox("txtTopupName")
+                            </label>
+                        </section>
+                        <section>
+                            <label class="label">Amount (IR)</label>
+                            <label class="input">
+                                @Html.TextBox("txtTopupAmount")
+
+                            </label>
+                        </section>
+                        <div id="errorTopupAmount" class="alert alert-danger" style="display:none;">
+                            <strong>Amount Limit: Amount can not be less than Total Top up Amount To Pay</strong>
+                        </div>
+                    </fieldset>
+                    <footer>
+                        <input type="button" id="btnTopupNotify" name="btnTopupNotify" class="btn btn-primary" value="Notify" />
+                    </footer>
+                    <div class="message">
+                        <i class="fa fa-thumbs-up"></i>
+                        <p>Your data has been saved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 well pull-right">
+            <p>
+                Total Top up Amount (€):    <code class="pull-right" id="lblTopupTotalFeeEu">0</code>
+            </p>
+            <p>
+                Total Top up Amount (IR):     <code class="pull-right" id="lblTopupTotalFeeIr">0</code>
+            </p>
+            <p>
+                Service Charges (€):     <code class="pull-right" id="lblServicesCharges">0</code>
+            </p>
+            <p>
+                Total Top up Amount To Pay (IR):  <span class="badge bg-color-blueLight pull-right" id="lblTopupGrandTotalIr">0</span>
+            </p>
+        </div>
+    }
+    else
+    {
+        <h3>Sorry! To make Top Up Request you must have at least one active card</h3>
+    }
+    @*<div class="col-md-4  txt-color-white text-center">
+            <a data-toggle="modal" href="#divTopupRequestProcessor"
+               class="btn btn-info">Online Payment</a>
+        </div>*@
+    @Html.Partial("_TopupRequestProcessor", new ViewDataDictionary { { "popUpId", "divTopupRequestProcessor" } })
+}
+<script src="~/Scripts/Validation/TopUp/_CustomerTopupRequest.js"></script>
+<script>
+    (function() {
+        "use strict";
+        $('#tblTopUpCards > tbody  > tr').on('input propertychange paste', function () {            
+            var row = $(this).closest("tr");
+            var TopupAmount = parseFloat(row.find(".TopupAmountEU").val());
+            var MinimumReloadAtATime = parseFloat(row.find(".MinimumReloadAtATime").text());
+            var MaximumReloadAtATime = parseFloat(row.find(".MaximumReloadAtATime").text());            
+            var CardType = row.find(".CardType").text();
+            var a;
+            $('.TopupAmountEU').each(function () {
+                if (TopupAmount<MinimumReloadAtATime || TopupAmount>MaximumReloadAtATime) {
+                    //$("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + "" + "For Card Type: " + "" + CardType).show();
+                    a = true;
+                    //return false;
+                }
+            });
+            if (a) {
+                $("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + "" + "For Card Type: " + "" + CardType).show();
+               // $("#errorTopupAmountEU").html("Please check and enter Amount between Reload Limits").show();
+                $("#bb").hide();
+                return false;
+               
+            }
+            else {
+                $("#errorTopupAmountEU").hide();
+                $("#bb").show();
+            }
+        });
+        //$("table").on("focusout", "input", function() {
+        //    var row = $(this).closest("tr");
+        //    var TopupAmount = parseFloat(row.find(".TopupAmountEU").val());
+        //    var MinimumReloadAtATime = parseFloat(row.find(".MinimumReloadAtATime").text());
+        //    var MaximumReloadAtATime = parseFloat(row.find(".MaximumReloadAtATime").text());            
+        //    var CardType = row.find(".CardType").text();
+        //    var a;
+        //    $('.TopupAmountEU').each(function () {
+        //        if (TopupAmount<MinimumReloadAtATime || TopupAmount>MaximumReloadAtATime) {
+        //            //$("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + "" + "For Card Type: " + "" + CardType).show();
+        //            a = true;                    
+        //        }
+        //    });
+        //    if (a) {
+        //        $("#errorTopupAmountEU").html("Please check and enter Amount between Reload Limits").show();
+        //        $("#bb").hide();
+        //        return false;
+        //    }
+        //    else {
+        //        $("#errorTopupAmountEU").hide();
+        //        $("#bb").show();
+        //    }
+        //});
+    })();
+</script>
+<script>
+    // Dialog click
+    $('#aOnlinepayment').click(function () {
+        $('#dialog_simple').dialog('open');
+        return false;
+    });
+    // Calculate EU total
+    $('.TopupAmountEU').on('input propertychange paste', function () {
+        var totalEU = 0;
+        var totalServiceCharges=0;
+        var tempServiceCharges=0;
+        //$(".TopupAmountEU").each(function () {
+
+        //var myVal = parseInt($(this).val()) || 0;
+        // totalEU += myVal;
+
+        $('#tblTopUpCards > tbody  > tr').each(function() {
+            var row = $(this).closest("tr");
+            var myVal = parseInt(row.find(".TopupAmountEU").val());
+            myVal = parseInt(myVal) || 0;
+            totalEU += myVal;
+            if (myVal>0) {
+                var TopUpServiceFeeMinimum = parseFloat(row.find(".TopUpServiceFeeMinimum").text());
+                var TopUpServiceFeePercentage = parseFloat(row.find(".TopUpServiceFeePercentage").text());
+                var serviceFee = parseFloat(myVal * TopUpServiceFeePercentage / 100);
+                if (TopUpServiceFeeMinimum > serviceFee) {
+                    tempServiceCharges=TopUpServiceFeeMinimum;
+                }else {
+                    tempServiceCharges=serviceFee;
+                }
+                totalServiceCharges=totalServiceCharges+tempServiceCharges;
+
+            }
+            $(this).closest('td').next('td').find('input:text').val(myVal * parseFloat(@exchangeRate.Rate));
+        });
+
+
+
+        // });
+
+
+
+
+        $("#lblTopupTotalFeeEu").text((totalEU).toFixed(2));
+        $("#lblServicesCharges").text((totalServiceCharges).toFixed(2));
+        $("#lblTopupTotalFeeIr").text((totalEU * parseFloat(@exchangeRate.Rate)).toFixed(2));
+        var euAmount = parseFloat($("#lblTopupTotalFeeEu").text() || 0)
+        var serviceAmt = parseFloat($("#lblServicesCharges").text() || 0)
+        $("#lblTopupGrandTotalIr").text(((euAmount+serviceAmt)*parseFloat(@exchangeRate.Rate)).toFixed(2));
+        //.toFixed(2)
+        //calculateTopupGrandTotal();
+    });
+    // Calcualte grand total
+    function calculateTopupGrandTotal() {
+        $("#lblServicesCharges").text(""+calculatePercentageValue(parseFloat($("#lblTopupTotalFeeIr").text() || 0),@serviceFeePercent));
+        var amount = parseFloat($("#lblTopupTotalFeeIr").text() || 0)
+        var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+        amount=amount+serviceCharges;
+        $("#lblTopupGrandTotalIr").text(amount);
+    }
+    function calculatePercentageValue(value, percent) {
+        return (value * percent / 100);
+    }
+</script>
+<script>    
+    $(document).ready(function () {
+        //called when key is pressed in textbox
+        $(".TopupAmountEU").keypress(function (e) {
+            //if the letter is not digit then display error and don't type anything
+            if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                //display error message
+                $("#errmsg").html("Digits Only").show();
+                return false;
+            } else {
+                $("#errmsg").html("Digits Only").hide();
+            }
+        });
+        function ValidateOnLoad() {   
+            var ta;
+            $('.TopupAmountEU').each(function () {
+                if ($(this).val() > 0) {
+                    ta = true;
+                }
+            });
+            if (!ta) {
+                $("#divMsg").show();
+                return false;
+            }
+            else {
+                $("#divMsg").hide();
+            }
+        }
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+        $("#btnTopupNotify").click(function () {
+            ValidateOnLoad();
+            var form = $('.validatform');
+            form.validate();
+            if (!form.valid()) {
+                return false;
+            };
+            //var out = true;
+            var a;
+            var TopupAmount;
+            var MinimumReloadAtATime;
+            var MaximumReloadAtATime;
+            var CardType;
+            //$("#newTopupRequestForm").validate();
+            $('#tblTopUpCards > tbody  > tr').each(function() {                
+                var row = $(this).closest("tr");               
+                TopupAmount = parseFloat(row.find(".TopupAmountEU").val());
+                MinimumReloadAtATime = parseFloat(row.find(".MinimumReloadAtATime").text());
+                MaximumReloadAtATime = parseFloat(row.find(".MaximumReloadAtATime").text());                
+                CardType = row.find(".CardType").text();                          
+                if (TopupAmount<MinimumReloadAtATime || TopupAmount>MaximumReloadAtATime) {                      
+                    //$("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + "" + "For Card Type: " + "" + CardType).show();
+                    a = true;                    
+                }             
+            });
+            if (a) {               
+                $("#errorTopupAmountEU").html("Please check and enter Amount between Reload Limits").show();
+                return false;
+            }
+            else {
+                $("#errorTopupAmountEU").hide();
+                //out = true;
+                var TopupGrandTotal =parseFloat($("#lblTopupGrandTotalIr").text());
+                var TopupAmount = parseFloat($("#txtTopupAmount").val());
+                debugger;
+                if (TopupAmount < TopupGrandTotal) {
+                    //alert("yes");
+                    $("#errorTopupAmount").show();
+
+                    return false;
+                }else{
+                    $("#errorTopupAmount").hide();
+
+                }
+            }
+
+            if (!$("#newTopupRequestForm").valid()) {
+                return;
+            }
+            var arrCards = $('#tblTopUpCards tr:gt(0)').map(function () {
+                return {
+                    cardId: $(this.cells[0]).html(),
+                    cardNo: $(this.cells[1]).find("label").text(),
+                    cardAmount: $(this.cells[4]).find("input").val(),
+                    //MinReload: $(this.cells[5]).html(),
+                    //MaxReload: $(this.cells[6]).html(),
+                };
+            }).get();
+            var transaction = {
+                TransactionNo: $("#txtTopupTransactionNo").val(),
+                AccountNo: $("#txtTopupAccountNo").val(),
+                Name: $("#txtTopupName").val(),
+                Amount: $("#txtTopupAmount").val(),
+                CustomerId: $("#hfCustId").val(),
+                cards: arrCards
+            };
+            //alert(JSON.stringify(transaction, null, 4))
+            $("#cncLoader").show();
+            $.ajax({
+                url: "/TopUp/CustomerNewTopUpRequest",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(transaction),
+                success: function (data) {
+                    $("#cncLoader").hide();
+                    if (data[0] == "200") {
+                        $("#cncLoaderMessage").append(data[1]);
+                        $("#cncLoaderMessage").show();
+                    } else {
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                    }
+                },error: function(er) {
+                    $("#cncLoader").hide();
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Unable to process the request. Please try again.");
+                }
+            });
+        });
+    });
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+    //$('form').dumbFormState({
+    //    persistPasswords: false, // default is false, recommended to NOT do this
+    //    persistLocal: false, // default is false, persists in sessionStorage or to localStorage
+    //    skipSelector: null, // takes jQuery selector of items you DO NOT want to persist
+    //    autoPersist: true, // true by default, false will only persist on form submit
+    //});
+</script>

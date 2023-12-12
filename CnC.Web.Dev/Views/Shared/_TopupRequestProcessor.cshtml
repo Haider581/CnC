@@ -1,0 +1,40 @@
+﻿@using CnC.Core.Customers
+@using CnC.Service
+@{
+    string valuePassedIn = this.ViewData.ContainsKey("popUpId") ? this.ViewData["popUpId"].ToString() : string.Empty;
+    bool isCustomer = false;
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    if (userSession != null && userSession.IsCustomer)
+    {
+        isCustomer = true;
+    }
+    LocalizationService localizationService = null;
+    if (isCustomer)
+    {
+        var cust = Session["CurrentCustomer"] as Customer;
+        localizationService = new LocalizationService(cust.LanguageId);
+    }
+    localizationService = new LocalizationService();
+}
+<div class="modal fade" id="@(valuePassedIn)" data-backdrop-limit="1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">@localizationService.GetResource("Cnc.PayOnline", null, "Pay online")</h4>
+            </div>
+            <div class="modal-body">
+                <button type="button" onclick="window.parent.location.href = '../Payment/TopupPaymentSuccess'">@localizationService.GetResource("Cnc.Success", null, "Success")</button>
+                <button type="button" onclick="window.parent.location.href = '../Payment/TopupPaymentFail'">@localizationService.GetResource("Cnc.Fail", null, "Fail")</button>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    @localizationService.GetResource("Cnc.Close", null, "Close")
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>

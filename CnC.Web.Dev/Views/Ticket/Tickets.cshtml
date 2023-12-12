@@ -1,0 +1,497 @@
+﻿@using CnC.Web.Controllers;
+@using CnC.Service;
+@using CnC.Core
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "My Support Tickets";
+    HelpDeskService helpService = new HelpDeskService();
+    var getTickets = new TicketController();
+    var userId = ViewBag.Id;
+    List<Ticket> getTicketsData = getTickets.GetAllTickets(userId);
+    List<QuickTicket>
+       quickTickets = helpService.GetQuickTickets();
+    //foreach (var parentItem in getTicketsData)
+    //{
+    //    foreach (var childItem in parentItem.TicketProcess)
+    //    {
+    //        if (childItem.TicketStatusId == (int)TicketStatus.Closed)
+    //        {
+    //            parentItem.TicketProcess.Remove(childItem);
+    //        }
+    //    }
+    //}
+    var test = getTicketsData.Select(x => x.TicketProcess.Select(t=>t.TicketStatusId==(int)TicketStatus.Open).ToList()).ToList();
+    //var test = getTicketsData.Where(x => x.TicketProcess.Select(t => t.TicketStatusId).FirstOrDefault()== (int)TicketStatus.Open).ToList();
+    //List<Ticket> test = getTicketsData.Where(x => x.TicketProcess.Where(y => y.TicketStatusId == (int)TicketStatus.Open));
+}
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<div id="content">
+    <section id="widget-grid" class="">
+        <!-- new widget -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-4" data-widget-editbutton="false" data-widget-deletebutton="false" data-widget-colorbutton="false">
+
+            <!-- widget options:
+            usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+
+            data-widget-colorbutton="false"
+            data-widget-editbutton="false"
+            data-widget-togglebutton="false"
+            data-widget-deletebutton="false"
+            data-widget-fullscreenbutton="false"
+            data-widget-custombutton="false"
+            data-widget-collapsed="true"
+            data-widget-sortable="false"
+
+            -->
+
+            <header>
+                <span class="widget-icon"> <i class="fa fa-check"></i> </span>
+                <h2> To Resolve </h2>
+                <!-- <div class="widget-toolbar">
+                add: non-hidden - to disable auto hide
+
+                </div>-->
+            </header>
+
+            <!-- widget div-->
+            <div>
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <div>
+                        <label>Title:</label>
+                        <input type="text" />
+                    </div>
+                </div>
+                <!-- end widget edit box -->
+
+                <div class="widget-body no-padding smart-form">
+                    <!-- content goes here -->
+                    <h5 class="todo-group-title"><i class="fa fa-warning"></i> Opened Tickets (<small class="num-of-tasks">@getTicketsData.Count()</small>)</h5>
+                    <ul id="sortable1" class="todo">
+                        @foreach (var item in getTicketsData)
+                        {
+                            int ticketId = item.Id;
+                            var ticketStatus = item.TicketProcess.Where(x => x.TicketId == ticketId)
+                                                                 .Select(p => new { p.CreatedOn, p.TicketStatusId,p.Comments })
+                                                                 .LastOrDefault();
+                            
+                            <li>
+                                <span class="handle">
+                                    <label class="checkbox">
+                                        <input type="checkbox" name="checkbox-inline">
+                                        <i></i>
+                                    </label>
+                                </span>
+                                <p>
+                                    <strong>Ticket # @item.TicketNo</strong> - @item.Subject [<a href="javascript:void(0);" class="font-xs"><a target="_blank" id="myBtn1" href="/ticket/GetMessagesByTicket?ticketId=@ticketId&SessionUserId=@userId" style="cursor: pointer;"> More Details</a></a>]<a onclick='ConfirmationDialog("@ticketId","@userId","");' style="cursor:pointer" id="btnMoreDetails">More Details</a> <span class="text-muted">@ticketStatus.Comments </span>
+                                    <span class="date">@ticketStatus.CreatedOn</span>
+                                </p>
+                            </li>
+                        }
+                    </ul>
+
+
+                    @*<h5 class="todo-group-title"><i class="fa fa-check"></i> Closed Ticket (<small class="num-of-tasks">1</small>)</h5>
+                    <ul id="sortable3" class="todo">
+                        <li class="complete">
+                            <span class="handle" style="display:none">
+                                <label class="checkbox state-disabled">
+                                    <input type="checkbox" name="checkbox-inline" checked="checked" disabled="disabled">
+                                    <i></i>
+                                </label>
+                            </span>
+                            <p>
+                                <strong>Ticket #17643</strong> - Hotfix for WebApp interface issue [<a href="javascript:void(0);" class="font-xs">More Details</a>] <span class="text-muted">Sea deep blessed bearing under darkness from God air living isn't. </span>
+                                <span class="date">Jan 1, 2014</span>
+                            </p>
+                        </li>
+                    </ul>*@
+
+                    <!-- end content -->
+                </div>
+
+            </div>
+            <!-- end widget div -->
+        </div>
+        <!-- end widget -->
+
+        <div id="test">
+            <div id="filterDiv" style="display: none;">
+                <table>
+                    <tr>
+                        <td>Priority</td>
+                        <td>
+                            @Html.DropDownList("cmbPriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), "--Select--", new { @class = "form-control" })
+                        </td>
+                        <td>Status</td>
+                        <td>
+                            @Html.DropDownList("cmbStatus", EnumHelper.GetSelectList(typeof(TicketStatus)), "--Select--", new { @class = "form-control" })
+                        </td>
+
+                    </tr>
+                    @*}*@
+                </table>
+            </div>
+            <div id="ManageDiv" style="display: none;">
+                <h4>Manage Tickets</h4>
+                @using (Html.BeginForm("AddTicketProcess", "Ticket", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+                    <table id="tblManage" class="table table-bordered">
+                        <tr>
+                            <th>Subject</th>
+                            <td>
+                                @Html.DropDownList(
+                                "cmbSubject",
+                                new SelectList(
+                                    getTicketsData.Select(x => new { Value = x.Id, Text = x.Subject }),
+                                    "Value",
+                                    "Text"
+                                    ), "--Select--", new { @class = "form-control" }
+                                )
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ticket#</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Priority</th>
+                            <td>
+                                @Html.DropDownList("cmbManagePriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                @Html.DropDownList("cmbManageStatus", EnumHelper.GetSelectList(typeof(TicketStatus)), new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Comments</th>
+                            <td>
+                                @Html.TextArea("txtComments", new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="hidden" id="hdTicketId" name="hdTicketId" />
+                                <button type="submit" name="btnManageSubmit" class="btn btn-primary">Post</button>
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+            @*<div id="getTicket" class="table-responsive">
+                <table id="tblTickets" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Date</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in getTicketsData)
+                    {
+                        int ticketId = item.Id;
+                        var ticketStatus = item.TicketProcess.Where(x => x.TicketId == ticketId)
+                                                             .Select(p => new { p.CreatedOn, p.TicketStatusId })
+                                                             .LastOrDefault();
+                        <tbody>
+                            <tr data-priorty="@item.SeverityId" data-Status="@ticketStatus" class="trdata">
+
+                                <td>
+                                    @item.TicketNo
+                                </td>
+                                <td>
+                                    @ticketStatus.CreatedOn
+                                </td>
+                                <td>
+                                    <a target="_blank" id="myBtn1" href="/ticket/GetMessagesByTicket?ticketId=@ticketId&SessionUserId=@userId" style="cursor: pointer;"> @item.Subject</a>
+
+                                </td>
+                                <td>
+                                    @{ TicketSeverity priority = (TicketSeverity)Enum.ToObject(typeof(TicketSeverity), item.SeverityId);}
+                                    @priority
+                                </td>
+                                <td>
+                                    @{
+
+                                    }
+                                    @{ TicketStatus status = (TicketStatus)Enum.ToObject(typeof(TicketStatus), ticketStatus.TicketStatusId);}
+                                    @status
+                                </td>
+                            </tr>
+                        </tbody>
+                                        }
+                </table>
+            </div>*@
+        </div>
+        <div id="showdata" class="col-lg-4">
+        </div>
+        
+
+    </section>
+    @*<a href="#" id="dialog_link" class="btn btn-info"> Open Dialog </a>
+    <div id="dialog_simple" title="Dialog Simple Title">
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        </p>
+    </div>*@
+    <div id="messages_dialog" title="Dialog Simple Title">
+        <!-- row -->
+
+        <div class="row">
+
+            <article class="col-sm-12 col-md-12 col-lg-12">
+
+                <!-- CHAT BODY -->
+                <div id="chat-body" class="chat-body custom-scroll">
+                    <ul>
+                        <li class="message">
+                            @*<img src="img/avatars/5.png" class="online" alt="">*@
+                            <div class="message-text" style="margin-left: 0px;">
+                                <time>
+                                    2014-01-13
+                                </time> <a href="javascript:void(0);" class="username">Sadi Orlaf</a> Hey did you meet the new board of director? He's a bit of an arse if you ask me...anyway here is the report you requested. I am off to launch with Lisa and Andrew, you wanna join?
+                                
+                                
+                            </div>
+                        </li>
+                        <li class="message">
+                            @*<img src="img/avatars/sunny.png" class="online" alt="">*@
+                            <div class="message-text" style="margin-left: 0px;">
+                                <time>
+                                    2014-01-13
+                                </time> <a href="javascript:void(0);" class="username">John Doe</a> Haha! Yeah I know what you mean. Thanks for the file Sadi! <i class="fa fa-smile-o txt-color-orange"></i>
+                            </div>
+                        </li>
+                        <li class="message">
+                            @*<img src="img/avatars/sunny.png" class="online" alt="">*@
+                            <div class="message-text" style="margin-left: 0px;">
+                                <time>
+                                    2014-01-13
+                                </time> <a href="javascript:void(0);" class="username">John Doe</a> Haha! Yeah I know what you mean. Thanks for the file Sadi! <i class="fa fa-smile-o txt-color-orange"></i>
+                            </div>
+                        </li>
+                        <li class="message">
+                            @*<img src="img/avatars/sunny.png" class="online" alt="">*@
+                            <div class="message-text" style="margin-left: 0px;">
+                                <time>
+                                    2014-01-13
+                                </time> <a href="javascript:void(0);" class="username">John Doe</a> Haha! Yeah I know what you mean. Thanks for the file Sadi! <i class="fa fa-smile-o txt-color-orange"></i>
+                            </div>
+                        </li>
+                        <li class="message">
+                            @*<img src="img/avatars/sunny.png" class="online" alt="">*@
+                            <div class="message-text" style="margin-left: 0px;">
+                                <time>
+                                    2014-01-13
+                                </time> <a href="javascript:void(0);" class="username">John Doe</a> Haha! Yeah I know what you mean. Thanks for the file Sadi! <i class="fa fa-smile-o txt-color-orange"></i>
+                            </div>
+                        </li>
+                        <li class="message">
+                            @*<img src="img/avatars/sunny.png" class="online" alt="">*@
+                            <div class="message-text" style="margin-left: 0px;">
+                                <time>
+                                    2014-01-13
+                                </time> <a href="javascript:void(0);" class="username">John Doe</a> Haha! Yeah I know what you mean. Thanks for the file Sadi! <i class="fa fa-smile-o txt-color-orange"></i>
+                            </div>
+                        </li>
+                    </ul>
+
+                </div>
+
+                <!-- CHAT FOOTER -->
+                <div class="chat-footer">
+
+                    <!-- CHAT TEXTAREA -->
+                    <div class="textarea-div">
+
+                        <div class="typearea">
+                            <textarea placeholder="Write a reply..." id="textarea-expand" class="custom-scroll"></textarea>
+                        </div>
+
+                    </div>
+
+                    <!-- CHAT REPLY/SEND -->
+                    <span class="textarea-controls">
+                        <button class="btn btn-sm btn-primary pull-right">
+                            Reply
+                        </button> <span class="pull-right smart-form" style="margin-top: 3px; margin-right: 10px;">
+                            <label class="checkbox pull-right">
+                                <input type="checkbox" name="subscription" id="subscription">
+                                <i></i>Press <strong> ENTER </strong> to send
+                            </label>
+                        </span> <a href="javascript:void(0);" class="pull-left"><i class="fa fa-camera fa-fw fa-lg"></i></a>
+                    </span>
+
+                </div>
+
+
+
+            </article>
+
+
+
+        </div>
+
+        <!-- end row -->
+    </div>
+</div>
+
+@section pagespecific {
+    <script>      
+        $(document).ready(function () {
+            //alert("YES");
+            
+            $('#messages_dialog').dialog({
+                autoOpen: false,
+                width: 600,
+                resizable: false,
+                modal: true,
+                title: "Messages",
+                
+             
+            });            
+        });
+        function ConfirmationDialog() {          
+            $('#messages_dialog').dialog('open');
+            $('.custom-scroll').scrollTop($('.custom-scroll')[0].scrollHeight);
+            return false;
+        }
+        
+    </script>
+    <script type="text/javascript">
+        $('input[type="checkbox"]').on('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+            alert('Break');
+        });
+        $(function () {
+            $('#linkId').click(function () {
+                $.get(this.href, function (result) {
+                    $(result).dialog();
+                });
+                return false;
+            });
+        });
+    </script>
+    <script>      
+        function HideD() {
+            alert("called");
+            $("#showdata").hide();
+            return false;
+        }
+        function ToggleFilter() {
+            if ($('#getTicket').css('display') != 'none') {
+                $("#filterDiv").show();
+            }
+            else {
+                alert('only applied in Get Tickets')
+            }
+        }
+        function ShowManageData() {
+            $("#ManageDiv").show();
+            $("#getTicket").hide();
+            $("#filterDiv").hide();
+        }
+        function ShowTickets() {
+            $("#ManageDiv").hide();
+            $("#getTicket").show();
+            $("#filterDiv").hide();
+        }
+    </script>
+    <script type="text/javascript">
+        var priorty = null;
+        var status = null;       
+        $(document).ready(function () {
+            $('#tblTickets').DataTable({
+                initComplete: function () {
+                    this.api().columns().every(function () {
+                        var column = this;
+                        var select = $('<select><option value=""></option></select>')
+                            .appendTo($(column.footer()).empty())
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
+                    });
+                }
+            });
+        });
+        function MakeTable(Data, ticket) {
+            var processLength = Data[0].TicketProcess.length;
+            var ticketStatus = Data[0].TicketProcess[processLength - 1].TicketStatusId;
+            $("#cmbManagePriority").removeAttr('disabled', 'disabled');
+            document.getElementById("tblManage").rows[1].cells[1].innerHTML = Data[0].TicketNo;
+            var priority = Data[0].SeverityId;
+            $("#cmbManagePriority").val(priority);
+            $("#cmbManageStatus").val(ticketStatus);
+            $("#cmbManagePriority").attr('disabled', 'disabled');
+            $("#hdTicketId").val(ticket);
+        }
+        function MakeTicketTable(Data) {
+            debugger;
+            $("#tblTickets").find(".trdata").remove();
+            for (var i = 0; i < Data.length; i++) {
+                var tr = '<tr data-priorty="' + Data[i].Severity + '" class="trdata">';
+                tr += '<td>';
+                tr += Data[i].TicketNo
+                tr += '</td>';
+                tr += '<td>';
+                tr += Data[i].LastSeenByUserDate;
+                tr += '</td>';
+                tr += '<td>';
+                tr += '<a target="_blank"  id="myBtn1" href="/ticket/GetMessagesByTicket/ticketId=' + Data[i].ticketId + '"  style="cursor:pointer;">' + Data[i].Subject + '</a>';
+                tr += '</td>';
+                tr += '<td>';
+                tr += Data[i].Severity;
+                tr += '</td>';
+                tr += '</tr>';
+                $("#tblTickets").append(tr);
+            }
+        }
+        function test() {
+            $('#tblTickets1').find('tr').click(function () {
+                alert('You clicked row ' + ($(this).index()));
+            });
+        }
+    </script>
+    <script>
+        // Get the modal
+        var modal = document.getElementById('myModal');
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        // When the user clicks the button, open the modal
+        //btn.onclick = function () {
+        //    modal.style.display = "block";
+        //}
+        // When the user clicks on <span> (x), close the modal
+        //span.onclick = function () {
+        //    modal.style.display = "none";
+        //}
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+}

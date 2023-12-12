@@ -1,0 +1,21 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="content">
+    <div class="row">
+        <div class="col-sm-12">
+            @{
+                var response = ViewBag.ResponseDesc;
+                if (response != null || response != "")
+                {
+                    <h1 class="text-center text-success"><strong><i class="fa fa-check fa-lg"></i> Complete</strong></h1>
+                    @*<h4 class="text-center">@response</h4>*@
+                    @*<h4 class="text-center">test @Html.Raw(ViewBag.ResponseDesc)</h4>*@
+                }
+            }
+
+        </div>
+    </div>
+
+    <div id="alertDiv" class="alert alert-success text-center"><br /><strong>@Html.Raw(ViewBag.ResponseDesc)</strong></div>
+</div>

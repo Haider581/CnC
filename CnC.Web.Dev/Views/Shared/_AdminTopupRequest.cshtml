@@ -1,0 +1,291 @@
+﻿<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+@using CnC.Service
+@using CnC.Core.Cards
+@using CnC.Web.Controllers
+@{
+    var customerId = int.Parse(Request.QueryString["Id"].ToString());
+
+    List<Card> cards = new CardController().GetCards(customerId);
+
+    var exchangeRate = new CnC.Service.ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CurrencyService().SystemCurrency;
+
+  
+}
+<!--New Topup Request -->
+@using (Html.BeginForm("", "", FormMethod.Post, new { @id = "newTopupRequestForm", @name = "newTopupRequestForm" }))
+{
+    <section id="widget-grid" class="">
+
+        <!-- Card fee calculation -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+
+            <header role="heading">
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>New Top Up Request</h2>
+
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+
+            <!-- widget div-->
+            <div role="content">
+
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+
+                <div class="smart-form" novalidate="novalidate">
+                    @*<header>Search Customers</header>*@
+
+                    <fieldset>
+                        <div class="row">
+                            <label class="label label-info" id="lblTopupExchangeRate">
+                                <span>Exchange Rate 1</span>@Html.Raw(systemCurrency.Code)= <label>@exchangeRate.Rate @exchangeRate.Currency.Code</label>
+                            </label>
+
+                            <p class="text-danger">
+                                Instructions for Customers to Top up Cards
+                            </p>
+                            <p class="text-danger">
+                                Step 1: Enter Top up Amount in &#163; for each card Customer wants to Top up
+                            </p>
+                            <p class="text-danger">
+                                Step 2: Total Top up Amount to pay in &#163; will be calculated and in shown under grid
+                            </p>
+                            <p class="text-danger">
+                                Step 3: Customer has to either pay online or deposit the amount in our bank account and notify here
+                            </p>
+                            <p class="text-danger">
+                                Note: Top up policy will apply
+                            </p>
+                        </div>
+                    </fieldset>
+
+                    <!-- start Table section -->
+
+                    <div class="table-responsive">
+                        @if (cards.Count > 0)
+                        {
+                            <table class="table table-bordered" id="tblTopUpCards">
+                                <thead>
+                                    <tr>
+                                        <th>Number</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Top up Amount (&#163;)</th>
+                                        @*<th>Top up Amount (IR)</th>*@
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in cards)
+                                    {
+                                        <text>
+                                            <tr>
+                                                <td>
+                                                    <label id="lblCardNo">@item.Number</label>
+                                                    <input type="hidden" name="hidCardId" id="hidCardId" value="@item.Id" />
+                                                </td>
+                                                <td>
+                                                    <label id="lblCardType">@item.CardRequest.CardType.Name</label>
+
+                                                </td>
+                                                <td>@item.CardRequest.Description</td>
+                                                <td><label class="input"><input type="text" class="TopupAmountEU" id="txtTopupAmountEU" name="txtTopupAmountEU" /></label></td>
+                                                @*<td><label class="input"><input type="text" class="TopupAmountIR" id="txtTopupAmountIR" name="txtTopupAmountIR" /></label></td>*@
+                                            </tr>
+                                        </text>
+                                    }
+                                </tbody>
+                            </table>
+                            <text>
+                                <br />
+                                Total Top up Amount (&#163;):  <label id="lblTopupTotalFeeEu"></label>
+                                <br />
+
+                                Service Charges: <label id="lblTopupServiceChargesIr">100</label>
+                                <br />
+                                Total Top up Amount To Pay: <label id="lblTopupGrandTotalIr"></label>
+                            </text>  }
+                        else
+                        {
+                            <text>
+                                <div class="alert alert-info">
+                                    <strong>Info!</strong> You have no card requests
+                                </div>
+                            </text>
+                        }
+                    </div>
+                </div>
+            </div>
+            <!-- end widget content -->
+        </div>
+
+        <!-- Bank to Bank Transaction -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-9" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+            <header role="heading">
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>Bank To Bank Transaction</h2>
+
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+
+            <!-- widget div-->
+            <div role="content">
+
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+
+                </div>
+
+                <!-- end widget edit box -->
+                <!-- widget content -->
+
+                <div class="smart-form" novalidate="novalidate">
+                    @*<header>Search Customers</header>*@
+
+                    <fieldset>
+                        <div class="row">
+
+                            <p class="text-danger">
+                                <label id="lblStep1">If the customer has deposited the amount in our Bank account</label>
+                            </p>
+
+                            <section class="col col-6">
+                                <label class="label">Transaction Tracking/Reference No.</label>
+                                <label class="input">
+                                    <i class="icon-append fa fa-comment"></i>
+                                    <input type="text" data-validation="required" name="txtTopupTransactionNo" id="txtTopupTransactionNo">
+
+                                </label>
+                            </section>
+
+                            <section class="col col-6">
+                                <label class="label">Your Account No.</label>
+                                <label class="input">
+                                    <i class="icon-append fa fa-comment"></i>
+                                    @Html.TextBox("txtTopupAccountNo")
+                                </label>
+                            </section>
+
+                            <section class="col col-6">
+                                <label class="label">Name</label>
+                                <label class="input">
+                                    <i class="icon-append fa fa-comment"></i>
+                                    @Html.TextBox("txtTopupName")
+                                </label>
+                            </section>
+
+                            <section class="col col-6">
+                                <label class="label">Amount</label>
+                                <label class="input">
+                                    <i class="icon-append fa fa-comment"></i>
+                                    @Html.TextBox("txtTopupAmount")
+                                </label>
+                            </section>
+                        </div>
+                    </fieldset>
+                    <footer>
+                        <input type="button" id="btnTopupNotify" name="btnTopupNotify" class="btn btn-primary" value="Notify" />
+                    </footer>
+
+                    <div class="message">
+                        <i class="fa fa-thumbs-up"></i>
+                        <p>Your data has been saved</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+}
+<script src="~/Scripts/Validation/Customer/_CallCenterNewTopupRequest.js"></script>
+
+<script>
+    // Calculate EU total
+    $('.TopupAmountEU').on('input propertychange paste', function () {
+        var totalEU = 0;
+        $(".TopupAmountEU").each(function () {
+            var myVal = parseInt($(this).val()) || 0;
+            totalEU += myVal;
+            $(this).closest('td').next('td').find('input:text').val(myVal * parseFloat(@exchangeRate.Rate));
+        });
+
+        $("#lblTopupTotalFeeEu").text(totalEU);
+
+        calculateTopupGrandTotal();
+    });
+
+    // Calcualte grand total
+    function calculateTopupGrandTotal() {
+        var amount = parseFloat($("#lblTopupTotalFeeEu").text() || 0)
+        var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+        amount=amount+serviceCharges;
+
+        $("#lblTopupGrandTotalIr").text(amount.toFixed(2));
+        $("#txtTopupAmount").val(amount.toFixed(2));
+        $("#txtTopupAmount").attr("disabled", "disabled");
+    }
+
+    function calculatePercentageValue(value, percent) {
+        return (value * percent / 100);
+    }
+</script>
+
+<script>
+    // submit form data
+    $(document).ready(function () {
+        $("#btnTopupNotify").click(function () {
+
+            $("#newTopupRequestForm").validate();
+
+            if (!$("#newTopupRequestForm").valid()) {
+                return;
+            }
+
+            var arrCards = $('#tblTopUpCards tr:gt(0)').map(function () {
+                return {
+                    cardNo: $(this.cells[0]).find("label").text(),
+                    cardId: $(this.cells[0]).find("input:hidden").val(),
+                    cardAmount: $(this.cells[3]).find("input").val()
+                };
+            }).get();
+
+            var transaction = {
+                customerId: getQueryString().Id,
+                transactionNo: $("#txtTopupTransactionNo").val(),
+                accountNo: $("#txtTopupAccountNo").val(),
+                name: $("#txtTopupName").val(),
+                amount: $("#txtTopupAmount").val(),
+                cards: arrCards
+            };
+            CheckIsValid();
+            $.ajax({
+                url: '@Url.Action("NewTopupRequest", "TopUp")',
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(transaction),
+                success: function (data) {
+                    $(".message").show();
+                }
+            });
+        });
+    });
+
+
+    // Get Query string of parent page
+    function getQueryString() {
+        var queryStringKeyValue = window.parent.location.search.replace('?', '').split('&');
+        var qsJsonObject = {};
+        if (queryStringKeyValue != '') {
+            for (i = 0; i < queryStringKeyValue.length; i++) {
+                qsJsonObject[queryStringKeyValue[i].split('=')[0]] = queryStringKeyValue[i].split('=')[1];
+            }
+        }
+        return qsJsonObject;
+    }
+</script>

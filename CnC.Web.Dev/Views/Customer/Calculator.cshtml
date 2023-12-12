@@ -1,0 +1,367 @@
+﻿@using System.Web.UI.WebControls
+@using CnC.Service
+@using CnC.Core.Customers;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Calculator";
+    var exchangeRate = new CnC.Service.ExchangeRateService().GetExchangeRate(98);
+    var systemCurrency = new CnC.Service.CurrencyService().SystemCurrency;
+    float serviceCharges = 100;
+    var cust = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(cust.LanguageId);
+
+}
+
+<div id="content">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+                Call Center
+                <span>
+                    >
+                    @ViewBag.Title | <a href="SearchCustomers">@localizationService.GetResource("Customers", null, "Customers")</a>
+                </span>
+            </h1>
+        </div>
+
+    </div>
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- Top up section start-->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+
+            <header role="heading">
+                <div class="jarviswidget-ctrls" role="menu">   <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title=@localizationService.GetResource("Cnc.Collapse")><i class="fa fa-minus "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="" data-placement="bottom" data-original-title=@localizationService.GetResource("Cnc.Fullscreen")><i class="fa fa-expand "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div><div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">@localizationService.GetResource("Cnc.Remove", null, "Remove")</a></li></ul></div>
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>@localizationService.GetResource("Cnc.CalculateTopUpAmount", null, "Calculate Top Up Amount")</h2>
+
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+
+            <!-- widget div-->
+            <div role="content">
+
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+
+                    <div class="smart-form" novalidate="novalidate">
+                        <fieldset>
+                            <h5>
+                                <label id="lblTopupExchangeRate">
+                                    <span>@localizationService.GetResource("Cnc.ExchangeRate", null, "Exchange Rate")</span>@Html.Raw(systemCurrency.Code)= <label>@exchangeRate.Rate @exchangeRate.Currency.Code</label>
+                                </label>
+                            </h5>
+
+                            <p class="text-danger">
+                                Instructions for Customers to Top up Cards
+                            </p>
+                            <p class="text-danger">
+                                Step 1: Enter Top up Amount in &#163; or IR for each card Customer wants to Top up
+                            </p>
+                            <p class="text-danger">
+                                Step 2: Total Top up Amount to pay in IR will be calculated and in shown under grid
+                            </p>
+                            <p class="text-danger">
+                                Step 3: Customer has to either pay online or deposit the amount in our bank account and notify here
+                            </p>
+                            <p class="text-danger">
+                                Note: Top up policy will apply
+                            </p>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>@localizationService.GetResource("Cnc.CardType", null, "Card Type")</th>
+                                            <th>@localizationService.GetResource("Cnc.TopUpAmount", null, "Top Up Amount") (&#163;)</th>
+                                            <th>@localizationService.GetResource("Cnc.TopUpAmount", null, "Top Up Amount") (IR)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Black</td>
+                                            <td><input type="text" name="txtBlacktopupEu" id="txtBlacktopupEu" /></td>
+                                            <td><input type="text" id="txtBlacktopupIr" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Platinum</td>
+                                            <td><input type="text" name="txtPlatinumTopupEu" id="txtPlatinumTopupEu" /></td>
+                                            <td><input type="text" id="txtPlatinumTopupIr" /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                        <footer>
+                            @localizationService.GetResource("Cnc.TotalTopUpAmount", null, "Total Top Up Amount") (&#163;):  <label id="lblTopupTotalFeeEu"></label>
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalTopUpAmount", null, "Total Top Up Amount") (IR):  <label id="lblTopupTotalFeeIr"></label>
+                            <br />
+                            @localizationService.GetResource("Cnc.ServiceCharges", null, "Service Charges") (IR): <label id="lblTopupServiceChargesIr">@serviceCharges</label>
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalTopUpAmountToPay", null, "Total Top Up Amount To Pay"): <label id="lblTopupGrandTotalIr"></label>
+                        </footer>
+
+                    </div>
+                </div>
+                <!-- end widget content -->
+            </div>
+            <!-- end widget div -->
+        </div>
+        <!-- Top up section end-->
+        <!-- New Cards section start -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+
+            <header role="heading">
+                <div class="jarviswidget-ctrls" role="menu">   <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title=@localizationService.GetResource("Cnc.Collapse")><i class="fa fa-minus "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div><div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">@localizationService.GetResource("Cnc.Remove", null, "Remove")</a></li></ul></div>
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>@localizationService.GetResource("Cnc.CalculateNewCardsFee", null, "Calculate New Cards Fee")</h2>
+
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+
+            <!-- widget div-->
+            <div role="content">
+
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+
+                </div>
+                <!-- end widget edit box -->
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+
+                    <div class="smart-form" novalidate="novalidate">
+                        <fieldset>
+                            <h5>
+                                <span>@localizationService.GetResource("Cnc.ExchangeRate", null, "Exchange Rate") 1</span>@Html.Raw(systemCurrency.Code)= <label>@exchangeRate.Rate @exchangeRate.Currency.Code</label>
+                            </h5>
+
+                            <p class="text-danger">
+                                <label id="lblInstructions">  Instructions for Customers to apply for new cards</label>
+                            </p>
+                            <p class="text-danger">
+                                <label id="lblStep1">Step 1: Enter quantity for card type Customer wants to buy</label>
+                            </p>
+                            <p class="text-danger">
+                                <label id="lblStep2">
+                                    Step 2: Total fee to pay in IR will be calculated and in shown under grid
+                                </label>
+                            </p>
+                            <p class="text-danger">
+                                <label id="lblStep3">
+                                    Step 3: Customer has to either pay online or deposit the amount in our bank account and notify here
+                                </label>
+                            </p>
+                            <p class="text-danger">
+                                <label id="lblNote">
+                                    Note: Card policy will apply
+                                </label>
+                            </p>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>@localizationService.GetResource("Cnc.Name", null, "Name")</th>
+                                            <th>Qty</th>
+                                            <th>@localizationService.GetResource("Cnc.Fee", null, "Fee")</th>
+                                            <th>@localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (&#163;)</th>
+                                            <th>@localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (IR)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            var listItems = new List<ListItem>();
+                                            for (int i = 0; i <= item.MaxQuantity; i++)
+                                            {
+                                                listItems.Add(new ListItem() { Text = "" + i, Value = "" + i });
+                                            }
+                                            <text>
+                                                <tr>
+                                                    <td>@item.Name</td>
+                                                    <td>@Html.DropDownList("MaxQty", new SelectList(listItems, "Value", "Text"), new { @class = "form-control" })</td>
+                                                    <td>@item.Fee</td>
+                                                    <td class="totalFeeEU">0.00</td>
+                                                    <td class="totalFeeIR">0.00</td>
+                                                </tr>
+                                            </text>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </fieldset>
+                        <footer>
+                            @localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (&#163;): <label id="TotalFeeEU">0</label><input type="hidden" id="hidTotalFeeEU" value="0" />
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalFee", null, "Total Fee") (IR): <label id="TotalFeeInCustomerCurrency">0</label><input type="hidden" id="hidTotalFeeInCustomerCurrency" value="0" />
+                            <br />
+                            @localizationService.GetResource("Cnc.ServiceCharges", null, "Service Charges") (IR): <label id="ServiceChargesInCustomerCurrency">100</label><input type="hidden" name="hidServiceChargesInCustomerCurrency" id="hidServiceChargesInCustomerCurrency" value="100" />
+                            <br />
+                            @localizationService.GetResource("Cnc.TotalFeeToPay", null, "Total Fee To Pay") (IR): <label id="GrandTotal">0</label><input type="hidden" id="hidGrandTotal" value="0" />
+
+                        </footer>
+                    </div>
+
+                </div>
+                <!-- end widget content -->
+            </div>
+            <!-- end widget div -->
+        </div>
+        <!-- New Cards section end -->
+    </section>
+</div>
+
+
+@section pagespecific {
+    <script>
+        // Calclualte Top up amount for Black card
+        $('#txtBlacktopupEu').on('input propertychange paste', function() {
+            var blackTopupEu=$('#txtBlacktopupEu').val();
+            var BlacktopupIr= blackTopupEu * @exchangeRate.Rate;
+            $('#txtBlacktopupIr').val(BlacktopupIr.toFixed(2));
+
+            calculateTopupTotals();
+        });
+
+        $('#txtBlacktopupIr').on('input propertychange paste', function() {
+            var blackTopupEu=parseFloat(this.value);
+            var BlacktopupIr= blackTopupEu / @exchangeRate.Rate;
+            $('#txtBlacktopupEu').val(BlacktopupIr.toFixed(2));
+
+            calculateTopupTotals();
+        });
+
+        // Calculate Topup Amount for Platinum card
+        $('#txtPlatinumTopupEu').on('input propertychange paste', function() {
+            var blackTopupEu=$('#txtPlatinumTopupEu').val();
+            var PlatinumTopupIr= blackTopupEu * @exchangeRate.Rate;
+            $('#txtPlatinumTopupIr').val(PlatinumTopupIr.toFixed(2));
+
+            calculateTopupTotals();
+        });
+
+        $('#txtPlatinumTopupIr').on('input propertychange paste', function() {
+            var blackTopupEu=parseFloat(this.value);
+            var PlatinumTopupIr= blackTopupEu / @exchangeRate.Rate;
+            $('#txtPlatinumTopupEu').val(PlatinumTopupIr.toFixed(2));
+
+            calculateTopupTotals();
+        });
+
+        function calculateTopupTotals(){
+            // Total EU
+            var txtBlacktopupEu= parseFloat($("#txtBlacktopupEu").val())  || 0;
+            var txtPlatinumTopupEu = parseFloat($("#txtPlatinumTopupEu").val()) || 0;
+            var totalEu = txtBlacktopupEu + txtPlatinumTopupEu
+            $("#lblTopupTotalFeeEu").text(totalEu.toFixed(2));
+
+            // Total IR
+            var txtBlacktopupIr= parseFloat($("#txtBlacktopupIr").val()) || 0;
+            var txtPlatinumTopupIr = parseFloat($("#txtPlatinumTopupIr").val()) || 0;
+            var totalIr = txtBlacktopupIr + txtPlatinumTopupIr
+            $("#lblTopupTotalFeeIr").text(totalIr.toFixed(2));
+
+            // Service charges
+            var serviceCharges= parseFloat($("#lblTopupServiceChargesIr").text()) || 0;
+            var grandTotal = totalIr + serviceCharges;
+
+            // Grand total
+            $("#lblTopupGrandTotalIr").text(grandTotal.toFixed(2));
+        }
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('tbody tr').hover(function () {
+                $(this).toggleClass('clickable');
+            }).on('click', function (evt) {
+
+                var $cell = $(evt.target).closest('td');
+                if ($cell.index() == 1) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+
+                        var originalInUreo = $(this).find('td:eq(2)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        var totalInIR = (originalInUreo * maxQtyVal) * @exchangeRate.Rate;
+                        $(this).find('td:eq(3)').text("" + totalInUreo);
+                        $(this).find('td:eq(4)').text("" + totalInIR.toFixed(2));
+
+                    } catch (err) {
+                    }
+                }
+
+                // Calculate column totals
+                calculateTotalInEU();
+                calculateTotalInIR();
+                calculateGrandTotalIR();
+
+            });
+        });
+
+        //** Calculate column total in Euro ** //
+        function calculateTotalInEU() {
+            try{
+                var sum = 0;
+                $(".totalFeeEU").each(function () {
+                    var value = $(this).text();
+                    // add only if the value is number
+                    if (!isNaN(value) && value.length != 0) {
+                        sum += parseFloat(value);
+                        $("#TotalFeeEU").text(sum.toFixed(2));
+                        $("#hidTotalFeeEU").val(sum)
+                    }
+                });
+            }
+            catch(e){}
+        }
+
+        //**  Calculate column total for customer currency ** //
+        function calculateTotalInIR() {
+            try{
+                var sum = 0;
+                // iterate through each td based on class and add the values
+                $(".totalFeeIR").each(function () {
+                    var value = $(this).text();
+                    // add only if the value is number
+                    if (!isNaN(value) && value.length != 0) {
+                        sum += parseFloat(value);
+                        $("#TotalFeeInCustomerCurrency").text(sum.toFixed(2));
+                        $("#hidTotalFeeInCustomerCurrency").val(sum)
+                    }
+                });
+            }
+            catch(e){ }
+        }
+
+        //**  Calculate Grand total in customer's currency ** //
+        function calculateGrandTotalIR() {
+            try{
+                var gt=parseFloat($("#hidTotalFeeInCustomerCurrency").val()) + parseFloat($("#hidServiceChargesInCustomerCurrency").val());
+
+                $("#GrandTotal").text(gt.toFixed(2));
+                $("#hidGrandTotal").val(gt);
+            }
+            catch (e){}
+        }
+
+
+        $(document).ready(function () {
+            $('#MaxQty').click();
+        });
+    </script>
+}

@@ -1,0 +1,108 @@
+﻿@using CnC.Web.Models
+@*@using reCAPTCHA.MVC*@
+@model LoginViewModel
+@{
+    ViewBag.Title = "Log in";
+    Layout = null;
+}
+<!-- FAVICONS -->
+<link rel="shortcut icon" href="~/content/img/favicon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="~/content/img/favicon/favicon.ico" type="image/x-icon">
+<title>Use Card Services: Login</title>
+<style>
+    /*.field-validation-error {
+    display: inline !important;
+    float: none !important;
+    color:red !important;
+    }
+    #myform > div:nth-child(4) > span {
+    display:inline !important;
+    float:none !important;
+    }*/
+</style>
+<link href="~/Content/css/loginstyle.css" rel="stylesheet" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400,700">
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/Validation/login.js"></script>
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<style>
+    .error {
+        color: red;
+    }
+</style>
+<div id="login">
+    <h4 style="color:white;text-align:center;">
+        Welcome to Customer & Card
+    </h4>
+    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { role = "form", id = "myform", name = "myform" }))
+    {
+
+
+        @Html.AntiForgeryToken()
+
+        <div style="width:288px;">
+            <span class="fontawesome-user"></span>
+
+
+            @Html.TextBoxFor(m => m.Username, new { @placeholder = "Username" })
+            @*@Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })*@
+        </div>
+        <div style="width:288px;">
+            <span class="fontawesome-lock"></span>
+            @Html.PasswordFor(m => m.Password, new { placeholder = "Password" })
+            @*@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })*@
+            @*<span class="fontawesome-lock"></span>*@
+            @*@Html.CheckBoxFor(m => m.RememberMe)
+                @Html.LabelFor(m => m.RememberMe)*@
+        </div>
+        @*<div class="g-recaptcha" data-sitekey="6Ld6fRkUAAAAAEhnvGaWTmgUhX_4Vh6FXQGExGDa"></div>
+            @Html.ValidationMessage("ReCaptcha")*@
+
+    int time = Convert.ToInt32(Session["time"]);
+    if (time >= 2)
+    {
+        <div style="width:288px;">
+            <div class="g-recaptcha" data-sitekey="6Ld6fRkUAAAAAEhnvGaWTmgUhX_4Vh6FXQGExGDa"></div>
+        @*@Html.ValidationMessage("ReCaptcha")*@
+
+            <span style="display:inline; margin-bottom:5px; padding:10px; float: none; width:100%; color:red;">
+                @ViewBag.Message
+            </span>
+        </div>
+        }
+
+        <input type="submit" value="Log in" name="btnPost" />
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            @* Enable this once you have account confirmation enabled for password reset functionality
+                <p>
+                    @Html.ActionLink("Forgot your password?", "ForgotPassword")
+                </p>*@
+    }
+    @*<span style="display:inline-block; font-size:20px;margin:20px 0;padding:20px;border:1px solid #D3D3D3">
+            @ViewBag.Message
+        </span>*@
+
+</div>
+@*<div class="col-md-4">
+        <section id="socialLoginForm">
+            @Html.Partial("_ExternalLoginsListPartial", new ExternalLoginListViewModel { ReturnUrl = ViewBag.ReturnUrl })
+        </section>
+    </div>*@
+
+
+@section Scripts {
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+
+}
+<script>
+    var verifyCallback = function (response) {
+        alert("grecaptcha is ready!");
+    };
+
+    var expiredCallback = function () {
+        alert("grecaptcha is expired!");
+    };
+</script>

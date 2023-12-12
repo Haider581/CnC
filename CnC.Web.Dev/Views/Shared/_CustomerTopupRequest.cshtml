@@ -1,0 +1,708 @@
+﻿@using CnC.Core.Customers
+@using CnC.Service
+@using CnC.Core.Caching
+@{
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    int customerId = 0;
+    bool isCustomer = false;
+    if (userSession != null && userSession.IsCustomer)
+    {
+        customerId = userSession.Id;
+        isCustomer = true;
+    }
+    if (userSession != null && !userSession.IsCustomer)
+    {
+        customerId = Convert.ToInt32(new CachingProvider().Get<string>("CallCenterCustomer"));
+    }
+    LocalizationService localizationService = null;
+    if (isCustomer)
+    {
+        var cust = Session["CurrentCustomer"] as Customer;
+        localizationService = new LocalizationService(cust.LanguageId);
+    }
+    if (!isCustomer)
+    {
+        localizationService = new LocalizationService();
+    }
+    var cardService = new CardService();
+    var cards = cardService.GetCardsReloadable(customerId);
+    var exchangeRate = new ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CurrencyService().SystemCurrency;
+    var exchangeRateServiceCharges = new SettingService().ExchangeRateServiceCharges;
+    decimal serviceFeePercent = 0;
+    string ConfirmationDialog = System.Configuration.ConfigurationManager.AppSettings["ConfirmationDialog"];
+
+}
+@*<script src="~/Scripts/jquery.dumbformstate-1.0.1.js"></script>*@
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<input id="hfConfirmationDialog" name="hfCustomerName" value="@ConfirmationDialog" type="hidden" />
+
+@using (Html.BeginForm("CustomerNewTopUpRequest", "TopUp", FormMethod.Post, new { @class = "validatform", @id = "newTopupRequestForm", @name = "newTopupRequestForm", autocomplete = "off" }))
+{
+    if (cards != null && cards.Count > 0)
+    {
+        <div class="widget-body @exchangeRate">
+            @*<div id="cncLoader"></div>*@
+            <div id="cncLoaderMessage"></div>
+            <div id="showMessage"> </div>
+            <h5>
+                @{
+                    var currencyCode = exchangeRate.Currency.Code;
+                    if (currencyCode == "IR")
+                    {
+                        currencyCode = "Rial";
+                    }
+                }
+                @localizationService.GetResource("Cnc.ExchangeRate", null, "Exchange Rate") (@Html.Raw(systemCurrency.Code)) = <code style="font-size: 100%;color: #333;background-color:transparent">
+                    @exchangeRate.Rate.ToString("###,###.##") @currencyCode
+                </code>
+            </h5>
+            <input type="hidden" value="@customerId" id="hfCustId" name="hfCustId" />
+            <p>
+                <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">@localizationService.GetResource("Cnc.Step1", null, "Step 1"):</span>@localizationService.GetResource("Cnc.EnterTopUp", null, "Enter Top up Amount in € for each card you want to Top up.")
+            </p>
+            <p>
+                <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">@localizationService.GetResource("Cnc.Step2", null, "Step 2"):</span>@localizationService.GetResource("Cnc.TotalTopUpAmountInIR", null, "Total Top up Amount to pay in IR will be calculated and shown under grid.")
+            </p>
+            <p>
+                <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">@localizationService.GetResource("Cnc.Step3", null, "Step 3"):</span>@localizationService.GetResource("Cnc.DepositTheAmountinOurBank", null, "Deposit the amount in our bank account and notify here.")
+            </p>
+            <div class="alert alert-info fade in">
+                <button class="close" data-dismiss="alert">×</button>
+                <i class="fa-fw fa fa-info"></i>
+                <strong>@localizationService.GetResource("Cnc.Note", null, "Note")!</strong> @localizationService.GetResource("Cnc.TopUpPolicy", null, "Top Up Policy").
+            </div>
+            @*<span id="errmsg"></span>*@
+            <em for="txtTopupAmountEU" class="invalid"></em>
+            <div id="errorTopupAmountEU" class="alert alert-danger" style="display:none;">
+            </div>
+            <div id="errmsg" class="alert alert-danger" style="display:none;">
+                <strong>@localizationService.GetResource("Cnc.Resource", null, "Resource")!</strong> @localizationService.GetResource("Cnc.PleaseEnterTopUpAmountForEachCard", null, "Please enter Top up amount for each card")
+            </div>
+            <div id="divMsg" class="alert alert-danger" style="display:none;">
+                <strong>@localizationService.GetResource("Cnc.Required", null, "Required")!</strong> @localizationService.GetResource("Cnc.PleaseEnterTopUpAmountatLeastOneCard", null, "Please enter Top up amount for at-least one card").
+            </div>
+            <div id="messageBox"></div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="tblTopUpCards">
+                    <thead>
+                        <tr>
+                            <th>@localizationService.GetResource("Cnc.Number", null, "Number")</th>
+                            <th>@localizationService.GetResource("Cnc.Type", null, "Type")</th>
+                            <th>@localizationService.GetResource("Cnc.Description", null, "Description")</th>
+                            <th>@localizationService.GetResource("Cnc.TopUpAmount", null, "Top up Amount")</th>
+                            <th hidden>@localizationService.GetResource("Cnc.MinReload", null, "Min Reload (€)")</th>
+                            <th hidden>@localizationService.GetResource("Cnc.MaxReload", null, "Max Reload (€)")</th>
+                            <th hidden>@localizationService.GetResource("Cnc.ReloadLimit", null, "Reload Limit")</th>
+                            <th hidden>@localizationService.GetResource("Cnc.Percentage", null, "Percentage")</th>
+                            <th>@localizationService.GetResource("Cnc.TopUpServiceCharges", null, "Top Up Service Charges")</th>
+                            <th hidden>@localizationService.GetResource("Cnc.MinimumValue", null, "Minimum Value")</th>
+                            @*<th>Top up Amount (IR)</th>*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in cards)
+                    {
+                            <text>
+                                <tr>
+                                    <td style="display: none;">@item.CardRequestId</td>
+                                    @{
+                                        var cardNumber = item.Number;
+                                        if (cardNumber.Length > 4)
+                                        {
+                                            cardNumber = string.Concat("".PadLeft(12, '*'), cardNumber.Substring(cardNumber.Length - 4));
+
+                                        }
+                                    }
+                                    <td class="CardNumber"><label id="lblCardNo">@cardNumber</label> </td>
+                                    <td class="CardType"><label id="lblCardType">@item.CardRequest.CardType.Name</label></td>
+                                    <td>@localizationService.GetResource("Cnc.ReloadLimit", null, " Reload Limit (€)"): @Math.Round(item.CardRequest.CardType.ReloadLimit).ToString("N0"),@localizationService.GetResource("Cnc.MaxReload", null, "Max Reload (€)"): @Math.Round(item.CardRequest.CardType.MaximumReloadAtATime).ToString("N0") ,@localizationService.GetResource("Cnc.MinReload", null, " Min Reload (€)"): @Math.Round(item.CardRequest.CardType.MinimumReloadAtATime).ToString("N0") </td>
+                                    <td>
+                                        @{
+                                            var txtName = "txtTopupAmount" + item.CardRequest.CardType.Name;
+                                        }
+                                        <input type="text" class="input-xs col-md-6 TopupAmountEU" style="width:120px; font-size: 13px;" id="txtTopupAmountEU" name="@txtName" />
+                                        @*@if (item.CardRequest.CardType.Name == "Black")
+                                            {
+                                                <input type="text" class="input-xs col-md-6 TopupAmountEU" style="width:200px" id="txtTopupAmountEU" name="txtTopupAmountEUBlack" />
+                                            }
+                                            else if (item.CardRequest.CardType.Name == "Platinum")
+                                            {
+                                                <input type="text" class="input-xs col-md-6 TopupAmountEU" style="width:200px" id="txtTopupAmountEU" name="txtTopupAmountEUPlatinum" />
+                                            }*@
+                                    </td>
+                                    <td hidden></td>
+                                    <td hidden id="hdnMinimumReloadAtATime" class="MinimumReloadAtATime">@Math.Round(item.CardRequest.CardType.MinimumReloadAtATime)</td>
+                                    <td hidden id="hdnMaximumReloadAtATime" class="MaximumReloadAtATime">@Math.Round(item.CardRequest.CardType.MaximumReloadAtATime)</td>
+                                    <td hidden id="hdnTopUpServiceFeePercentage" class="TopUpServiceFeePercentage">@item.CardRequest.CardType.TopUpServiceFeePercentage</td>
+                                    <td id="hdnTopUpServiceFeePercentageCalculation" class="TopUpServiceFeePercentageCalculation"></td>
+                                    <td hidden id="hdnTopUpServiceFeeMinimum" class="TopUpServiceFeeMinimum">@item.CardRequest.CardType.TopUpServiceFeeMinimum</td>
+                                    @*<td><input type="text" class="input-xs col-md-6 TopupAmountIR" id="txtTopupAmountIR" name="txtTopupAmountIR" readonly /></td> <span id="hfTopUpServiceChargesCalculation"></span>*@
+                                </tr>
+                            </text>
+                                            }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    <!-- Bank to Bank Transaction -->
+
+                                            <div class="col-md-6" style="float:right">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                            <th>@localizationService.GetResource("Cnc.Euro", null, "Euro")</th>
+                                                            <th>@localizationService.GetResource("Cnc.Rial", null, "Rial")</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>@localizationService.GetResource("Cnc.TopUpAmount", null, "Top Up Amount")</td>
+                                                            <td><span class="pull-right" id="lblTopupTotalFeeEu" style="font-size: 100%;color: #333;background-color:transparent">0</span></td>
+                                                            <td><span class="pull-right" id="lblTopupTotalFeeIr" style="font-size: 100%;color: #333;background-color:transparent">0</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>@localizationService.GetResource("Cnc.TopUpServiceCharges", null, "Top Up Service Charges")</td>
+                                                            <td><span class="pull-right" id="lblServicesCharges" style="font-size: 100%;color: #333;background-color:transparent">0</span></td>
+                                                            <td><span class="pull-right" id="lblServicesChargesIr" style="font-size: 100%;color: #333;background-color:transparent">0</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>@localizationService.GetResource("Cnc.RialConvertToEuro", null, "Rial Convert to Euro")</td>
+                                                            <td></td>
+                                                            <td><span class="pull-right" id="lblRialConvertCharges" style="font-size: 100%;color: #333;background-color:transparent">0</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>@localizationService.GetResource("Cnc.TotalPayableAmountInRial", null, "Total Payable amount in Rial")</td>
+                                                            <td></td>
+                                                            <td><span class="pull-right" id="lblTopupGrandTotalIr" style="font-size: 100%;color: #333;background-color:transparent">0</span></td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                                <section style="text-align: right; display:none">
+                                                    <input type="button" id="btnOnlinePaymentId" name="btnOnlinePaymentName" class="btn btn-primary" value=@localizationService.GetResource("Cnc.OnlinePayment", null, "Online Payment") />
+                                                </section>
+                                                <br />
+                                                <br />
+                                                <input type="hidden" id="hfsubmitActionId" name="hfsubmitActionName" />
+                                                @*<p>
+                                                        Total Top up Amount (€):    <code class="pull-right" id="lblTopupTotalFeeEu">0</code>
+                                                    </p>
+                                                    <p>
+                                                        Total Top up Amount (IR):     <code class="pull-right" id="lblTopupTotalFeeIr">0</code>
+                                                    </p>
+                                                    <p>
+                                                        Service Charges (€):     <code class="pull-right" id="lblServicesCharges">0</code>
+                                                    </p>
+                                                    <p>
+                                                        Total Top up Amount To Pay (IR):  <span class="badge bg-color-blueLight pull-right" id="lblTopupGrandTotalIr">0</span>
+                                                    </p>*@
+                                            </div>
+                                            <div id="bb">
+                                                <div class="widget-body col-md-6" id="divBank">
+                                                    <div class="smart-form" novalidate="novalidate">
+                                                        <fieldset>
+                                                            <header>
+                                                                @localizationService.GetResource("Cnc.BankToBankTransaction", null, "Bank to Bank transaction")
+                                                            </header>
+                                                            <p style="margin:5px;">
+                                                                <i class="fa fa-bell text-danger"></i> <i>@localizationService.GetResource("Cnc.IfCustomerDepositamountinbank", null, "Provide the required transaction details below if the amount deposited in the bank.")</i>
+                                                            </p>
+                                                            <section>
+                                                                <label class="label">@localizationService.GetResource("Cnc.Transaction/ReferenceNumber", null, "Transaction Tracking/Reference No.").</label>
+                                                                <label class="input">
+                                                                    <input type="text" style="text-align:left; direction: ltr!important;" name="txtTopupTransactionNo" id="txtTopupTransactionNo" disabled="disabled">
+                                                                </label>
+                                                            </section>
+                                                            <section>
+                                                                <label class="label">@localizationService.GetResource("Cnc.YourAccountNo.", null, "Your Account No.").</label>
+                                                                <label class="input">
+                                                                    @Html.TextBox("txtTopupAccountNo", "", new { disabled = "disabled", Style = "text-align:left; direction: ltr!important;" })
+                                                                </label>
+                                                            </section>
+                                                            <section>
+                                                                <label class="label">@localizationService.GetResource("Cnc.Name", null, "Name")</label>
+                                                                <label class="input">
+                                                                    @Html.TextBox("txtTopupName", "", new { disabled = "disabled", Style = "text-align:left; direction: ltr!important;" })
+                                                                </label>
+                                                            </section>
+                                                            <section>
+                                                                <label class="label">@localizationService.GetResource("Cnc.Amount", null, "Amount") (IR)</label>
+                                                                <label class="input">
+                                                                    @Html.TextBox("txtTopupAmount", "", new { disabled = "disabled", Style = "text-align:left; direction: ltr!important;" })
+
+                                                                </label>
+                                                            </section>
+                                                            <div id="errorTopupAmount" class="alert alert-danger" style="display:none;">
+                                                                <strong>@localizationService.GetResource("Cnc.AmountLimit", null, "Amount should not less than total payable amount")</strong>
+                                                            </div>
+                                                        </fieldset>
+                                                        <footer style="display:none">
+                                                            <input type="button" id="btnTopupNotify" name="btnTopupNotify" class="btn btn-primary" value=@localizationService.GetResource("Cnc.Save", null, "Save") disabled="disabled" />
+                                                        </footer>
+                                                        <div class="message">
+                                                            <i class="fa fa-thumbs-up"></i>
+                                                            <p>@localizationService.GetResource("Cnc.DataSaved", null, "Data Saved")</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                @localizationService.GetResource("Cnc.PleaseKindlyTransferTheAmount", null, "Please transfer the amount to the following account number")<br />
+                                                01-1065910400-0<br />
+                                                @localizationService.GetResource("Cnc.OrCardNumber", null, "Or card number")<br />
+                                                6037-6919-9019-9655<br />
+                                                @localizationService.GetResource("Cnc.AccountholderNameisRahyab", null, "Account holder name is CASPIAN SAMANEH PARDAZ MANTAGHEH AZAD ANZALI co.")<br />
+                                                @*<span style="font-size:8px; font-style:italic">Banafsheh Shahsar</span><br />
+                                                    <span>+989192622024</span><br />*@
+                                                @*@localizationService.GetResource("Cnc.SeeTheLink", null, "See the link for more information") :<a href="http://usecardservices.ir/fa-ir/%D8%A2%D9%85%D9%88%D8%B2%D8%B4/%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF-%D9%88%D8%A7%D8%B1%DB%8C%D8%B2-%D9%88%D8%AC%D9%87" target="_blank">
+                                                        @localizationService.GetResource("Click Here", null, "Click Here")
+                                                    </a>*@
+                                            </div>
+                                            }
+                                            else
+                                            {
+                                                <h3>@localizationService.GetResource("Cnc.SorryToMakeTopUpRequest", null, "Sorry! To make Top Up Request you must have at least one active card")</h3>
+                                            }
+
+                                            @*<div class="col-md-4  txt-color-white text-center">
+                                                    <a data-toggle="modal" href="#divTopupRequestProcessor"
+                                                       class="btn btn-info">Online Payment</a>
+                                                </div>*@
+                                            @Html.Partial("_TopupRequestProcessor", new ViewDataDictionary { { "popUpId", "divTopupRequestProcessor" } })
+                                            }
+<div id="divEmp" style="background: url(/content/img/mybg.png) #fff; border-style: none;"></div>
+<script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+<script src="~/Scripts/Validation/TopUp/_CustomerTopupRequest.js"></script>
+<script>
+    window.onload = function () {
+        var input = document.getElementById("txtTopupAmountEU").focus();
+    }
+    $('#tblTopUpCards > tbody  > tr').on('input propertychange paste', function () {
+        var row = $(this).closest("tr");
+        var TopupAmount = parseFloat(row.find(".TopupAmountEU").val());
+        TopupAmount = parseInt(TopupAmount) || 0;
+        var TopUpServiceFeeMinimum = parseFloat(row.find(".TopUpServiceFeeMinimum").text());
+        var TopUpServiceFeePercentage = parseFloat(row.find(".TopUpServiceFeePercentage").text());
+        var serviceFee = parseFloat(TopupAmount * TopUpServiceFeePercentage / 100);
+        if (serviceFee==0) {
+            row.find(".TopUpServiceFeePercentageCalculation").text("");
+        }else{
+            if (TopUpServiceFeeMinimum > serviceFee) {
+                row.find(".TopUpServiceFeePercentageCalculation").text(""+(+TopUpServiceFeeMinimum).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+            }else {
+                row.find(".TopUpServiceFeePercentageCalculation").text(""+(+serviceFee).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+            }
+        }
+        var MinimumReloadAtATime = parseFloat(row.find(".MinimumReloadAtATime").text());
+        var MaximumReloadAtATime = parseFloat(row.find(".MaximumReloadAtATime").text());
+        var CardType = row.find(".CardType").text();
+        var CardNumber = row.find(".CardNumber").text();
+        var a;
+        $('#tblTopUpCards > tbody  > tr').each(function() {
+            var row = $(this).closest("tr");
+            TopupAmount = parseFloat(row.find(".TopupAmountEU").val());
+            MinimumReloadAtATime = parseFloat(row.find(".MinimumReloadAtATime").text());
+            MaximumReloadAtATime = parseFloat(row.find(".MaximumReloadAtATime").text());
+            CardType = row.find(".CardType").text();
+            CardNumber = row.find(".CardNumber").text();
+            if (TopupAmount<MinimumReloadAtATime || TopupAmount>MaximumReloadAtATime) {
+                @*$("#errorTopupAmountEU").html('@localizationService.GetResource("Cnc.PleaseEnterAmountBetweenReloadLimit", null,"Please enter Amount between Reload Limits, Min Reload (€): " )'+ MinimumReloadAtATime + "," + '@localizationService.GetResource("Cnc.MaxReload",null, "Max Reload(€): ")' + MaximumReloadAtATime + "," + " " + '@localizationService.GetResource("Cnc.ForCardNumber",null," For Card Number: ")' + CardNumber + "," + " " + '@localizationService.GetResource("Cnc.CardType",null, "Card Type: ")' + " " + CardType).show();*@
+                row.find(".TopUpServiceFeePercentageCalculation").text("");
+                $("#lblTopupTotalFeeEu").text("");
+                $("#lblServicesCharges").text("");
+                $("#lblTopupTotalFeeIr").text("");
+                $("#lblServicesChargesIr").text("");
+                $("#lblRialConvertCharges").text("");
+                $("#lblTopupGrandTotalIr").text("");
+                $("#errorTopupAmountEU").html("@localizationService.GetResource("Cnc.PleaseEnterAmountBetweenReloadLimit", null, "Please enter Amount between Reload Limits, Min Reload (€): ")"+ MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + " " + "@localizationService.GetResource("Cnc.ForCardNumber", null, " For Card Number: ") " + CardNumber + "," + " " + "Card Type: " + " " + CardType).show();
+                //row = $(this).closest("tr");
+                //$("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + " " + " For Card Number: " + CardNumber + "," + " " + "Card Type: " + " " + CardType).show();
+                a = true;
+            }
+        });
+        //$('.TopupAmountEU').each(function () {
+        //    if (TopupAmount<MinimumReloadAtATime || TopupAmount>MaximumReloadAtATime) {
+        //        alert(TopupAmount);
+        //        //$("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + "" + "For Card Type: " + "" + CardType + "" + "Card Number:" + CardNumber).show();
+        //        a = true;
+        //        //return false;
+        //    }
+        //});
+        if (a) {
+            var row = $(this).closest("tr");
+            TopupAmount = parseFloat(row.find(".TopupAmountEU").val());
+            MinimumReloadAtATime = parseFloat(row.find(".MinimumReloadAtATime").text());
+            MaximumReloadAtATime = parseFloat(row.find(".MaximumReloadAtATime").text());
+            CardType = row.find(".CardType").text();
+            CardNumber = row.find(".CardNumber").text();
+            $("#txtTopupTransactionNo").attr('disabled', true);
+            $("#txtTopupAccountNo").attr('disabled', true);
+            $("#txtTopupName").attr('disabled', true);
+            $("#txtTopupAmount").attr('disabled', true);
+            $("#btnTopupNotify").attr('disabled', true);
+            //$("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + "" + "For Card Type: " + "" + CardType + "" + "Card Number:" + CardNumber).show();
+            // $("#errorTopupAmountEU").html("Please check and enter Amount between Reload Limits").show();
+            //$("#bb").hide();
+            //$("#txtTopupTransactionNo").disable();
+            return false;
+        }
+        else {
+            $("#errorTopupAmountEU").hide();
+            $("#txtTopupTransactionNo").removeAttr('disabled', false);
+            $("#txtTopupAccountNo").removeAttr('disabled', false);
+            $("#txtTopupName").removeAttr('disabled', false);
+            $("#txtTopupAmount").removeAttr('disabled', false);
+            $("#btnTopupNotify").removeAttr('disabled', false);
+            //$("#txtTopupTransactionNo").enable();
+            //$("#txtTopupAccountNo").enable();
+            //$("#txtTopupName").enable();
+            //$("#txtTopupAmount").enable();
+            //$("#btnTopupNotify").enable();
+            //$("#bb").show();
+        }
+        var ta;
+        $('.TopupAmountEU').each(function () {
+            if ($(this).val() > 0) {
+                ta = true;
+            }
+        });
+        if (!ta) {
+            var row = $(this).closest("tr");
+            row.find(".TopUpServiceFeePercentageCalculation").text("");
+            $("#lblTopupTotalFeeEu").text("");
+            $("#lblServicesCharges").text("");
+            $("#lblTopupTotalFeeIr").text("");
+            $("#lblServicesChargesIr").text("");
+            $("#lblRialConvertCharges").text("");
+            $("#lblTopupGrandTotalIr").text("");
+            $("#divMsg").show();
+            return false;
+        }
+        else {
+            $("#divMsg").hide();
+        }
+    });
+
+</script>
+<script>
+    // Dialog click
+    $('#aOnlinepayment').click(function () {
+        $('#dialog_simple').dialog('open');
+        return false;
+    });
+    (function($){
+        String.prototype.addComma = function() {
+            return this.replace(/(.)(?=(.{3})+$)/g,"$1,")
+        }
+        $.fn.digits = function () {
+            return this.each(function () {
+                $(this).val($(this).val().replace(/(,| )/g,'').addComma());
+            })
+        }
+    })(jQuery)
+    // Calculate EU total
+    $('.TopupAmountEU').on('input propertychange paste', function () {
+
+        var totalEU = 0;
+        var totalServiceCharges=0;
+        var tempServiceCharges=0;
+        //$(".TopupAmountEU").each(function () {
+        //var myVal = parseInt($(this).val()) || 0;
+        // totalEU += myVal;
+        $('#tblTopUpCards > tbody  > tr').each(function() {
+            var row = $(this).closest("tr");
+
+            var myVal = parseInt(row.find(".TopupAmountEU").val());
+            myVal = parseInt(myVal) || 0;
+
+            totalEU += myVal;
+            if (myVal>0) {
+                var TopUpServiceFeeMinimum = parseFloat(row.find(".TopUpServiceFeeMinimum").text());
+                var TopUpServiceFeePercentage = parseFloat(row.find(".TopUpServiceFeePercentage").text());
+                var serviceFee = parseFloat(myVal * TopUpServiceFeePercentage / 100);
+                if (TopUpServiceFeeMinimum > serviceFee) {
+                    tempServiceCharges=TopUpServiceFeeMinimum;
+                }else {
+                    tempServiceCharges=serviceFee;
+                }
+                totalServiceCharges=totalServiceCharges+tempServiceCharges;
+            }
+            $(this).closest('td').next('td').find('input:text').val(myVal * parseFloat(@exchangeRate.Rate));
+        });
+
+        // });
+        $("#lblTopupTotalFeeEu").text((totalEU).toFixed(2));
+        $("#lblServicesCharges").text((totalServiceCharges).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+        $("#lblTopupTotalFeeIr").text((totalEU * parseFloat(@exchangeRate.Rate)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+
+        var euAmount = parseFloat($("#lblTopupTotalFeeEu").text() || 0)
+        var serviceAmt = parseFloat($("#lblServicesCharges").text() || 0)
+        $("#lblServicesChargesIr").text((serviceAmt * parseFloat(@exchangeRate.Rate)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+
+        var exchangeRateServiceChargess=((euAmount+serviceAmt)*parseFloat(@exchangeRate.Rate)).toFixed(2);
+        exchangeRateServiceChargess=((exchangeRateServiceChargess/100)*parseFloat(@exchangeRateServiceCharges));
+
+        $("#lblRialConvertCharges").text(Math.ceil(exchangeRateServiceChargess).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+
+        $("#lblTopupGrandTotalIr").text(Math.ceil((((euAmount+serviceAmt)*parseFloat(@exchangeRate.Rate)+exchangeRateServiceChargess))).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+        var ta;
+        $('.TopupAmountEU').each(function () {
+            if ($(this).val() > 0) {
+                ta = true;
+            }
+        });
+        if (!ta) {
+            var row = $(this).closest("tr");
+            row.find(".TopUpServiceFeePercentageCalculation").text("");
+            $("#lblTopupTotalFeeEu").text("");
+            $("#lblServicesCharges").text("");
+            $("#lblTopupTotalFeeIr").text("");
+            $("#lblServicesChargesIr").text("");
+            $("#lblRialConvertCharges").text("");
+            $("#lblTopupGrandTotalIr").text("");
+            $("#divMsg").show();
+            return false;
+        }
+        else {
+            $("#divMsg").hide();
+        }
+
+        //.toFixed(2)
+        //calculateTopupGrandTotal();
+    });
+    // Calcualte grand total
+    function calculateTopupGrandTotal() {
+        $("#lblServicesCharges").text(""+calculatePercentageValue(parseFloat($("#lblTopupTotalFeeIr").text() || 0),@serviceFeePercent));
+        var amount = parseFloat($("#lblTopupTotalFeeIr").text() || 0)
+        var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+        amount=amount+serviceCharges;
+        $("#lblTopupGrandTotalIr").text(amount);
+    }
+    function calculatePercentageValue(value, percent) {
+        return (value * percent / 100);
+    }
+</script>
+<script>
+
+    $(document).ready(function () {
+        $("#txtTopupAmount").change(function () {
+            var amtFeeded = $("#txtTopupAmount").val();
+            amtFeeded = amtFeeded.replace(/,/g, "");
+            amtFeeded = Math.ceil(parseFloat(amtFeeded));
+            $("#txtTopupAmount").val("" + amtFeeded);
+            // alert("sdfds");
+        });
+        var resultCode = "@ViewBag.ResultCode";
+        var description = "@Html.Raw(ViewBag.Description)";
+
+        //called when key is pressed in textbox
+        $(".TopupAmountEU").keypress(function (e) {
+            //if the letter is not digit then display error and don't type anything
+            if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                //display error message
+                $("#errmsg").html('@localizationService.GetResource("Cnc.DigitsOnly",null,"Digits Only")').show();
+                return false;
+            } else {
+                $("#errmsg").html("Digits Only").hide();
+            }
+        });
+
+
+        $("#cncLoader").hide();
+        $("#cncLoaderMessage").hide();
+        $("#btnTopupNotify").click(function () {
+            $("#hfsubmitActionId").val("Bank");
+            //if (!$("#newTopupRequestForm").valid()) {
+            //    return;
+            //}
+            var form = $('.validatform');
+            form.validate();
+            if (!form.valid()) {
+                return false;
+            };
+            PostRequest();
+        });
+        $("#btnOnlinePaymentId").click(function () {
+            $("#hfsubmitActionId").val("Online");
+            //if (!$("#newTopupRequestForm").valid()) {
+            //    return;
+            //}
+            //var validator = $("#newTopupRequestForm").validate();
+            //validator.resetForm();
+            PostRequest();
+
+
+        });
+        if (resultCode != null && resultCode != "" && description != null && description != "") {
+            if (resultCode == "200") {
+                $("#cncLoaderMessage").append(description);
+                $("#cncLoaderMessage").show();
+            } else {
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + resultCode+" "+description + "'");
+            }
+        }
+    }); //Ready Doc
+    function ValidateOnLoad() {
+
+    }
+    function PostRequest(){
+        var ta;
+        $('.TopupAmountEU').each(function () {
+            if ($(this).val() > 0) {
+                ta = true;
+            }
+        });
+        if (!ta) {
+            var row = $(this).closest("tr");
+            row.find(".TopUpServiceFeePercentageCalculation").text("");
+            $("#lblTopupTotalFeeEu").text("");
+            $("#lblServicesCharges").text("");
+            $("#lblTopupTotalFeeIr").text("");
+            $("#lblServicesChargesIr").text("");
+            $("#lblRialConvertCharges").text("");
+            $("#lblTopupGrandTotalIr").text("");
+            $("#divMsg").show();
+            return false;
+        }
+        else {
+            $("#divMsg").hide();
+        }
+
+
+
+        //var form = $('.validatform');
+        //form.validate();
+        //if (!form.valid()) {
+        //    return false;
+        //};
+        //var out = true;
+        var a;
+        var TopupAmount;
+        var MinimumReloadAtATime;
+        var MaximumReloadAtATime;
+        var CardType;
+        //$("#newTopupRequestForm").validate();
+        $('#tblTopUpCards > tbody  > tr').each(function() {
+            var row = $(this).closest("tr");
+            TopupAmount = parseFloat(row.find(".TopupAmountEU").val());
+            MinimumReloadAtATime = parseFloat(row.find(".MinimumReloadAtATime").text());
+            MaximumReloadAtATime = parseFloat(row.find(".MaximumReloadAtATime").text());
+            CardType = row.find(".CardType").text();
+            if (TopupAmount<MinimumReloadAtATime || TopupAmount>MaximumReloadAtATime) {
+                //$("#errorTopupAmountEU").html("Please enter Amount between Reload Limits, Min Reload (€): " + MinimumReloadAtATime + "," + "Max Reload(€): " + MaximumReloadAtATime + "," + "" + "For Card Type: " + "" + CardType).show();
+                a = true;
+            }
+        });
+        if (a) {
+            $("#errorTopupAmountEU").html('@localizationService.GetResource("Cnc.PleaseCheckAndEnterAmount",null,"Please check and enter Amount between Reload Limits")').show();
+            return false;
+        }
+        else {
+            $("#errorTopupAmountEU").hide();
+            //out = true;
+            var TopupGrandTotal =parseFloat($("#lblTopupGrandTotalIr").text());
+            var TopupAmount = parseFloat($("#txtTopupAmount").val());
+            if (TopupAmount < TopupGrandTotal) {
+                //alert("yes");
+                $("#errorTopupAmount").show();
+
+                return false;
+            }else{
+                $("#errorTopupAmount").hide();
+            }
+        }
+        //if (!$("#newTopupRequestForm").valid()) {
+        //    return;
+        //}
+        var arrCards = $('#tblTopUpCards tr:gt(0)').map(function () {
+            return {
+                cardId: $(this.cells[0]).html(),
+                cardNo: $(this.cells[1]).find("label").text(),
+                cardAmount: $(this.cells[4]).find("input").val(),
+                //MinReload: $(this.cells[5]).html(),
+                //MaxReload: $(this.cells[6]).html(),
+            };
+        }).get();
+        var transaction = {
+            TransactionNo: $("#txtTopupTransactionNo").val(),
+            AccountNo: $("#txtTopupAccountNo").val(),
+            Name: $("#txtTopupName").val(),
+            Amount: $("#txtTopupAmount").val(),
+            CustomerId: $("#hfCustId").val(),
+            SubmitActionName:$("#hfsubmitActionId").val(),
+            cards: arrCards
+        };
+        //alert(JSON.stringify(transaction, null, 4))
+        $("#cncLoader").show();
+        //var ConfirmationDialog = $('#hfConfirmationDialog').val();
+        //if (confirm(ConfirmationDialog)) {
+        CheckIsValid();
+        $.ajax({
+            url: "/TopUp/CustomerNewTopUpRequest",
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(transaction),
+            success: function (data) {
+                $("#cncLoader").hide();
+                if (data[0] == "200") {
+                    $("#cncLoaderMessage").append(data[1]);
+                    $("#cncLoaderMessage").show();
+                }else if (data[0] == "205") {
+                    $('#divEmp').append(data[1]);
+                    //document.getElementById('divEmp').appendChild(data[1]);
+                } else if (data[0] == "206") {
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                    window.scrollTo(0, 0);
+                } else {
+                    $("#showMessage").removeClass("alert alert-danger fade in");
+                    $("#showMessage").empty();
+                    $("#showMessage").show();
+                    $("#showMessage").addClass("alert alert-danger fade in");
+                    $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                }
+            },error: function(er) {
+                $("#cncLoader").hide();
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Unable to process the request. Please try again.");
+            }
+        });
+
+    }
+    function UpdatePanelDiv() {
+        $("#showMessage").empty();
+        $("#showMessage").hide();
+    }
+    //$('form').dumbFormState({
+    //    persistPasswords: false, // default is false, recommended to NOT do this
+    //    persistLocal: false, // default is false, persists in sessionStorage or to localStorage
+    //    skipSelector: null, // takes jQuery selector of items you DO NOT want to persist
+    //    autoPersist: true, // true by default, false will only persist on form submit
+    //});
+</script>

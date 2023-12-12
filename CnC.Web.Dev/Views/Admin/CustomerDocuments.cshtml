@@ -1,0 +1,282 @@
+﻿@model List<CnC.Core.Customers.Customer>
+@using CnC.Service;
+@{
+    ViewBag.Title = "CustomerDocuments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var utility = new CnC.Web.Helper.Utility();
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Customer Documents</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @if (Model != null && Model.Count() > 0)
+                            {
+
+                                <div class="table-responsive" style="overflow-x: hidden">
+
+                                    @using (Html.BeginForm("CustomerDocuments", "Admin", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+                                        <fieldset>
+                                            @{Html.RenderPartial("_CustomersDocsSearch", new CnC.Core.Customers.Customer());}
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    @{Html.RenderPartial("_SearchButtons");}
+
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        @*<p>
+                                                @Html.ActionLink("Create New", "AddSetting")
+                                            </p>*@
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    @*<th>Sr#.</th>*@
+                                                                    <th class="col-xs-1">National Id</th>
+                                                                    <th class="col-xs-1">Passport #</th>
+                                                                    <th class="col-xs-1">First Name</th>
+                                                                    <th class="col-xs-1">Last Name</th>
+                                                                    <th class="col-xs-1">Email</th>
+                                                                    <th class="col-xs-1" title="National ID (Persian)">NID (FA)</th>
+                                                                    <th class="col-xs-1" title="Passport (Persian)">PSPT (FA)</th>
+                                                                    <th class="col-xs-1" title="Customer Signed Copy (Persian)">CSC (FA)</th>
+                                                                    <th class="col-xs-1" title="Customer Signed Copy(English)">CSC (ENG)</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @{
+
+                                                                    //int i = 0;
+                                                                    foreach (var item in Model)
+                                                                    {
+                                                                        if (!string.IsNullOrEmpty(item.NICDocInCustomerLanguage))
+                                                                        {
+                                                                            item.NICDocInCustomerLanguage = Path.Combine(new DocumentService().GetDocumentDirectoryPath(item.NIC), item.NICDocInCustomerLanguage);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            item.NICDocInCustomerLanguage = "N/A";
+                                                                        }
+                                                                        if (!string.IsNullOrEmpty(item.PassportDocInCustomerLanguage))
+                                                                        {
+                                                                            item.PassportDocInCustomerLanguage = Path.Combine(new DocumentService().GetDocumentDirectoryPath(item.NIC), item.PassportDocInCustomerLanguage);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            item.PassportDocInCustomerLanguage = "N/A";
+                                                                        }
+                                                                        if (!string.IsNullOrEmpty(item.CustomerSignedFormInCustomerLanguage))
+                                                                        {
+                                                                            item.CustomerSignedFormInCustomerLanguage = Path.Combine(new DocumentService().GetDocumentDirectoryPath(item.NIC), item.CustomerSignedFormInCustomerLanguage);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            item.CustomerSignedFormInCustomerLanguage = "N/A";
+                                                                        }
+                                                                        if (!string.IsNullOrEmpty(item.CustomerSignedForm))
+                                                                        {
+                                                                            item.CustomerSignedForm = Path.Combine(new DocumentService().GetDocumentDirectoryPath(item.NIC), item.CustomerSignedForm);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            item.CustomerSignedForm = "N/A";
+                                                                        }
+                                                                        //i++;
+                                                                        <tr>
+                                                                            @*<td>@i</td>*@
+                                                                            <td>@item.NIC</td>
+                                                                            <td>@item.PassportNo</td>
+                                                                            <td>@item.User.FirstName</td>
+                                                                            <td>@item.User.LastName</td>
+                                                                            <td>@item.User.Email</td>
+                                                                            @if (!string.IsNullOrEmpty(@utility.ConvertImgToBase64(item.NICDocInCustomerLanguage)))
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover=""
+                                                                                         onclick='OpenDialog("@utility.ConvertImgToBase64(item.NICDocInCustomerLanguage)"
+                                                             ,"@item.PassportDocInCustomerLanguage")'
+                                                                                         style="cursor: pointer;"
+                                                                                         src="@utility.ConvertImgToBase64(item.NICDocInCustomerLanguage)"
+                                                                                         width="50" height="50" />
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover=""
+                                                                                         onclick='OpenDialog("/Content/img/N_A Icon.PNG"
+                                                             ,"@item.PassportDocInCustomerLanguage")'
+                                                                                         style="cursor: pointer;"
+                                                                                         src="/Content/img/N_A Icon.PNG"
+                                                                                         width="50" height="50" />
+                                                                                </td>
+                                                                            }
+                                                                            @if (!string.IsNullOrEmpty(@utility.ConvertImgToBase64(item.PassportDocInCustomerLanguage)))
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover=""
+                                                                                         onclick='OpenDialog("@utility.ConvertImgToBase64(item.PassportDocInCustomerLanguage)"
+                                                             ,"@item.PassportDocInCustomerLanguage")'
+                                                                                         style="cursor: pointer;"
+                                                                                         src="@utility.ConvertImgToBase64(item.PassportDocInCustomerLanguage)"
+                                                                                         width="50" height="50" />
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover="" onclick='OpenDialog("/Content/img/N_A Icon.PNG"
+                                                             ,"@item.PassportDocInCustomerLanguage")'
+                                                                                         style="cursor: pointer;"
+                                                                                         src="/Content/img/N_A Icon.PNG"
+                                                                                         width="50" height="50" />
+                                                                                </td>
+                                                                            }
+                                                                            @if (!string.IsNullOrEmpty(@utility.ConvertImgToBase64(item.CustomerSignedFormInCustomerLanguage)))
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover=""
+                                                                                         onclick='OpenDialog("@utility.ConvertImgToBase64(item.CustomerSignedFormInCustomerLanguage)"
+                                                             ,"@item.CustomerSignedFormInCustomerLanguage")'
+                                                                                         style="cursor: pointer;" width="50" height="50"
+                                                                                         src="@utility.ConvertImgToBase64(item.CustomerSignedFormInCustomerLanguage)" />
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover=""
+                                                                                         onclick='OpenDialog("/Content/img/N_A Icon.PNG"
+                                                             ,"@item.CustomerSignedFormInCustomerLanguage")'
+                                                                                         style="cursor: pointer;" width="50" height="50"
+                                                                                         src="/Content/img/N_A Icon.PNG" />
+                                                                                </td>
+                                                                            }
+                                                                            @if (!string.IsNullOrEmpty(@utility.ConvertImgToBase64(item.CustomerSignedForm)))
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover=""
+                                                                                         onclick='OpenDialog("@utility.ConvertImgToBase64(item.CustomerSignedForm)"
+                                                    ,"@item.CustomerSignedForm")'
+                                                                                         style="cursor: pointer;"
+                                                                                         width="50" height="50"
+                                                                                         src="@utility.ConvertImgToBase64(item.CustomerSignedForm)" />
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td>
+                                                                                    <img onmouseover="" onclick='OpenDialog("/Content/img/N_A Icon.PNG"
+                                                             ,"@item.CustomerSignedForm")'
+                                                                                         style="cursor: pointer;"
+                                                                                         width="50" height="50"
+                                                                                         src="/Content/img/N_A Icon.PNG" />
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                                        Html.RenderPartial("_Pagination");
+                                                                    }
+                                </div>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                            <button class="close" data-dismiss="alert">×</button>
+                                                                            <i class="fa-fw fa fa-cube"></i>
+                                                                            <strong>Sorry! </strong> No Records Found
+                                                                        </div>
+                                                                    }
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<div id="dialog_simple" title="Dialog Simple Title" style="overflow: hidden;">
+    <div class="widget-body no-padding">
+        <form id="customerDocs" name="customerDocsForm" autocomplete="off" class="smart-form" style=" margin-top 18px; margin-bottom 18px; margin-left 18px; margin-right 18px;">
+            <fieldset class="itemsContainer">
+                <div class="row">
+                    <img class='zoom' src="" id="imgDoc" style="margin-left:30px;" width="600" height="500" />
+                </div>
+                <div><a id="downloadLink" href="" download="">Download</a></div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function (e) {
+        $('#dialog_simple').dialog({
+            autoOpen: false,
+            width: 700,
+            resizable: false,
+            modal: true,
+            title: "Document"
+        });
+    });
+    function OpenDialog(rf, imgName) {
+        if (rf != null && rf != "") {
+            document.getElementById("imgDoc").src = rf;
+            document.getElementById("downloadLink").href = rf;
+            document.getElementById("downloadLink").download = imgName;
+        }
+        else {
+            document.getElementById("imgDoc").src = rf;
+            document.getElementById("downloadLink").href = rf;
+            document.getElementById("downloadLink").download = imgName;
+        }
+        $('#dialog_simple').dialog('open');
+    }
+</script>

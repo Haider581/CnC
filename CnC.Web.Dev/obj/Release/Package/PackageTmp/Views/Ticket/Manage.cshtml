@@ -1,0 +1,121 @@
+﻿@using CnC.Web.Controllers;
+@using CnC.Service;
+@using CnC.Core;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Manage Tickets"; HelpDeskService helpService = new HelpDeskService();
+    var getTickets = new TicketController();
+    var userId = ViewBag.Id;
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+
+    List<Ticket> getTicketsData = getTickets.GetAllTickets(userSession.Id);
+}
+<div id="content">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+                Tickets
+                <span>
+                    >
+                    @ViewBag.Title
+                </span>
+            </h1>
+        </div>
+
+    </div>
+    <section id="widget-grid" class="">
+
+        @using (Html.BeginForm("AddTicketProcess", "Ticket", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+            <table id="tblManage" class="table table-bordered">
+                <tr>
+                    <th>Subject</th>
+                    <td>
+
+                        @Html.DropDownList(
+                                "cmbSubject",
+                                new SelectList(
+                                    getTicketsData.Select(x => new { Value = x.Id, Text = x.Subject }),
+                                    "Value",
+                                    "Text"
+                                    ), "--Select--", new { @class = "form-control" }
+                                )
+                        <label id="lblSubject" style="color:red" hidden="hidden">Subject is Required</label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Ticket#</th>
+                    <td></td>
+                </tr>
+                <tr>
+
+                    <th>Priority</th>
+                    <td>
+                        @Html.DropDownList("cmbPriority", EnumHelper.GetSelectList(typeof(TicketSeverity)), new { @class = "form-control" })
+                        <label id="lblPriority" style="color:red" hidden="hidden">Priority is Required</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>
+                        @Html.DropDownList("cmbStatus", EnumHelper.GetSelectList(typeof(TicketStatus)), new { @class = "form-control" })
+                        <label id="lblStatus" style="color:red" hidden="hidden">Status is Required</label>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Comments</th>
+                    <td>
+                        @Html.TextArea("txtComments", new { @class = "form-control" })
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <input type="hidden" id="hdTicketId" name="hdTicketId" />
+                        <button type="submit" id="btnSubmit" name="btnManageSubmit" class="btn btn-primary">Post</button>
+                    </td>
+                </tr>
+
+            </table>
+        }
+    </section>
+</div>
+
+@section pagespecific {
+
+    <script>
+        $('#btnSubmit').on('click', function (e) {
+
+            var valPriority = $('#cmbPriority').val();
+            if (valPriority == "") {
+                $('#lblPriority').show();
+                event.preventDefault();
+            }
+            var valSubject = $('#cmbSubject').val();
+            if (valSubject == "") {
+                $('#lblSubject').show();
+                event.preventDefault();
+            }
+            var valStatus = $('#cmbStatus').val();
+            if (valSubject == "") {
+                $('#lblSubject').show();
+                event.preventDefault();
+            }
+            if (valPriority == "" && valSubject == "" && valStatus == "") {
+                $('#lblPriority').show();
+                $('#lblSubject').show();
+                $('#lblStatus').show();
+                event.preventDefault();
+            }
+          
+            $("#cmbSubject").on('change', function (e) {
+                $('#lblSubject').hide();
+            });
+        });
+    </script>
+}

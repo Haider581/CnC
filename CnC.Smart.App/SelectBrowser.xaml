@@ -1,0 +1,16 @@
+﻿<Controls:MetroWindow x:Class="CnC.Smart.App.SelectBrowser"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CnC.Smart.App"
+        mc:Ignorable="d"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Title="Select Browser" Height="350" Width="525" >
+    <Grid>
+        <Button x:Name="DefaultBrowser" Content="open in default browser" HorizontalAlignment="Left" Margin="134,32,0,0" VerticalAlignment="Top" Width="224" Click="DefaultBrowser_Click"/>
+        <Button x:Name="ChromeBrowser" Content="open in Google Chrome" HorizontalAlignment="Left" Margin="134,88,0,0" VerticalAlignment="Top" Width="224" Click="ChromeBrowser_Click"/>
+        <Button x:Name="IexploreBrowser" Content="open in Internet Explorer" HorizontalAlignment="Left" Margin="134,140,0,0" VerticalAlignment="Top" Width="224" Click="IexploreBrowser_Click"/>
+        <Button x:Name="FirefoxBrowser" Content="open in Firefox" HorizontalAlignment="Left" Margin="134,188,0,0" VerticalAlignment="Top" Width="224" Click="FirefoxBrowser_Click"/>
+    </Grid>
+</Controls:MetroWindow>

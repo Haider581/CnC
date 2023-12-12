@@ -1,0 +1,373 @@
+﻿@using CnC.Core
+@using CnC.Service
+@using CnC.Core.Customers
+@model List<Customer>
+@{
+    ViewBag.Title = "Validate Cutomers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var cust = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(cust.LanguageId);
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .zoom {
+        display: inline-block;
+        position: relative;
+    }
+</style>
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Jalali/jalali.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    <li>@localizationService.GetResource("Cnc.CustomerValidator")</li>
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget content -->
+    <div class="widget-body">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+            <!-- row -->
+            <div class="row">
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>@localizationService.GetResource("Search", null, "Search") @localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</h2>
+                        </header>
+                        <!-- widget div-->
+                        <div role="content">
+                            <!-- widget edit box -->
+                            <div class="jarviswidget-editbox">
+                                <!-- This area used as dropdown edit box -->
+                            </div>
+                            <!-- end widget edit box -->
+                            <!-- widget content -->
+                            <div class="widget-body">
+                                @using (Html.BeginForm("ValidateKYCForms", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchKYCForms" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                                    <fieldset>
+                                        <div class="row">
+                                            <div class="col col-lg-12">
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">@localizationService.GetResource("Cnc.NIC", null, "NIC")</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-hashtag">#</i>
+                                                            @Html.TextBox("nic")
+                                                        </label>
+                                                    </section>
+                                                    <section class="col col-6">
+                                                        <label class="label">@localizationService.GetResource("Cnc.Passport#", null, "Passport #")</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-envelope-o"></i>
+                                                            @Html.TextBox("passportNo")
+                                                        </label>
+                                                    </section>
+                                                </div>
+                                            </div>
+                                            <div class="col col-lg-12">
+                                                <div class="row">
+                                                    <section class="col col-6">
+                                                        <label class="label">@localizationService.GetResource("Cnc.DateFrom", null, "Date From")</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-calendar"></i>
+                                                            <input type="text" name="createdDateFrom" placeholder=@localizationService.GetResource("Cnc.DateFrom",null,"Date From") class="datepicker" data-dateformat='dd/mm/yy'>
+                                                        </label>
+                                                    </section>
+                                                    <section class="col col-6">
+                                                        <label class="label">@localizationService.GetResource("Cnc.RegistrationDateTo", null, "To")</label>
+                                                        <label class="input">
+                                                            <i class="icon-append fa fa-calendar"></i>
+                                                            <input type="text" name="createdDateTo" placeholder=@localizationService.GetResource("Cnc.RegistrationDateTo",null,"To") class="datepicker" data-dateformat='dd/mm/yy'>
+                                                        </label>
+                                                    </section>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            @{Html.RenderPartial("_SearchButtons");}
+                                        </div>
+                                    </fieldset>
+                                                }
+                            </div>
+                            <!--alerts-->
+                            <div class="alert alert-warning customerror fade out" style="display:none">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-warning"></i>
+                                <strong>@localizationService.GetResource("Cnc.Warning", null, "Warning")</strong> <text id="failedText"></text>
+                            </div>
+
+                            <div class="alert alert-success customerror fade out" style="display:none">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>@localizationService.GetResource("Cnc.Success", null, "Success")</strong> <text id="SuccessText"></text>
+                            </div>
+
+
+
+                            <div class="alert alert-danger customerror fade out" style="display:none">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-times"></i>
+                                <strong>@localizationService.GetResource("Cnc.Error", null, "Error")!</strong> @localizationService.GetResource("Cnc.SomethingWentWrong", null, "Something Went Wrong").
+                            </div>
+                            <!-- alerts end-->
+                            <!-- end widget content -->
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>@localizationService.GetResource("Cnc.Cutomer#", null, "Customer #")</th>
+                                            <th>@localizationService.GetResource("Cnc.FirstName", null, "First Name")</th>
+                                            <th>@localizationService.GetResource("Cnc.LastName", null, "Last Name")</th>
+                                            <th>@localizationService.GetResource("Cnc.Email", null, "Email")</th>
+                                            <th>@localizationService.GetResource("Cnc.NationalId", null, "National ID #")</th>
+                                            <th>@localizationService.GetResource("Cnc.Passport#", null, "Passport #")</th>
+                                            <th>@localizationService.GetResource("Cnc.Address", null, "Address")</th>
+                                            <th>@localizationService.GetResource("Cnc.CurrentStatus", null, "Current Status")</th>
+                                            <th>@localizationService.GetResource("Cnc.UpdateStatus", null, "Update Status")</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            if (Model.Count > 0)
+                                            {
+                                                foreach (var item in Model)
+                                                {
+                                                    var currentStatus = "";
+                                                    if (item.ValidatedOn == null && item.ValidationFailureReason == null)
+                                                    {
+                                                        currentStatus = "Pending";
+                                                    }
+                                                    else if (item.ValidatedOn == null && item.ValidationFailureReason != null)
+                                                    {
+                                                        currentStatus = "Failed due to:" + item.ValidationFailureReason;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentStatus = "Undefiend";
+                                                    }
+                                                    string shortAddres = item.Address != null ? item.Address.Substring(0, item.Address.Length >= 5 ? 5 : item.Address.Length) : "";
+
+
+                                                    <text>
+                                                        <tr>
+                                                            <td> <a data-toggle="modal" data-target="@(@String.Format("#customerDetails_{0}", item.Id))"> @item.Id </a> </td>
+                                                            <td>@item.User.FirstName</td>
+                                                            <td>@item.User.LastName</td>
+                                                            <td>@item.User.Email</td>
+                                                            <td>@item.NIC</td>
+                                                            <td>@item.PassportNo</td>
+                                                            <td><a href="#" rel="tooltip" title="@item.Address">@shortAddres</a></td>
+                                                            <td id="@(@String.Format("customerStatus_{0}", item.Id))">
+                                                                @currentStatus
+                                                            </td>
+
+                                                            <td>
+                                                                <a onclick="UpdateCustomerValidationStatus('@(item.Id)' , true);">Validate  </a>
+                                                                <a data-toggle="modal" data-target="@(@String.Format("#failCustomer_{0}", item.Id))"> @localizationService.GetResource("Cnc.Fail", null, "Fail") </a>
+                                                            </td>
+                                                        </tr>
+                                                    </text>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </article>
+            </div>
+        </section>
+
+    </div>
+</div>
+<!-- END MAIN CONTENT -->
+@foreach (var item in Model)
+{
+    @Html.Partial("_ViewCustomerDetails", item, new ViewDataDictionary { { "customerId", item.Id.ToString() } })
+
+}
+@foreach (var item in Model)
+{
+    <div class="modal fade" id="@(String.Format("failCustomer_{0}", item.Id))" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">@localizationService.GetResource("Cnc.AreYouSureToFail", null, "Are yoy sure to Fail")</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="smart-form">
+                        <section>
+                            <label class="label">@localizationService.GetResource("Cnc.FailureReason", null, "Failure Reason")</label>
+                            <label class="input">
+                                <input type="text" id="@(String.Format("txtFailureReason_{0}", item.Id))" maxlength="10">
+                            </label>
+                            <div class="note">
+                                <strong>@localizationService.GetResource("Cnc.MaxLength", null, "Max Length")</strong> @localizationService.GetResource("Cnc.AutomaticallyAdded", null, "Automatically Added")
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="UpdateCustomerValidationStatus('@(item.Id)' , false);">
+                        @localizationService.GetResource("Cnc.Submit", null, "Submit")
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        @localizationService.GetResource("Cnc.Close", null, "Close")
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@section pagespecific {
+<script src="~/Scripts/FarsiType.js"></script>
+    <script>
+
+        $(document).ready(function () {
+
+        });
+        function UpdateCustomerValidationStatus(customerId, IsValidate) {
+            debugger;
+            $('.alert.alert-warning.customerror').css('display', 'none');
+            $('.alert.alert-success.customerror').css('display', 'none');
+            $('.alert.alert-danger.customerror').css('display', 'none');
+            var failureReason = $('#txtFailureReason_' + customerId).val();
+            if (IsValidate == false && failureReason == "") {
+                $("#txtFailureReason_29").parent().addClass("state-error");
+                return;
+
+            }
+            if (failureReason.length == 0 || failureReason == "" && IsValidate == true) {
+                failureReason = null;
+            }
+            var data = { "customerId": customerId, "failureReason": failureReason }
+            CheckIsValid();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("UpdateCustomerValidationStatus", "Customer")',
+                contentType: "application/json; charset=utf-8",
+                data: data,
+                dataType: "json",
+                success: function (data) {
+                    if (failureReason == null) {
+                        $('.alert.alert-success.customerror').css('display', '');
+                        $('.alert.alert-success.customerror').removeClass('out');
+                        $('.alert.alert-success.customerror').addClass("in");
+                        $('#SuccessText').text("Customer having Id: " + customerId + "validation is OK validation.");
+                        $('#customerStatus_' + customerId).text("Validated");
+                    } else {
+                        $('.alert.alert-warning.customerror').css('display', '');
+                        $('.alert.alert-warning.customerror').removeClass('out');
+                        $('.alert.alert-warning.customerror').addClass("in");
+                        $('#failedText').text("Customer having Id: " + customerId + "is updated with failed validation.");
+                        $('#customerStatus_' + customerId).text("Failed due to: " + failureReason);
+                    }
+                },
+                error: function (error) {
+                    debugger;
+                    console.log(error);
+                    $('.alert.alert-danger.customerror').css('display', '');
+                    $('.alert.alert-danger.customerror').removeClass('out');
+                    $('.alert.alert-danger.customerror').addClass("in");
+                }
+            });
+            $('#txtFailureReason_' + customerId).val("");
+            $('#failCustomer_' + customerId).modal('hide');
+        }
+        // Wait for the DOM to be ready
+        $(function () {
+            // Initialized form validation on the SearchKYCForms form.
+            // It has the name attribute "SearchKYCForms"
+            $("form[name='SearchKYCForms']").validate({
+                // Specify validation rules
+                rules: {
+                    // The key name on the left side is the name attribute
+                    // of an input field. Validation rules are defined on the right side
+
+                    txtEmail: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        email: true
+
+                    },
+                    txtKYFFormNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+
+                    },
+                    txtNICNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+
+                    },
+                    txtPassportNo: {
+                        // Specify that email should be validated
+                        // by the built-in "email" rule
+                        digits: true
+
+                    },
+                    // Specify validation error messages
+                    messages: {
+                        Email: "Please enter a valid email address",
+                        digits: "Please enter only digits.",
+                    },
+                    // Make sure the form is submitted to the destination defined
+                    // in the "action" attribute of the form when valid
+                    submitHandler: function (form) {
+                        form.submit();
+                    }
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            $("[rel=tooltip]").tooltip({ placement: 'right' });
+        });
+    </script>
+
+}

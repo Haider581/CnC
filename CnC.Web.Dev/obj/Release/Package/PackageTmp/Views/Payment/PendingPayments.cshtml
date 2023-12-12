@@ -1,0 +1,294 @@
+﻿@using CnC.Core
+@using CnC.Core.Payments
+@model List<Payment>
+@{
+    ViewBag.Title = "Pending Payments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Jalali/jalali.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@ViewBag.Title</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+
+                            @*<div id="cncLoader"></div>*@
+                            <div id="cncLoaderMessage">
+                            </div>
+                            <div id="showMessage"> </div>
+                            @using (Html.BeginForm("PendingPayments", "Payment", FormMethod.Post, new { @class = "smart-form", role = "form", name = "PendingPayments" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary("", new { @class = "text-danger" })
+                                <fieldset>
+                                    <div class="row">
+
+                                        <section class="col col-4">
+                                            <label class="input">
+                                                <i class="icon-append fa fa-calendar"></i>
+                                                @Html.TextBox("txtDateFrom", Request["txtDateFrom"], new { @class = "datepicker", placeholder = "Payments from", @readonly = "true" })
+                                            </label>
+                                        </section>
+                                        <section class="col col-4">
+                                            <label class="input">
+                                                <i class="icon-append fa fa-calendar"></i>
+                                                @Html.TextBox("txtDateTo", Request["txtDateTo"], new { @class = "datepicker", placeholder = "Payments to", @readonly = "true" })
+                                            </label>
+                                        </section>
+                                    </div>
+                                    <div class="row">
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </div>
+                                </fieldset>
+                                            }
+                        </div>
+                        <!-- end widget content -->
+                        <div class="table-responsive">
+                            @{
+                                if (Model != null && Model.Count > 0)
+                                {
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Payment Method</th>
+                                                <th>Amount</th>
+                                                <th>Date</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@item.PaymentMethod</td>
+                                                        <td>@item.Amount.ToString("###,###.##")</td>
+                                                        <td>@item.CreatedOn</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                                }
+                                                else
+                                                {
+                                                    <div class="alert alert-info">
+                                                        <strong>Info!</strong> No payment found.
+                                                    </div>
+                                                }
+                            }
+                        </div>
+
+
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+}
+@section pagespecific {
+<script src="~/Scripts/FarsiType.js"></script>
+    <script>
+        /*
+        * DIALOG SIMPLE
+        */
+        // Dialog click
+        //$('#dialog_link').click(function () {
+        //    $('#dialog_simple').dialog('open');
+        //    return false;
+        //});
+        $(document).ready(function () {
+
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        $('#dialog_simple').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Customer",
+            buttons: [{
+                html: "<i class='fa fa-trash-o'></i>&nbsp; Save Changes",
+                "class": "btn btn-success",
+                click: function () {
+                    PostCardInfo("a", this);
+                }
+            }, {
+                html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                "class": "btn btn-default",
+                click: function () {
+                    ClearForm();
+                    $(this).dialog("close");
+                }
+            }]
+        });
+        $('#dialog_card_failed').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Customer",
+            buttons: [{
+                html: "<i class='fa fa-trash-o'></i>&nbsp; Reject Card",
+                "class": "btn btn-danger",
+                click: function () {
+                    PostCardInfo("f", this);
+                }
+            }, {
+                html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                "class": "btn btn-default",
+                click: function () {
+                    ClearForm();
+                    $(this).dialog("close");
+                }
+            }]
+        });
+        /*
+        * DIALOG HEADER ICON
+        */
+        function OpenDialog(rf) {
+            // var msg = rf + "" + cr;
+            ClearForm();
+            if (rf != "") {
+                $("#hfFormId").val(rf);
+            }
+            $('#dialog_simple').dialog('open');
+            return false;
+        }
+
+        function UpdateCustomer(rf) {
+            ClearForm();
+
+            if (rf != "") {
+                $("#hfFormId").val(rf);
+            }
+            $('#dialog_card_failed').dialog('open');
+            //PostCardInfo("f");
+            return false;
+        }
+
+        function ClearForm() {
+            document.getElementById("txtClientId").value = "";
+            document.getElementById("txtFailure").value = "";
+            $("#hfFormId").val("");
+        }
+        function PostCardInfo(key, ffrom) {
+
+            var keyId = $("#hfFormId").val();
+            var customerClientId = document.getElementById("txtClientId").value;
+            var failureReason = $("#txtFailure").val();
+            if (key == "f") {
+                if (keyId != "" && failureReason != "") {
+
+                } else {
+                    alert("Unable to update. Missing required values.");
+                    return false;
+                }
+            } else if (key == "a") {
+                if (keyId != "" && customerClientId != "") {
+
+                } else {
+                    alert("Unable to update. Missing required values.");
+                    return false;
+                }
+            }
+            if (keyId != "") {
+                $("#cncLoader").show();
+                CheckIsValid();
+                $.ajax({
+                    url: '@Url.Action("SetCustomerApprovedOrDeclined", "Customer")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { key: keyId, failureReason: failureReason, clientId: customerClientId },
+                    dataType: "json",
+                    success: function (data) {
+                        $(ffrom).dialog("close");
+                        $("#cncLoader").hide();
+                        if (data[0] == "200") {
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+
+                        } else {
+
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                    },
+                    error: function () {
+                        $(ffrom).dialog("close");
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+                    }
+                });
+            } else {
+
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Missing required values. ");
+            }
+            //return false;
+        }
+
+        function UpdatePanelDiv() {
+            $("#showMessage").empty();
+            $("#showMessage").hide();
+        }
+    </script>
+}

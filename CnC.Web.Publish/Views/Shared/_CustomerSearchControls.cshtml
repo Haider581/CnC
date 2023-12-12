@@ -1,0 +1,33 @@
+﻿<div class="row">
+    <section class="col col-3">
+        <label>National ID #</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtNICNo", Request["txtNICNo"], new { placeholder = "National ID #" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>Passport #</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtPassportNo", Request["txtPassportNo"], new { placeholder = "Passport #" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>Registration Date From</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtRegistrationDateFrom", Request["txtRegistrationDateFrom"],
+           new { @class = "datepicker", placeholder = "Registration date from", @readonly = "true" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>To</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtRegistrationDateTo", Request["txtRegistrationDateTo"],
+           new { @class = "datepicker", placeholder = "Registration date to", @readonly = "true" })
+        </label>
+    </section>
+</div>
+<script src="~/Scripts/Validation/Partial/_CustomerSearchControls.js"></script>

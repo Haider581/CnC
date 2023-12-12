@@ -1,0 +1,347 @@
+﻿<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/jquery.dumbformstate-1.0.1.js"></script>
+<script src="~/Scripts/Validation/Customer/_CallCenterNewCardRequest.js"></script>
+
+@using System.Web.UI.WebControls
+@using CnC.Web.Controllers
+@using CnC.Service
+@{
+    var cardTypes = new CardController().GetCardTypes();
+    var exchangeRate = new ExchangeRateController().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CnC.Service.CurrencyService().SystemCurrency;
+    
+    decimal serviceFeePercent = 0;
+
+   
+}
+@using (Html.BeginForm("", "", FormMethod.Post, new { @id = "newCardRequestForm", @name = "newCardRequestForm" }))
+{
+<section id="widget-grid" class="">
+
+    <!-- Card fee calculation -->
+    <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+       
+        <header role="heading">
+            <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+            <h2>New Card Request</h2>
+
+            <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+          </header>
+        <div class="txt-color-white">
+            <a data-toggle="modal" href="#divCardRequestProcessor"
+               @*onclick="savePageState();"*@
+               class="btn btn-info">Online Payment</a>
+        </div>
+        <!-- widget div-->
+        <div role="content">            
+            <!-- widget edit box -->
+            <div class="jarviswidget-editbox">
+                <!-- This area used as dropdown edit box -->
+
+            </div>
+            <!-- end widget edit box -->
+            <!-- widget content -->
+          
+            <div class="smart-form" novalidate="novalidate">
+                @*<header>Search Customers</header>*@
+
+                <fieldset>
+                    <div class="row">
+                        <p>
+                            <label class="label label-info" id="lblTopupExchangeRate">
+                                <span>Exchange Rate 1</span>@Html.Raw(systemCurrency.Code)= <label>@exchangeRate.Rate @exchangeRate.Currency.Code</label>
+                            </label>
+                        </p>
+                        <p class="text-danger">
+                            <label id="lblInstructions">Instructions for Customers to apply for new cards</label>
+                        </p>
+                        <p class="text-danger">
+                            <label id="lblStep1">Step 1: Enter quantity for card type Customer wants to buy</label>
+                        </p>
+                        <p class="text-danger">
+                            <label id="lblStep2">
+                                Step 2: Total fee to pay in &#163; will be calculated and in shown under grid
+                            </label>
+                        </p>
+                        <p class="text-danger">
+                            <label id="lblStep3">
+                                Step 3: Customer has to either pay online or deposit the amount in our bank account and notify here
+                            </label>
+                        </p>
+                        <p class="text-danger">
+                            <label id="lblNote">
+                                Note: Card policy will apply
+                            </label>
+                        </p>
+                    </div>
+                </fieldset>
+
+                <!-- start Table section -->
+
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="tblCards">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Qty</th>
+                                <th>Fee</th>
+                                <th>Total Fee (&#163;)</th>
+                                @*<th>Total Fee (IR)</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (cardTypes != null && cardTypes.Count > 0)
+                            {
+                                foreach (var item in cardTypes)
+                                {
+                                    var listItems = new List<ListItem>();
+
+                                    for (int i = 0; i <= item.MaxQuantity; i++)
+                                    {
+                                        listItems.Add(new ListItem() { Text = "" + i, Value = "" + i });
+                                    }
+                                <text>
+                                    <tr>
+                                        <td id="tdCardType">@item.Name 
+                                        <input type="hidden" name="hidCardTypeId" id="hidCardTypeId" value="@item.Id" />
+                                        </td>
+                                        <td>
+                                            <label class="select">
+                                                <i class="icon-append fa fa-tag"></i>@Html.DropDownList("MaxQty", new SelectList(listItems, "Value", "Text"))
+                                            </label>
+                                        </td>
+                                        <td>@item.Fee</td>
+                                        <td class="totalFeeEU">0.00</td>
+                                        @*<td class="totalFeeIR" id="tdFeeIR">0.00</td>*@
+                                    </tr>
+                                </text>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <div>
+                        Total Fee (&#163;): <label id="TotalFeeEU">0</label><input type="hidden" id="hidTotalFeeEU" value="0" />
+                        <br />
+                        @*Total Fee (IR): <label id="TotalFeeInCustomerCurrency">0</label><input type="hidden" id="hidTotalFeeInCustomerCurrency" value="0" />
+                        <br />*@
+                        Service Charges: <label id="ServiceChargesInCustomerCurrency">@serviceFeePercent%</label><input type="hidden" name="hidServiceChargesInCustomerCurrency" id="hidServiceChargesInCustomerCurrency" value="100" />
+                        <br />
+                        Total Fee To Pay: <label id="GrandTotal">0</label><input type="hidden" id="hidGrandTotal" value="0" />
+                    </div>
+                </div>
+            </div>
+            <!-- end widget content -->
+        </div>
+        <!-- end widget div -->
+    </div>
+
+    <!-- Bank to Bank Transaction -->
+    <div class="jarviswidget jarviswidget-sortable" id="wid-id-9" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+        <header role="heading">
+            <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+            <h2>Bank To Bank Transaction</h2>
+
+            <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+        </header>
+
+        <!-- widget div-->
+        <div role="content">
+
+            <!-- widget edit box -->
+            <div class="jarviswidget-editbox">
+                <!-- This area used as dropdown edit box -->
+
+            </div>
+
+            <!-- end widget edit box -->
+            <!-- widget content -->
+
+            <div class="smart-form" novalidate="novalidate">
+                @*<header>Search Customers</header>*@
+
+                <fieldset>
+                    <div class="row">
+                        <p class="text-danger">
+                            <label id="lblStep1">If the customer has deposited the amount in our Bank account</label>
+                        </p>
+
+                        <section class="col col-6">
+                            <label class="label">Transaction Tracking/Reference No.</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-comment"></i>
+                                @Html.TextBox("txtTransactionNo")
+                            </label>
+                        </section>
+
+                        <section class="col col-6">
+                            <label class="label">Your Account No.</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-comment"></i>
+                                @Html.TextBox("txtAccountNo")
+                            </label>
+                        </section>
+
+                        <section class="col col-6">
+                            <label class="label">Name</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-comment"></i>
+                                @Html.TextBox("txtName")
+                            </label>
+                        </section>
+
+                        <section class="col col-6">
+                            <label class="label">Amount</label>
+                            <label class="input">
+                                <i class="icon-append fa fa-comment"></i>
+                                @Html.TextBox("txtAmount")
+                            </label>
+                        </section>
+                    </div>
+                </fieldset>
+
+                <footer>
+                    <input type="button" id="btnNotify" name="btnNotify" class="btn btn-primary" value="Notify" />
+                </footer>
+
+                <div class="message">
+                    <i class="fa fa-thumbs-up"></i>
+                    <p>Your data has been saved</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    @Html.Partial("_CardRequestProcessor", new ViewDataDictionary { { "popUpId", "divCardRequestProcessor" } })
+</section>
+}
+
+<script type="text/javascript">
+        $(function () {
+            $('tbody tr').hover(function () {
+                $(this).toggleClass('clickable');
+            }).on('click', function (evt) {
+                var $cell = $(evt.target).closest('td');
+                if ($cell.index() == 1) {
+                    try {
+                        var hasValSure = "t";
+                        var maxQtyVal = $(this).find('select').val();
+                        var maxQtyText = $(this).find('select option:selected').text();
+
+                        var originalInUreo = $(this).find('td:eq(2)').html();
+                        var totalInUreo = originalInUreo * maxQtyVal;
+                        $(this).find('td:eq(3)').text("" + totalInUreo);
+                    } catch (err) {
+                    }
+                }
+
+                // Calculate column totals
+                calculateTotalInEU();
+                calculateGrandTotalIR();
+
+            });
+        });
+
+        //** Calculate column total in Euro ** //
+        function calculateTotalInEU() {
+            try{
+                var sum = 0;
+                $(".totalFeeEU").each(function () {
+                    var value = $(this).text();
+                    // add only if the value is number
+                    if (!isNaN(value) && value.length != 0) {
+                        sum += parseFloat(value);
+                        $("#TotalFeeEU").text(sum.toFixed(2));
+                        $("#hidTotalFeeEU").val(sum);
+                    }
+                });
+            }
+            catch(e){}
+        }
+          
+
+        //**  Calculate Grand total in customer's currency ** //
+        function calculateGrandTotalIR() {
+            try{
+                var amount = parseFloat($("#TotalFeeEU").text() || 0)
+                var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+                amount=amount+serviceCharges;
+
+                $("#GrandTotal").text(amount.toFixed(2));
+                $("#hidGrandTotal").val(amount);
+                $("#txtAmount").val(amount.toFixed(2));
+                $("#txtAmount").attr("disabled", "disabled");
+            }
+            catch (e){}
+        }
+
+    function calculatePercentageValue(value, percent) {
+        return (value * percent / 100);
+    }
+
+        $(document).ready(function () {
+            $('#MaxQty').click();
+        });
+
+    // Get Query string of parent page
+        function getQueryString() {
+            var queryStringKeyValue = window.parent.location.search.replace('?', '').split('&');
+            var qsJsonObject = {};
+            if (queryStringKeyValue != '') {
+                for (i = 0; i < queryStringKeyValue.length; i++) {
+                    qsJsonObject[queryStringKeyValue[i].split('=')[0]] = queryStringKeyValue[i].split('=')[1];
+                }
+            }
+            return qsJsonObject;
+        }
+</script>
+
+<script>
+        // submit form data
+        $(document).ready(function () {
+            $("#btnNotify").click(function () {
+                $("#newCardRequestForm").validate();
+
+                if (!$("#newCardRequestForm").valid()) {
+                    return;
+                }
+                // Cards data from table
+                var arrCards = $('#tblCards tr:gt(0)').map(function() {
+                    return {
+                        cardTypeId: $(this.cells[0]).find("input:hidden").val(),
+                        cardName: $(this.cells[0]).html(),
+                        cardAmount: $(this.cells[3]).html(),
+                        cardQuantity: $(this.cells[1]).find("select").val()
+                    };
+                }).get();               
+               
+                // Bank to bank transaction data from textboxes
+                // include Cards array to this object
+                var transaction = {
+                    customerId: getQueryString().Id,
+                    transactionNo : $("#txtTransactionNo").val(),
+                    accountNo : $("#txtAccountNo").val(),
+                    name : $("#txtName").val(),
+                    amount : $("#txtAmount").val(),
+                    Cards : arrCards,
+                };               
+
+                $.ajax({                                     
+                    url: '@Url.Action("NewCardRequest", "Card")',                   
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(transaction),
+                    success: function (data) {
+                        $(".message").show();
+                    }
+                });
+            });
+        });
+
+    $('form').dumbFormState({
+        persistPasswords: false, // default is false, recommended to NOT do this
+        persistLocal: false, // default is false, persists in sessionStorage or to localStorage
+        skipSelector: null, // takes jQuery selector of items you DO NOT want to persist 
+        autoPersist: true, // true by default, false will only persist on form submit
+    });
+   
+</script>

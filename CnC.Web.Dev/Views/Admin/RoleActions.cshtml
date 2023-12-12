@@ -1,0 +1,169 @@
+﻿@model IEnumerable<CnC.Core.Accounts.RoleActionsRole>
+
+@{
+    ViewBag.Title = "RoleActions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Role Actions</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+
+
+                            <div class="table-responsive" style="overflow-x: hidden">
+
+                                @using (Html.BeginForm())
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+                                    <fieldset>
+                                        @{ Html.RenderPartial("_RoleActionsSearchControls", new CnC.Core.Accounts.RoleActionsRole());}
+                                        <div class="row" style="padding-bottom:20px;">
+                                            <div class="col-sm-12">
+                                                @{Html.RenderPartial("_SearchButtons");}
+
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding-bottom:20px;">
+                                            <div class="col-sm-12">
+                                                <a href="@Url.Action("CreateNewRoleAction", "Admin")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Add New Role Actions</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                                    if (Model != null && Model.Count() > 0)
+                                                    {
+                                                        <table class="table table-bordered">
+                                                            <tr>
+                                                                <th class="col-xs-4">
+                                                                    @Html.DisplayName("Role")
+                                                                </th>
+                                                                <th class="col-xs-4">
+                                                                    @Html.DisplayName("Display")-
+                                                                    @Html.DisplayName("Controller")/
+                                                                    @Html.DisplayName("Action")
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.RoleAction.IsAllowed)
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayNameFor(model => model.RoleAction.DisplayOrder)
+                                                                </th>
+                                                                <th></th>
+                                                            </tr>
+
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Role.Name)
+                                                                    </td>
+                                                                    <td>
+                                                                        @{var str = "";
+                                                                        }
+                                                                        @Html.DisplayFor(modelItem =>
+                                                                   item.CnCAction.DisplayName)
+                                                                        @if (!string.IsNullOrEmpty(item.CnCAction.ActionName)
+&& !string.IsNullOrEmpty(item.CnCAction
+.ControllerName))
+                                                                        {
+                                                                            string dash = "-";
+                                                                            string slash = "/";
+                                                                            str = dash + Html.DisplayFor(modelItem =>
+                                                                            item.CnCAction.ControllerName) + slash
+                                                                                   +
+                                                                                Html.DisplayFor(modelItem =>
+                                                                                item.CnCAction.ActionName);
+                                                                        }
+                                                                        @str
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem =>
+                                                                   item.RoleAction.IsAllowed)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem =>
+                                                                   item.RoleAction.DisplayOrder)
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @*@Html.ActionLink("Edit", "EditRoleActions", new { id = item.RoleAction.RoleId + "-" + item.RoleAction.ActionId })*@
+
+                                                                    </td>
+                                                                </tr>
+                                                                            }
+
+                                                        </table>
+
+
+                                                                                Html.RenderPartial("_Pagination");
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                                    <button class="close" data-dismiss="alert">×</button>
+                                                                                    <i class="fa-fw fa fa-cube"></i>
+                                                                                    <strong>Sorry! </strong> No Records Found
+                                                                                </div>
+                                                                                }
+                                                                            }
+                            </div>
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>

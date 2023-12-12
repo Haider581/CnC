@@ -1,0 +1,54 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@model CnC.Core.Accounts.Role
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-4 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.Name", null, " Name")</strong></label>
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter name of role to search", @type = "text" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.CreatedDateFrom", null, "Date From")</strong></label>
+                @Html.EditorFor(model => model.CreatedDateFrom, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 control-padding-bottom">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>@localizationService.GetResource("Cnc.CreatedDateTo", null, "To")</strong></label>
+                @Html.EditorFor(model => model.CreatedDateTo, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+

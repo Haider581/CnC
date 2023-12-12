@@ -1,0 +1,60 @@
+﻿@using CnC.Service
+@{
+    var cardTypes = new CardService().GetCardTypes();
+}
+<div class="row">
+    <section class="col col-3">
+        <label class="label">Card Type</label>
+        <label class="select">
+            <i style="color:#a2a2a2; font-size: 14px;" class="icon-append"></i>
+        </label>
+        <select class="form-control" style="height:30px;" id="dllCardType" name="dllCardType">
+            <option value="">-Please Select-</option>
+            @foreach (var item in cardTypes)
+            {
+                <option value="@(item.Id)">@item.Name</option>
+            }
+        </select>
+    </section>
+
+    <section class="col col-3">
+        <label class="label">Card #</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtCardNo", Request["txtCardNo"], new { placeholder = "Card #" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label class="label">Passport #</label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtPassportNo", Request["txtPassportNo"], new { placeholder = "Passport #" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label class="label">National ID # </label>
+        <label class="input">
+            <i class="icon-append fa fa-hashtag">#</i>
+            @Html.TextBox("txtNICNo", Request["txtNICNo"], new { placeholder = "National ID #" })
+        </label>
+    </section>
+</div>
+<div class="row">
+    <section class="col col-3">
+        <label>Created Date From</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtCreatedDateFrom", Request["txtCreatedDateFrom"],
+           new { @class = "datepicker", placeholder = "Date From", @readonly = "true" })
+        </label>
+    </section>
+    <section class="col col-3">
+        <label>To</label>
+        <label class="input">
+            <i class="icon-append fa fa-calendar"></i>
+            @Html.TextBox("txtCreatedDateTo", Request["txtCreatedDateTo"],
+           new { @class = "datepicker", placeholder = "Date To", @readonly = "true" })
+        </label>
+    </section>
+</div>
+<script src="~/Scripts/Validation/Partial/_TopUpRequestSearchControl.js"></script>

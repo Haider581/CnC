@@ -1,0 +1,158 @@
+﻿@model List<CnC.Core.Audit.UserActivity>
+@using CnC.Service
+@{
+    ViewBag.Title = "User Activites";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>User Activities</h2>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>User Activities</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+                            <fieldset>
+                                @{ Html.RenderPartial("_UserActivitySearchControls", new CnC.Core.Audit.UserActivity());}
+                                <div class="row" style="padding-bottom:20px;">
+                                    <div class="col-sm-12">
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                                            <div class="widget-body">
+                                                @if (Model != null && Model.Count() > 0)
+                                                {
+
+                                                    <div class="table-responsive" style="overflow-x: hidden">
+
+
+
+                                                        <table class="table table-bordered">
+                                                            <tr>
+
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("User")
+                                                                </th>
+                                                                <th class="col-xs-3">
+                                                                    @Html.DisplayName("Performed For")
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("Action")
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    @Html.DisplayName("Created On")
+                                                                </th>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayName("Ip Address")
+                                                                </th>
+
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayName("Browser Name")
+                                                                </th>
+
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayName("Machine Name")
+                                                                </th>
+                                                            </tr>
+
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+
+                                                                    <td class="wraptext">
+                                                                        @{
+                                                                            var user = new UserService().GetUser(item.UserId);
+                                                                        }
+                                                                        @Html.DisplayName(user.FullName)
+                                                                    </td>
+                                                                    @if (item.PerformedForUserId == null)
+                                                                    {
+                                                                        <td class="wraptext">
+                                                                            @Html.DisplayName("")
+                                                                        </td>
+                                                                    }
+                                                                    else
+                                                                    {
+
+                                                                        var performedForUser = new UserService()
+                                                                            .GetUser(Convert.ToInt32(item.PerformedForUserId));
+
+                                                                        <td class="wraptext">
+                                                                            @Html.DisplayName(performedForUser.FullName)
+                                                                        </td>
+                                                                    }
+                                                                    <td class="wraptext">
+                                                                        @Html.DisplayFor(modelItem => item.Action)
+                                                                    </td>
+                                                                    <td class="wraptext">
+                                                                        @Html.DisplayFor(modelItem => item.CreatedOn)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.IpAddress)
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.BrowserName)
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.MachineName)
+                                                                    </td>
+
+                                                                </tr>
+                                                                            }
+                                                        </table>
+                                                    </div>
+                                                                                Html.RenderPartial("_Pagination");
+
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                                    <button class="close" data-dismiss="alert">×</button>
+                                                                                    <i class="fa-fw fa fa-cube"></i>
+                                                                                    <strong>Sorry! </strong> No Records Found
+                                                                                </div>
+                                                                            }
+                                            </div>
+                                                                            }
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>

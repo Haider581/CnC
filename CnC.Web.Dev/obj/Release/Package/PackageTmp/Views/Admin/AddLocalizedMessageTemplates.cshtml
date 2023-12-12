@@ -1,0 +1,161 @@
+﻿@model CnC.Core.Messages.LocalizedMessageTemplate
+@using CnC.Service;
+@{
+    ViewBag.Title = "AddLocalizedMessageTemplates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var languages = new CommonService().GetLanguages();
+    var messageTemplates = new MessageService().GetMessagesTemplates();
+}
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Add New Localized Message Templates</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {<div class="alert alert-danger fade in">
+                            <button class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong> ViewBag.MessageFailure
+                        </div> }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <div class="row control-padding-bottom">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                <label class="control-label"><strong>Template</strong></label>                                                
+                                                @Html.DropDownListFor(model => model.LanguageId, new SelectList(messageTemplates, "Id", "Name"), "- Please Select -", new { @class = "form-control" })                                                
+                                                @Html.ValidationMessageFor(model => model.MessageTemplate.Name, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="col-md-6 control-padding-bottom">
+                                                <label class="control-label"><strong>Language</strong></label>                                               
+                                                @Html.DropDownListFor(model => model.LanguageId, new SelectList(languages, "Id", "Name"), "- Please Select -", new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(model => model.MessageTemplate.Name, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                <label class="control-label"><strong>Bcc Email Address</strong></label>                                                 
+                                                @Html.EditorFor(model => model.BccEmailAddresses, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Bcc Email Address" } })
+                                                @Html.ValidationMessageFor(model => model.BccEmailAddresses, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Message Template" } })
+                                                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.LabelFor(model => model.Subject, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Subject" } })
+                                                @Html.ValidationMessageFor(model => model.Subject, "", new { @class = "text-danger" })
+
+                                            </div>
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.LabelFor(model => model.Body, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.Body, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter Body" } })
+                                                @Html.ValidationMessageFor(model => model.Body, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                <label class="control-label"><strong>Email Account Id</strong></label>
+                                                @Html.EditorFor(model => model.EmailAccountId, new { htmlAttributes = new { @class = "form-control" }, @placeholder = "Please enter Email Account Id" })
+                                                @Html.ValidationMessageFor(model => model.EmailAccountId, "", new { @class = "text-danger" })
+
+                                            </div>
+                                            <div class="col-md-12 control-padding-bottom">
+                                                <label class="checkbox-inline">
+                                                    @Html.EditorFor(model => model.IsActive)
+                                                    @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+                                                    <label class="control-label"><strong>Is Active</strong></label>           
+                                                    @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <a href="@Url.Action("LocalizedMessageTemplates", "Admin")" name="btnAffiliates" id="btnAffiliates" value="" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Back To Localized Message Templates</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-backward"></i></span>
+                                                </a>
+                                                <button formnovalidate="formnovalidate" type="submit" name="btnCancel" id="btnCancel" value="Cancel" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Cancel</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-refresh"></i></span>
+                                                </button>
+                                                <button type="submit" name="btnSave" id="btnSave" value="Save" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Save</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-save"></i></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

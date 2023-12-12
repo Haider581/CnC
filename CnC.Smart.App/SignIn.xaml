@@ -1,0 +1,26 @@
+﻿<Controls:MetroWindow x:Class="CnC.Smart.App.SignIn"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CnC.Smart.App"
+        mc:Ignorable="d"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Title="Use Card Services" Height="283.382" Width="525" >
+
+    <Grid Margin="0,0,-0.333,21.667">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="95*"/>
+            <ColumnDefinition Width="424*"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="label" Content="Username" HorizontalAlignment="Left" Margin="2.456,67,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <TextBox x:Name="textBox_UserName" HorizontalAlignment="Left" Height="23" Margin="119.456,67,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="207" Grid.Column="1"/>
+        <Label x:Name="label1" Content="Password" HorizontalAlignment="Left" Margin="8.333,112,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <PasswordBox x:Name="textBox_Password" Margin="119.333,112,97.667,94.333" Grid.Column="1" />
+        <!--<TextBox x:Name="txtPassword" HorizontalAlignment="Left" Height="23" Margin="214,121,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="207"/>-->
+        <Button x:Name="btnSignIn" Content="SignIn" HorizontalAlignment="Left" Margin="235.456,183,0,0" VerticalAlignment="Top" Width="91" Click="btnSignIn_Click" Grid.Column="1"/>
+        <Label x:Name="lblError" Content="" FontWeight="Light" FontStyle="Italic" HorizontalAlignment="Left" Margin="119.456,150,0,0" VerticalAlignment="Top" Width="207" Grid.Column="1"/>
+        <Label x:Name="label2" Content="Use Card Services" Grid.Column="1" HorizontalAlignment="Center" Margin="119.333,10,127.667,0" VerticalAlignment="Top" Width="177" FontSize="20" FontWeight="Bold"/>        
+
+    </Grid>
+</Controls:MetroWindow>

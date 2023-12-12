@@ -1,0 +1,350 @@
+﻿@model List<CnC.Core.Cards.CardType>
+@using CnC.Service;
+@using CnC.Core.Customers
+@using CnC.Core;
+@using CnC.Web.Controllers
+@{
+    ViewBag.Title = "Customer Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var customerId = Convert.ToInt32(Request.QueryString["Id"]);
+
+    var cards = new CardController().GetCards();
+    var cardRequestForms = new CardController().GetCardRequestForms(customerId);
+    var topupRequests = new TopUpController().GetTopupRequestForms(customerId);
+    string tempDesc = string.Empty;
+
+    var cust = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(cust.LanguageId);
+
+}
+
+<div id="content">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+                @localizationService.GetResource("Cnc.CallCenter", null, "Call Center")
+            </h1>
+        </div>
+
+    </div>
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+
+            <!-- Cards -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 sortable-grid ui-sortable">
+                <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" id="wid-id-0" data-widget-editbutton="false" role="widget">
+
+                    <header role="heading">
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource("Cards", null, "Cards")</h2>
+                        <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+                    </header>
+
+                    <div role="content">
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            <div class="table-responsive">
+                                @if (cards != null && cards.Count > 0)
+                                {
+                                    <table class="table table-striped table-bordered" width="100%">
+                                        <tr>
+                                            <th>@localizationService.GetResource("Cnc.Number", null, "Number")</th>
+                                            <th>@localizationService.GetResource("Cnc.Type", null, "Type")</th>
+                                            <th>@localizationService.GetResource("Cnc.Status", null, "Status")</th>
+                                        </tr>
+                                        @if (cards.Count() > 0)
+                                        {
+                                            foreach (var cardItem in cards)
+                                            {
+                                                <text>
+                                                    <tr>
+                                                        <td>@cardItem.Number</td>
+                                                        <td>@cardItem.CardRequest.CardType.Name</td>
+                                                        <td>
+                                                            @Enum.GetName(typeof(CardStatus), cardItem.Status)
+
+                                                            @if (cardItem.Status == 0)
+                                                            {
+                                                                <a href='#' rel='tooltip' title='Reuest will be sent to TBO'>@localizationService.GetResource("Cnc.Block", null, "Block") </a><a href='#' rel='tooltip' title='Reuest will be sent to TBO'>@localizationService.GetResource("Cnc.Refund/Close", null, "Refund/Close") </a>
+                                                            }
+                                                            else if (cardItem.Status == 1)
+                                                            {
+                                                                <a href='#' rel='tooltip' title='Reuest will be sent to TBO'>@localizationService.GetResource("Cnc.UnBlock", null, "Block") </a><a href='#' rel='tooltip' title='Reuest will be sent to TBO'>@localizationService.GetResource("Cnc.Refund/Close", null, "Refund/Close") </a>
+                                                            }
+
+                                                        </td>
+
+                                                    </tr>
+                                                </text>
+                                            }
+                                        }
+                                    </table>
+                                }
+                                else
+                                {
+                                    <text>
+                                        <div class="alert alert-info">
+                                            <strong>@localizationService.GetResource("Cnc.Info", null, "Info")!</strong> @localizationService.GetResource("Cnc.NoCard", null, "You have no card")
+                                        </div>
+                                    </text>
+                                }
+                            </div>
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end Table section -->
+
+            </article>
+
+            <!-- Cards Request-->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 sortable-grid ui-sortable">
+                <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" id="wid-id-0" data-widget-editbutton="false" role="widget">
+
+                    <header role="heading">
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource("Card Requests", null, "Card Requests")</h2>
+
+                        <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+                    </header>
+
+                    <div role="content">
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            <a data-toggle="modal" data-target="#NewCardModal">@localizationService.GetResource("Cnc.NewCardRequest", null, "New Card Request")</a>
+                            <div class="table-responsive">
+                                @if (cardRequestForms != null && cardRequestForms.Count > 0)
+                                {
+                                    <table id="datatable_fixed_column" class="table table-striped table-bordered" width="100%">
+                                        <thead>
+
+                                            <tr>
+                                                <th data-class="expand">@localizationService.GetResource("Cnc.Request#", null, "Request #")</th>
+                                                <th><i class="fa fa-fw fa-calendar txt-color-blue hidden-md hidden-sm hidden-xs"></i>@localizationService.GetResource("Cnc.RequestDate", null, "Request Date")</th>
+                                                <th data-hide="phone">@localizationService.GetResource("Cards", null, "Cards")</th>
+                                                <th data-hide="phone">@localizationService.GetResource("Cnc.PaymentMode", null, "Payment Mode")</th>
+                                                <th data-hide="phone,tablet">@localizationService.GetResource("Cnc.Status", null, "Status")</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var cardForm in cardRequestForms)
+                                            {
+                                                <tr>
+                                                    <td>@cardForm.Id</td>
+                                                    <td>@cardForm.CreatedOn.ToShortDateString()</td>
+
+                                                    @{
+                                                        string desc = string.Empty;
+                                                        var cardTypeGroups = cardForm.CardRequests.GroupBy(i => i.CardType.Name);
+                                                        foreach (var grp in cardTypeGroups)
+                                                        {
+                                                            desc = grp.Key + @" (" + grp.Count() + @"), ";
+                                                        }
+                                                        <td>@desc.Trim().TrimEnd(',')</td>
+
+                                                        // Payment Method Column
+                                                        foreach (var itemPayment in cardForm.Payments)
+                                                        {
+                                                            tempDesc = tempDesc + itemPayment.PaymentMethod + ", ";
+                                                        }
+                                                        <td>@tempDesc.Trim().TrimEnd(',')</td>
+
+                                                        // Status Column
+                                                        string tempStatus = string.Empty;
+                                                        foreach (var itemStatus in cardForm.CardRequests)
+                                                        {
+                                                            tempStatus = tempStatus + new CnC.Service.CardService().GetCardRequestStatus(itemStatus) + ", ";
+                                                        }
+                                                        <td>@tempStatus.Trim().TrimEnd(',')</td>
+                                                    }
+                                                </tr>
+                                                        }
+                                        </tbody>
+                                    </table>
+                                                        }
+                                                        else
+                                                        {
+                                                            <text>
+                                                                <div class="alert alert-info">
+                                                                    <strong>@localizationService.GetResource("Cnc.Info", null, "Info")!</strong> @localizationService.GetResource("Cnc.NoCardRequest", null, "No Card Request")
+                                                                </div>
+                                                            </text>
+                                                        }
+                            </div>
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end Table section -->
+
+            </article>
+
+            <!-- Top up Request -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 sortable-grid ui-sortable">
+                <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" id="wid-id-0" data-widget-editbutton="false" role="widget">
+                    <header role="heading">
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@localizationService.GetResource("TopUp Requests", null, "TopUp Requests")</h2>
+
+                        <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+                    </header>
+
+                    <div role="content">
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            <a data-toggle="modal" data-target="#NewTopupModal">@localizationService.GetResource("Cnc.NewTopUpRequests", null, "New TopUp Requests")</a>
+                            <div class="table-responsive">
+                                @if (topupRequests != null && topupRequests.Count > 0)
+                                {
+                                    <table class="table table-striped table-bordered" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>@localizationService.GetResource("Cnc.Request#", null, "Request#")</th>
+                                                <th>@localizationService.GetResource("Cnc.RequestDate", null, "Request Date")</th>
+                                                <th>@localizationService.GetResource("Cnc.PaymentMode", null, "Payment Mode")</th>
+                                                <th>@localizationService.GetResource("Cnc.Card#", null, "Card #")</th>
+                                                <th>@localizationService.GetResource("Cnc.Type", null, "Type")</th>
+                                                <th>@localizationService.GetResource("Cnc.Description", null, "Description")</th>
+                                                <th>@localizationService.GetResource("Cnc.Status", null, "Status")</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var topUpFormRequest in topupRequests)
+                                            {
+                                                int i = 0;
+                                                foreach (var payment in topUpFormRequest.Payments)
+                                                {
+                                                    tempDesc = tempDesc + "" + payment.PaymentMethod + ", ";
+                                                }
+                                                <text>
+                                                    @if (i == 0)
+                                                    {
+                                                        i = 1;
+                                                        <text>
+                                                            <tr>
+                                                                <td><a href="#">@topUpFormRequest.Id</a></td>
+                                                                <td>@topUpFormRequest.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                <td>
+                                                                    @tempDesc.TrimEnd().TrimEnd(',')
+                                                                </td>
+                                                                <td>@topUpFormRequest.TopUpRequests[0].Card.Number</td>
+                                                                <td>@topUpFormRequest.TopUpRequests[0].Card.CardRequest.CardType.Name</td>
+                                                                <td>@topUpFormRequest.TopUpRequests[0].Card.CardRequest.CardType.Description</td>
+                                                                <td>@(new CnC.Service.TopUpService().GetTopUpRequestStatus(topUpFormRequest.TopUpRequests[0]))</td>
+                                                            </tr>
+                                                        </text>
+                                                        topUpFormRequest.TopUpRequests.RemoveAt(0);
+                                                    }
+                                                    @foreach (var topUpRequest in topUpFormRequest.TopUpRequests)
+                                                    {
+                                                        <text>
+                                                            <tr>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>@topUpRequest.Card.Number</td>
+                                                                <td>@topUpRequest.Card.CardRequest.CardType.Name</td>
+                                                                <td>@topUpRequest.Card.CardRequest.CardType.Description</td>
+                                                                <td>@(new CnC.Service.TopUpService().GetTopUpRequestStatus(topUpRequest))  </td>
+                                                            </tr>
+                                                        </text>
+                                                    }
+                                                </text>
+                                            }
+                                        </tbody>
+
+                                    </table>
+                                }
+                                else
+                                {
+                                    <text>
+                                        <div class="alert alert-info">
+                                            <strong>@localizationService.GetResource("Cnc.Info", null, "Info")!</strong> @localizationService.GetResource("Cnc.NoTopUpRequest", null, "No TopUp Request")
+                                        </div>
+                                    </text>
+                                }
+                            </div>
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end Table section -->
+            </article>
+        </div>
+
+    </section>
+</div>
+
+<!-- New Card Request Modal -->
+<div id="NewCardModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("_AdminCardRequest", Model)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">@localizationService.GetResource("Cnc.Close", null, "Close")</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- New Topup Request Modal -->
+<div id="NewTopupModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("_AdminTopupRequest", Model)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">@localizationService.GetResource("Cnc.Close", null, "Close")</button>
+            </div>
+        </div>
+    </div>
+</div>

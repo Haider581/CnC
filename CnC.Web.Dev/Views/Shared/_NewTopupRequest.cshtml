@@ -1,0 +1,250 @@
+﻿<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+@using CnC.Service
+@using CnC.Core.Cards
+@{
+    var userSession = Session["CurrentSession"] as CnC.Core.Accounts.User;
+    int customerId = userSession.Id;
+
+    var cardService = new CardService();
+    List<Card> cards = cardService.GetCardsReloadable(customerId);
+    var exchangeRate = new ExchangeRateService().GetExchangeRate(new SettingService().CustomerDefaultCurrency.Id);
+    var systemCurrency = new CurrencyService().SystemCurrency;
+   
+}
+
+<script src="~/Scripts/jquery.dumbformstate-1.0.1.js"></script>
+
+@using (Html.BeginForm("NewTopupRequest", "TopUp", FormMethod.Post, new { @id = "newTopupRequestForm", @name = "newTopupRequestForm" }))
+{
+    <div class="widget-body @exchangeRate">
+        <h5>
+            Exchange Rate (@Html.Raw(systemCurrency.Code)) = <code>
+                @exchangeRate.Rate @exchangeRate.Currency.Code
+            </code>
+        </h5>
+        <input type="hidden" value="@customerId" id="hfCustId" name="hfCustId" />
+        <p>
+            <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 1:</span> Enter Top up Amount in &#163; or IR for each card Customer wants to Top up.
+        </p>
+        <p>
+            <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 2:</span> Total Top up Amount to pay in IR will be calculated and in shown under grid.
+        </p>
+        <p>
+            <span class="label bg-color-darken txt-color-white" style="font-size: 90%;">Step 3:</span> Customer has to either pay online or deposit the amount in our bank account and notify here.
+        </p>
+
+        <div class="alert alert-info fade in">
+            <button class="close" data-dismiss="alert">
+                ×
+            </button>
+            <i class="fa-fw fa fa-info"></i>
+            <strong>Note!</strong> Top up policy will apply.
+        </div>
+        <div class="table-responsive">
+
+            <table class="table table-bordered" id="tblTopUpCards">
+                <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Top up Amount (&#163;)</th>
+                        @*<th>Top up Amount (IR)</th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in cards)
+                    {
+                        <text>
+                            <tr>
+                                <td style="display:none;">@item.CardRequestId</td>
+                                <td><label id="lblCardNo">@item.Number</label> </td>
+                                <td><label id="lblCardType">@item.CardRequest.CardType.Name</label></td>
+                                <td>@item.CardRequest.Description</td>
+                                <td><input type="text" class="input-xs col-md-6 TopupAmountEU" id="txtTopupAmountEU" name="txtTopupAmountEU" /></td>
+                                <td>@*<input type="text" class="input-xs col-md-6 TopupAmountIR" id="txtTopupAmountIR" name="txtTopupAmountIR" readonly />*@</td>
+                            </tr>
+                        </text>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <!-- Bank to Bank Transaction -->
+    <div id="bb">
+        <div class="widget-body col-md-6" id="divBank">
+            <div class="smart-form" novalidate="novalidate">
+                <fieldset>
+
+                    <header>
+                        Bank To Bank Transaction
+                    </header>
+                    <p style="margin:5px;">
+                        <i class="fa fa-bell text-danger"></i> <i>If the customer has deposited the amount in our Bank account</i>
+                    </p>
+
+                    <section>
+                        <label class="label">Transaction Tracking/Reference No.</label>
+                        <label class="input">
+
+                            <input type="text" data-validation="required" name="txtTopupTransactionNo" id="txtTopupTransactionNo">
+                        </label>
+                    </section>
+
+                    <section>
+                        <label class="label">Your Account No.</label>
+                        <label class="input">
+
+                            @Html.TextBox("txtTopupAccountNo")
+                        </label>
+                    </section>
+
+                    <section>
+                        <label class="label">Name</label>
+                        <label class="input">
+
+                            @Html.TextBox("txtTopupName")
+                        </label>
+                    </section>
+
+                    <section>
+                        <label class="label">Amount</label>
+                        <label class="input">
+
+                            @Html.TextBox("txtTopupAmount")
+                        </label>
+                    </section>
+
+                </fieldset>
+
+                <footer>
+                    <input type="button" id="btnTopupNotify" name="btnTopupNotify" class="btn btn-primary" value="Notify" />
+                </footer>
+
+                <div class="message">
+                    <i class="fa fa-thumbs-up"></i>
+                    <p>Your data has been saved</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 well pull-right">
+        <p>
+            Total Top up Amount:    <code class="pull-right" id="lblTopupTotalFeeEu">0</code>
+        </p>
+        <p>
+            Total Top up Amount (IR):     <code class="pull-right" id="lblTopupTotalFeeIr">0</code>
+        </p>
+        <p>
+            Service Charges (IR):     <code class="pull-right">0</code>
+        </p>
+        <p>
+            Total Top up Amount To Pay (IR):  <span class="badge bg-color-blueLight pull-right" id="lblTopupGrandTotalIr">0</span>
+        </p>
+    </div>
+    <div class="col-md-4  txt-color-white text-center">
+        <a data-toggle="modal" href="#divTopupRequestProcessor"
+           class="btn btn-info">Online Payment</a>
+    </div>
+    @Html.Partial("_TopupRequestProcessor", new ViewDataDictionary { { "popUpId", "divTopupRequestProcessor" } })
+}
+
+<script src="~/Scripts/Validation/Customer/_CallCenterNewTopupRequest.js"></script>
+
+<script>
+    // Dialog click
+    $('#aOnlinepayment').click(function () {
+       
+        $('#dialog_simple').dialog('open');
+        return false;
+
+    });
+    // Calculate EU total
+    $('.TopupAmountEU').on('input propertychange paste', function () {
+        var totalEU = 0;
+        $(".TopupAmountEU").each(function () {
+            var myVal = parseInt($(this).val()) || 0;
+            totalEU += myVal;
+            $(this).closest('td').next('td').find('input:text').val(myVal * parseFloat(@exchangeRate.Rate));
+        });
+
+        $("#lblTopupTotalFeeEu").text(totalEU);
+        $("#lblTopupTotalFeeIr").text(totalEU * parseFloat(@exchangeRate.Rate));
+    });
+
+    // Calcualte grand total
+    function calculateTopupGrandTotal() {
+        var amount = parseFloat($("#lblTopupTotalFeeEu").text() || 0)
+        var serviceCharges=calculatePercentageValue(amount, @serviceFeePercent);
+        amount=amount+serviceCharges;
+        $("#lblTopupGrandTotalIr").text(amount.toFixed(2));
+    }
+
+    function calculatePercentageValue(value, percent) {
+        return (value * percent / 100);
+    }
+</script>
+
+<script>
+    // submit form data
+    $(document).ready(function () {
+        $("#btnTopupNotify").click(function () {
+
+            $("#newTopupRequestForm").validate();
+
+            if (!$("#newTopupRequestForm").valid()) {
+                return;
+            }
+
+            var arrCards = $('#tblTopUpCards tr:gt(0)').map(function () {
+                return {
+                    cardId: $(this.cells[0]).html(),
+                    cardNo: $(this.cells[1]).find("label").text(),
+                    cardAmount: $(this.cells[4]).find("input").val()
+                };
+            }).get();
+
+            var transaction = {
+                transactionNo: $("#txtTopupTransactionNo").val(),
+                accountNo: $("#txtTopupAccountNo").val(),
+                name: $("#txtTopupName").val(),
+                amount: $("#txtTopupAmount").val(),
+                customerId: $("#hfCustId").val(),
+                cards: arrCards
+            };
+            //alert(JSON.stringify(transaction, null, 4))
+            CheckIsValid();
+            $.ajax({
+                url: '@Url.Action("AddTopupRequest", "TopUp")',
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(transaction),
+                success: function (data) {
+                    $(".message").show();
+                }
+            });
+        });
+    });
+
+    $('form').dumbFormState({
+        persistPasswords: false, // default is false, recommended to NOT do this
+        persistLocal: false, // default is false, persists in sessionStorage or to localStorage
+        skipSelector: null, // takes jQuery selector of items you DO NOT want to persist
+        autoPersist: true, // true by default, false will only persist on form submit
+    });
+    //function savePageState() {
+    //    // Convert form to string
+    //    var formString = formToString($("#newTopupRequestForm"));
+    //    // Save string somewhere, e.g. localStorage
+    //    localStorage.setItem('formState', formString);
+    //}
+
+    //// restore page state
+    //if (localStorage.formState) {
+    //    stringToForm(localStorage.formState, $("#newTopupRequestForm"));
+    //}
+
+
+</script>

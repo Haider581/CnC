@@ -1,0 +1,94 @@
+﻿@model CnC.Core.Accounts.RoleActionsRole
+@using CnC.Service;
+@{
+    ViewBag.Title = "EditRoleActions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int totalCount = 0;
+    var roles = new AdminService().GetAllRoles(out totalCount, true);
+    var actions = new AdminService().GetAllActions(out totalCount, true).OrderBy(c => c.ActionName).Where(c => c.ActionName != null);
+}
+
+<h2>Edit Role Actions</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>RoleAction</h4>
+        @if (ViewBag.MessageSuccess != null)
+        {
+            <div class="alert alert-success fade in">
+                <button class="close" data-dismiss="alert">
+                    ×
+                </button>
+                <i class="fa-fw fa fa-check"></i>
+                <strong>Success</strong> @ViewBag.MessageSuccess
+            </div>
+        }
+        @if (ViewBag.MessageFailure != null)
+        {<div class="alert alert-danger fade in">
+            <button class="close" data-dismiss="alert">
+                ×
+            </button>
+            <i class="fa-fw fa fa-times"></i>
+            <strong>Error!</strong> ViewBag.MessageFailure
+        </div> }
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @*@Html.HiddenFor(model => model.RoleId)
+
+            @Html.HiddenFor(model => model.ActionId)*@
+
+        <div class="form-group">
+            @Html.Label("Role")
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.DropDownListFor(model => model.RoleAction.RoleId, new SelectList(roles.OrderBy(c => c.Name), "Id", "Name", "---Please Select---"), new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RoleAction.RoleId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Action")
+            <div class="col-md-10">
+                <div class="checkbox">
+                    <select data-val="true" data-val-number="The field Action Id must be a number." data-val-required="The Action Id field is required." htmlattributes="{ class = form-control }" id="RoleAction_ActionId" name="RoleAction.ActionId">
+                        <option value=@Model.RoleAction.ActionId>@Model.CnCAction.ControllerName/@Model.CnCAction.ActionName</option>
+                        @foreach (var item in actions)
+                        {
+                            <option value=@item.Id>@item.ControllerName/@item.ActionName</option>
+                        }
+                    </select>
+                    @*@Html.DropDownListFor(model => model.RoleAction.ActionId, new SelectList(actions, "Id", "ActionName", "---Please Select---"), new { htmlAttributes = new { @class = "form-control" } })*@
+                    @Html.ValidationMessageFor(model => model.RoleAction.ActionId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RoleAction.IsAllowed, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.RoleAction.IsAllowed)
+                    @Html.ValidationMessageFor(model => model.RoleAction.IsAllowed, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RoleAction.DisplayOrder, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.RoleAction.DisplayOrder, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RoleAction.DisplayOrder, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}

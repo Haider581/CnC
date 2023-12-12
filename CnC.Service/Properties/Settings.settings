@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CnC.Service.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CnC_Service_TokenService_Token" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://mabna.shaparak.ir:443/TokenService</Value>
+    </Setting>
+    <Setting Name="CnC_Service_TransactionReference_TransactionReference" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://mabna.shaparak.ir:443/TransactionReference/TransactionReference</Value>
+    </Setting>
+    <Setting Name="CnC_Service_BillTokenService_Token" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://mabna.shaparak.ir:443/BillTokenService</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

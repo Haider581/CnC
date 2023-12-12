@@ -1,0 +1,124 @@
+﻿@using CnC.Service
+@using CnC.Core.Customers
+@*<script src="~/Scripts/jquery-1.12.4.min.js"></script>*@
+@{
+    var securityQuestions = new CnC.Web.Controllers.CustomerController().GetSecurityQuestions();
+    var listLocalizedSecurityQuestions = new List<SecurityQuestion>();
+    var cust = Session["CurrentCustomer"] as Customer;
+    var localizationService = new LocalizationService(cust.LanguageId);
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    var actionName = this.ViewContext.RouteData.Values["action"].ToString();
+    foreach (var item in securityQuestions)
+    {
+        var obj = new SecurityQuestion();
+        obj = item;
+        obj.Question = localizationService.GetResource(item.Question);
+        listLocalizedSecurityQuestions.Add(obj);
+    }
+
+    ViewBag.Title = "Security Questions";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .smart-form *, .smart-form :after, .smart-form :before {
+        /*margin-left: 6px !important;*/
+        padding: 0;
+        box-sizing: content-box;
+        -moz-box-sizing: content-box;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@localizationService.GetResource(ViewBag.Title, null, ViewBag.Title)</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+
+        <!-- start Search Form -->
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-8" data-widget-editbutton="false" data-widget-custombutton="false" role="widget">
+
+            <header role="heading">
+                @*<div class="jarviswidget-ctrls" role="menu">
+                    <a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Fullscreen"><i class="fa fa-expand "></i></a> <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a></div><div class="widget-toolbar" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector" href="javascript:void(0);"></a><ul class="dropdown-menu arrow-box-up-right color-select pull-right"><li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip" data-placement="left" data-original-title="Green Grass"></span></li><li><span class="bg-color-greenDark" data-widget-setstyle="jarviswidget-color-greenDark" rel="tooltip" data-placement="top" data-original-title="Dark Green"></span></li><li><span class="bg-color-greenLight" data-widget-setstyle="jarviswidget-color-greenLight" rel="tooltip" data-placement="top" data-original-title="Light Green"></span></li><li><span class="bg-color-purple" data-widget-setstyle="jarviswidget-color-purple" rel="tooltip" data-placement="top" data-original-title="Purple"></span></li><li><span class="bg-color-magenta" data-widget-setstyle="jarviswidget-color-magenta" rel="tooltip" data-placement="top" data-original-title="Magenta"></span></li><li><span class="bg-color-pink" data-widget-setstyle="jarviswidget-color-pink" rel="tooltip" data-placement="right" data-original-title="Pink"></span></li><li><span class="bg-color-pinkDark" data-widget-setstyle="jarviswidget-color-pinkDark" rel="tooltip" data-placement="left" data-original-title="Fade Pink"></span></li><li><span class="bg-color-blueLight" data-widget-setstyle="jarviswidget-color-blueLight" rel="tooltip" data-placement="top" data-original-title="Light Blue"></span></li><li><span class="bg-color-teal" data-widget-setstyle="jarviswidget-color-teal" rel="tooltip" data-placement="top" data-original-title="Teal"></span></li><li><span class="bg-color-blue" data-widget-setstyle="jarviswidget-color-blue" rel="tooltip" data-placement="top" data-original-title="Ocean Blue"></span></li><li><span class="bg-color-blueDark" data-widget-setstyle="jarviswidget-color-blueDark" rel="tooltip" data-placement="top" data-original-title="Night Sky"></span></li><li><span class="bg-color-darken" data-widget-setstyle="jarviswidget-color-darken" rel="tooltip" data-placement="right" data-original-title="Night"></span></li><li><span class="bg-color-yellow" data-widget-setstyle="jarviswidget-color-yellow" rel="tooltip" data-placement="left" data-original-title="Day Light"></span></li><li><span class="bg-color-orange" data-widget-setstyle="jarviswidget-color-orange" rel="tooltip" data-placement="bottom" data-original-title="Orange"></span></li><li><span class="bg-color-orangeDark" data-widget-setstyle="jarviswidget-color-orangeDark" rel="tooltip" data-placement="bottom" data-original-title="Dark Orange"></span></li><li><span class="bg-color-red" data-widget-setstyle="jarviswidget-color-red" rel="tooltip" data-placement="bottom" data-original-title="Red Rose"></span></li><li><span class="bg-color-redLight" data-widget-setstyle="jarviswidget-color-redLight" rel="tooltip" data-placement="bottom" data-original-title="Light Red"></span></li><li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip" data-placement="right" data-original-title="Purity"></span></li><li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip" data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li></ul></div>*@
+                <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                <h2>@localizationService.GetResource("Cnc.AddNewSecuirityQuestion", null, "Add new Secuirity Question")</h2>
+
+                <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+            </header>
+
+            <!-- widget div-->
+            <div role="content">
+
+                <!-- widget edit box -->
+                <div class="jarviswidget-editbox">
+                    <!-- This area used as dropdown edit box -->
+
+                </div>
+                <!-- end widget edit box -->
+                @{
+                    if (ViewBag.ResponseCode != null && ViewBag.ResponseCode == "200")
+                    {
+                        <div class="alert alert-success">
+                            <strong>@localizationService.GetResource("Cnc.Success", null, "Success")!</strong> @localizationService.GetResource(ViewBag.ResponseMessage, null, ViewBag.ResponseMessage)
+                        </div>
+                    }
+                    else if (ViewBag.ResponseCode != null && ViewBag.ResponseCode == "101")
+                    {
+                        <div class="alert alert-danger">
+                            <strong>@localizationService.GetResource("Cnc.Error", null, "Error")!</strong>@localizationService.GetResource(ViewBag.ResponseMessage, null, ViewBag.ResponseMessage)
+                        </div>
+                    }
+
+                }
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+                    @using (Html.BeginForm("SecurityQuestions", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "addSecurityQuestionForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+                        <div class="col-md-6">
+                            <fieldset>
+                                <section>
+                                    <label style="margin-right: 5px;" class="label">@localizationService.GetResource("Cnc.SecurityQuestion", null, "Secuirity Question")</label>
+                                    <label class="select">
+                                        <i class="icon-append fa fa-comment"></i>
+                                        @Html.DropDownList("SecurityQuestionDDL", new SelectList(listLocalizedSecurityQuestions, "Id", "Question"), localizationService.GetResource("Cnc.PleaseSelect", null, "Please Select"))
+                                    </label>
+                                </section>
+                                <input type="hidden" id="questionText" name="questionText" value="" />
+                                <section>
+                                    <label style="margin-right: 5px;" class="label">@localizationService.GetResource("Cnc.Answer", null, "Answer")</label>
+                                    <label class="input">
+                                        <i class="icon-append fa fa-question"></i>
+                                        @*<input data-val-required="The Answer field is required." name="answer" type="text">*@
+
+                                        @Html.TextBox("answer")
+                                    </label>
+                                </section>
+                            </fieldset>
+                            <footer style="background-color:white">
+                                <button type="submit" class="btn btn-primary">@localizationService.GetResource("Cnc.Save", null, "Save")</button>
+                                @*<button type="button" class="btn btn-default" onclick="">Back</button>*@
+                            </footer>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end widget grid -->
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+@section pagespecific {
+    <script src="~/Scripts/Validation/Localization/@localizationService.GetValidationFile()"></script>
+    <script src="~/Scripts/Validation/Customer/SecuirityQuestion.js"></script>
+}

@@ -1,0 +1,154 @@
+﻿@model CnC.Core.Accounts.RoleAction
+@using CnC.Service;
+@{
+    ViewBag.Title = "CreateNewRoleAction";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int totalCount = 0;
+    var roles = new AdminService().GetAllRoles(out totalCount, true).OrderBy(c => c.Name);
+    var actions = new AdminService().GetAllActions(out totalCount, true).OrderBy(c => c.ActionName);
+}
+
+<style>
+    .control-padding-bottom {
+        padding-bottom: 20px;
+    }
+</style>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Add New RoleAction</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+                        @if (ViewBag.MessageSuccess != null)
+                        {
+                            <div class="alert alert-success fade in">
+                                <button class="close" data-dismiss="alert">
+                                    ×
+                                </button>
+                                <i class="fa-fw fa fa-check"></i>
+                                <strong>Success</strong> @ViewBag.MessageSuccess
+                            </div>
+                        }
+                        @if (ViewBag.MessageFailure != null)
+                        {<div class="alert alert-danger fade in">
+                            <button class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <i class="fa-fw fa fa-times"></i>
+                            <strong>Error!</strong> ViewBag.MessageFailure
+                        </div> }
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <div class="row control-padding-bottom">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                <label class="control-label"><strong>Role</strong></label>
+                                                @Html.DropDownListFor(model => model.RoleId, new SelectList(roles, "Id", "Name"), "---Please Select---", htmlAttributes: new { @class = "form-control input-sm" })
+                                                @Html.ValidationMessageFor(model => model.RoleId, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="col-md-6 control-padding-bottom">
+                                                <label class="control-label"><strong>Action</strong></label>
+                                                <select data-val="true" data-val-number="The field Action Id must be a number." htmlattributes="{ class = form-control }" id="ActionId" name="ActionId">
+                                                    <option value="">-- Please Select --</option>
+                                                    @{
+                                                        foreach (var item in actions)
+                                                        {
+                                                            if (string.IsNullOrEmpty(item.ActionName) && string.IsNullOrEmpty(item.ControllerName))
+                                                            {
+                                                                <option value=@item.Id>@item.DisplayName @item.ControllerName @item.ActionName</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value=@item.Id>@item.DisplayName/@item.ControllerName/@item.ActionName</option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                                @Html.ValidationMessageFor(model => model.ActionId, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 control-padding-bottom">
+                                                @Html.LabelFor(model => model.DisplayOrder, htmlAttributes: new { @class = "control-label", @style = "font-weight: 700;" })
+                                                @Html.EditorFor(model => model.DisplayOrder, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter display order" } })
+                                                @Html.ValidationMessageFor(model => model.DisplayOrder, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="col-md-6 control-padding-bottom" style="padding-top:20px;">
+                                                <label class="checkbox-inline">
+                                                    @Html.EditorFor(model => model.IsAllowed)
+                                                    @Html.ValidationMessageFor(model => model.IsAllowed, "", new { @class = "text-danger" })
+                                                    IsAllowed
+                                                </label>
+                                                <label class="checkbox-inline" style="padding-left:100px;">
+                                                    @Html.EditorFor(model => model.IsDefault)
+                                                    @Html.ValidationMessageFor(model => model.IsDefault, "", new { @class = "text-danger" })
+                                                    ShowInTab
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                <a href="@Url.Action("RoleActions", "Admin")" name="btnRoleActions" id="btnRoleActions" value="" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Back To Role Actions</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-backward"></i></span>
+                                                </a>
+                                                <button formnovalidate="formnovalidate" type="submit" name="btnCancel" id="btnCancel" value="Cancel" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Cancel</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-refresh"></i></span>
+                                                </button>
+                                                <button type="submit" name="btnSave" id="btnSave" value="Save" class="btn btn-labeled btn-primary" style="margin-right:10px; margin-left:10px;">
+                                                    <span style="padding:10px;">Save</span>
+                                                    <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-save"></i></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                                        }
+                        </div>
+                        <!-- end widget content -->
+                    </div>
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

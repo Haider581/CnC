@@ -1,0 +1,43 @@
+﻿@{
+    Layout = null; //"~/Views/Shared/_Layout.cshtml";
+}
+@{
+
+    var responseDesc = ViewBag.ResponseDesc;
+    var responseCode = ViewBag.ResponseCode;
+    if ((responseCode != null || responseCode != "") && responseCode=="0")
+    {
+        <div id="content">
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <h1 class="text-center text-success"><strong><i class="fa fa-check fa-lg"></i> Complete</strong></h1>
+                    @*<h4 class="text-center">@response</h4>*@
+                    @*<h4 class="text-center">test @Html.Raw(ViewBag.ResponseDesc)</h4>*@
+
+
+                </div>
+            </div>
+
+            <div id="alertDiv" class="alert alert-success text-center"><br /><strong>@Html.Raw(ViewBag.ResponseDesc)</strong></div>
+        </div>
+    }
+    else if ((responseCode != null || responseCode != "") && responseCode == "1")
+    {
+        <div id="content">
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <h1 class="text-center text-success"><strong><i class="fa fa-check fa-lg"></i> Error</strong></h1>
+                    @*<h4 class="text-center">@response</h4>*@
+                    @*<h4 class="text-center">test @Html.Raw(ViewBag.ResponseDesc)</h4>*@
+
+
+                </div>
+            </div>
+
+            <div id="alertDiv" class="alert alert-success text-center"><br /><strong>@Html.Raw(ViewBag.ResponseDesc)</strong></div>
+        </div>
+    }
+
+}

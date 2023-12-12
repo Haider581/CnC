@@ -1,0 +1,27 @@
+﻿@using CnC.Service;
+@using CnC.Core.Customers;
+@model CnC.Core.Cards.CardType
+@{
+    var customer = Session["CurrentCustomer"] as Customer;
+    LocalizationService localizationService = null;
+    if (customer == null)
+    {
+        localizationService = new LocalizationService();
+    }
+    else
+    {
+        localizationService = new LocalizationService(customer.LanguageId);
+    }
+}
+<div class="row" style="padding-bottom:20px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-12">
+                <label class="control-label"><strong>Card Name</strong></label>
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Please enter card name to search", @type = "text" } })
+            </div>
+        </div>
+    </div>    
+</div>
+
+

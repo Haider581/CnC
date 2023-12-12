@@ -1,0 +1,220 @@
+﻿@using CnC.Core
+@using CnC.Core.Cards
+@using CnC.Service
+@model List<CardRequestForm>
+@{
+    ViewBag.Title = "Pending Card Requests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+
+    .Container {
+        width: 100%;
+    }
+
+    .Content {
+        width: 100%;
+    }
+
+    .Flipped, .Flipped .Content {
+        transform: rotateX(180deg);
+        -ms-transform: rotateX(180deg); /* IE 9 */
+        -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+    }
+
+    .ui-dialog-content {
+        overflow: hidden !important;
+    }
+
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+@*<script src="~/Scripts/Validation/Card/CardInfo.js"></script>*@
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget content -->
+
+    <div class="widget-body">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+            <!-- row -->
+            <div class="row">
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>Search @ViewBag.Title</h2>
+                        </header>
+                        <!-- widget div-->
+                        <div role="content">
+                            <!-- widget edit box -->
+                            <div class="jarviswidget-editbox">
+                                <!-- This area used as dropdown edit box -->
+                            </div>
+                            <!-- end widget edit box -->
+                            <!-- widget content -->
+                            <div class="widget-body">
+                                @*<div id="cncLoader"></div>*@
+                                <div id="cncLoaderMessage">
+                                </div>
+                                <div id="showMessage"> </div>
+                                @using (Html.BeginForm("PendingCardRequests", "Card", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCardRequests" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                                    <fieldset>
+                                        @{Html.RenderPartial("_CardRequestSearchControl");}
+                                        @{Html.RenderPartial("_SearchButtons");}
+                                    </fieldset>
+                                            }
+                            </div>
+                            <!-- end widget content -->
+                            <div class="Container Flipped">
+                                <div class="Content">
+                                    <div class="table-responsive" style="padding-bottom:50px;">
+                                        @{
+                                            if (Model != null && Model.Count > 0)
+                                            {
+                                                <table class="table table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th title="Request No">Req #</th>
+                                                            <th title="Request Date">Req Date<i class="fa fa-fw fa-calendar txt-color-black hidden-md hidden-sm hidden-xs"></i></th>
+                                                            <th title="Payment Method">Payment Mode</th>
+                                                            <th title="Customer Full Name">Full Name</th>
+                                                            <th title="National ID #">National ID #</th>
+                                                            <th>Card Type</th>
+                                                            <th>Status</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var cardRequestForm in Model.Where(x => x.CardRequests.Count > 0).ToList())
+                                                        {
+                                                            string paymentDesc = string.Empty;
+                                                            int i = 0;
+                                                            foreach (var payment in cardRequestForm.Payments)
+                                                            {
+                                                                paymentDesc = paymentDesc + "" +
+                                                                                (payment.PaymentMethodId == (int)PaymentMethod.RAHYAB
+                                                                                || payment.PaymentMethodId == (int)PaymentMethod.Admin
+                                                                                ? "Manual" : ((PaymentMethod)payment.Id).ToString())
+                                                                                + ",";
+                                                                paymentDesc = paymentDesc.Trim(',');
+                                                            }
+                                                            <text>
+                                                                @if (i == 0)
+                                                                {
+                                                                    i = 1;
+                                                                    <text>
+                                                                        <tr>
+                                                                            <td>@cardRequestForm.Id</td>
+                                                                            <td>@cardRequestForm.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                                            <td>@paymentDesc</td>
+                                                                            <td>@cardRequestForm.Customer.User.FullName</td>
+                                                                            <td>@cardRequestForm.Customer.NIC</td>
+                                                                            @{
+                                                                                string cardDesc = string.Empty;
+                                                                                string fmCrId = string.Empty;
+                                                                                cardDesc = cardRequestForm.CardRequests[0].CardType.Name;
+                                                                                var cardRequestStatus = cardRequestForm.CardRequests[0].StatusString;
+                                                                                fmCrId = cardRequestForm.Id + "-" + cardRequestForm.CardRequests[0].Id + "#" + cardRequestForm.Customer.CardServiceProviderClientId;
+
+                                                                            }
+                                                                            <td>@cardDesc</td>
+                                                                            <td>@cardRequestStatus</td>
+
+                                                                        </tr>
+                                                                    </text>
+                                                                                    cardRequestForm.CardRequests.RemoveAt(0);
+                                                                                }
+                                                                @foreach (var cardRequest in cardRequestForm.CardRequests)
+                                                                {
+                                                                    <text>
+                                                                        <tr>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td class="CardType">@cardRequest.CardType.Name</td>
+                                                                            <td>
+                                                                                @cardRequest.StatusString
+                                                                            </td>
+
+                                                                        </tr>
+                                                                    </text>
+                                                                }
+                                                            </text>
+                                                                                }
+                                                    </tbody>
+                                                </table>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                                                        <button class="close" data-dismiss="alert">×</button>
+                                                                                        <i class="fa-fw fa fa-cube"></i>
+                                                                                        <strong>Sorry! </strong>No Records Found
+                                                                                    </div>
+                                                                                }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end widget div -->
+                    </div>
+                    <!-- end widget -->
+                </article>
+                <!-- WIDGET END -->
+            </div>
+            <!-- end row -->
+        </section>
+        <!-- end widget grid -->
+    </div>
+    <!-- end widget content -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/Validation/Card/SearchCardRequests.js"></script>
+    <script src="~/Scripts/Validation/Card/CardInfo.js"></script>
+}
+@section pagespecific {
+    <script>
+
+        $(document).ready(function () {
+
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+
+    </script>
+
+}
+

@@ -1,0 +1,352 @@
+﻿@using CnC.Core
+@using CnC.Core.Customers
+@model List<Customer>
+@{
+    ViewBag.Title = "Customers (KYC Form)";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .invalid {
+        color: red !important;
+    }
+
+    .table tr th {
+        white-space: nowrap;
+    }
+</style>
+<link href="~/Content/css/CncSpinner.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Validation/Customer/Customer.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb" style="text-transform: uppercase;">
+    @*<li>@User.Identity.Name.ToLower()</li>*@
+    <li>@ViewBag.Title</li>
+</ol>
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>@ViewBag.Title</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div role="content" style="overflow: auto;">
+                        <div id="dialog_simple" title="Dialog Simple Title" style="overflow: hidden;">
+                            <div class="widget-body no-padding">
+                                <form id="card-info-form2" name="CardInfoApprove" autocomplete="off" class="smart-form">
+                                    @*<header>
+                                            Card Info
+                                        </header>*@
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-12" style="width:100%">
+                                                <label class="label">Client ID:</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-text-width"></i>
+                                                    @Html.TextBox("txtClientId")
+                                                </label>
+                                            </section>
+                                        </div>
+                                        <div class="row">
+                                            <div class="alert alert-success fade in" style="display:none">
+                                                <button class="close" data-dismiss="alert">×</button>
+                                                <i class="fa-fw fa fa-check"></i>
+                                                <strong>Success</strong>
+                                            </div>
+                                            <div class="alert alert-danger fade in" style="display:none">
+                                                <button class="close" data-dismiss="alert">×</button>
+                                                <i class="fa-fw fa fa-times"></i>
+                                                <strong>Error!</strong>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                </form>
+                            </div>
+                        </div>
+                        <div id="dialog_card_failed" title="Dialog Simple Title" style="overflow: hidden;">
+                            <div class="widget-body no-padding">
+                                <form id="card-info-form123" name="CustomerInfo" autocomplete="off" class="smart-form">
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-12" style="width:100%">
+                                                <label class="label">Client ID:</label>
+                                                <label class="input">
+                                                    <i class="icon-append fa fa-text-width"></i>
+                                                    @Html.TextBox("txtFailure")
+                                                </label>
+                                            </section>
+                                        </div>
+                                        <div class="row">
+                                            <div class="alert alert-success fade in" style="display:none">
+                                                <button class="close" data-dismiss="alert">×</button>
+                                                <i class="fa-fw fa fa-check"></i>
+                                                <strong>Success</strong>
+                                            </div>
+                                            <div class="alert alert-danger fade in" style="display:none">
+                                                <button class="close" data-dismiss="alert">×</button>
+                                                <i class="fa-fw fa fa-times"></i>
+                                                <strong>Error!</strong>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <input id="hfFormId" name="hfFormName" type="hidden" />
+                                </form>
+                            </div>
+                        </div>
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+
+                            @*<div id="cncLoader"></div>*@
+                            <div id="cncLoaderMessage">
+                            </div>
+                            <div id="showMessage"> </div>
+                            @using (Html.BeginForm("Customers", "Customer", FormMethod.Post, new { @class = "smart-form", role = "form", name = "SearchCustomers" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary("", new { @class = "text-danger" })
+                                <fieldset>
+                                    @{Html.RenderPartial("_CustomerSearchControls");}
+                                    @{Html.RenderPartial("_SearchButtons");}
+                                </fieldset>
+                                        }
+                        </div>
+                        <!-- end widget content -->
+                        <div class="table-responsive">
+                            @{
+                                if (Model != null && Model.Count > 0)
+                                {
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Full Name</th>
+                                                <th>Email</th>
+                                                <th>National ID #</th>
+                                                <th>Passport #</th>
+                                                <th>Gender</th>
+                                                <th>Reg. Date</th>
+                                                <th>Status</th>
+                                                @*<th>Update Status</th>*@
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@item.User.FullName</td>
+                                                        <td>@item.User.Email</td>
+                                                        <td>@item.NIC</td>
+                                                        <td>@item.PassportNo</td>
+                                                        <td>@item.Gender</td>
+                                                        <td>@item.User.CreatedOn.ToString("yyyy/MM/dd HH:mm")</td>
+                                                        <td>@item.StatusString</td>
+                                                        @*<td>
+
+                                                                @if (item.CardIssuerRespondedOn == null && item.SentToCardIssuerOn!=null)
+                                                                {
+                                                                    <a onclick='OpenDialog("@item.Id");' style="cursor:pointer" id="dialog_link">Approved</a>
+                                                                    <a onclick='UpdateCustomer("@item.Id");' style="cursor:pointer" id="card_failed">Failed</a>
+                                                                }
+
+                                                            </td>*@
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                                }
+                                                else
+                                                {
+                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                        <button class="close" data-dismiss="alert">×</button>
+                                                        <i class="fa-fw fa fa-cube"></i>
+                                                        <strong>Sorry! </strong>No customer found.
+                                                    </div>
+                                                }
+                            }
+                        </div>
+
+
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section Scripts {
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+    @*<script src="~/Scripts/Validation/Customer/Customer.js"></script>*@
+}
+@section pagespecific {
+    <script>
+        $('#CustomerStatus').on('change', function () {
+            //alert(this.value);
+        })
+        $(document).ready(function () {
+            $("#cncLoader").hide();
+            $("#cncLoaderMessage").hide();
+        });
+        $('#dialog_simple').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Customer",
+            buttons: [{
+                html: "<i class='fa fa-trash-o'></i>&nbsp; Save Changes",
+                "class": "btn btn-success",
+                click: function () {
+                    PostCardInfo("a", this);
+                }
+            }, {
+                html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                "class": "btn btn-default",
+                click: function () {
+                    ClearForm();
+                    $(this).dialog("close");
+                }
+            }]
+        });
+        $('#dialog_card_failed').dialog({
+            autoOpen: false,
+            width: 400,
+            resizable: false,
+            modal: true,
+            title: "Customer",
+            buttons: [{
+                html: "<i class='fa fa-trash-o'></i>&nbsp; Reject Card",
+                "class": "btn btn-danger",
+                click: function () {
+                    PostCardInfo("f", this);
+                }
+            }, {
+                html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+                "class": "btn btn-default",
+                click: function () {
+                    ClearForm();
+                    $(this).dialog("close");
+                }
+            }]
+        });
+        /*
+        * DIALOG HEADER ICON
+        */
+        function OpenDialog(rf) {
+            // var msg = rf + "" + cr;
+            ClearForm();
+            if (rf != "") {
+                $("#hfFormId").val(rf);
+            }
+            $('#dialog_simple').dialog('open');
+            return false;
+        }
+
+        function UpdateCustomer(rf) {
+            ClearForm();
+
+            if (rf != "") {
+                $("#hfFormId").val(rf);
+            }
+            $('#dialog_card_failed').dialog('open');
+            //PostCardInfo("f");
+            return false;
+        }
+
+        function ClearForm() {
+            document.getElementById("txtClientId").value = "";
+            document.getElementById("txtFailure").value = "";
+            $("#hfFormId").val("");
+        }
+        function PostCardInfo(key, ffrom) {
+
+            var keyId = $("#hfFormId").val();
+            var customerClientId = document.getElementById("txtClientId").value;
+            var failureReason = $("#txtFailure").val();
+            if (key == "f") {
+                if (keyId != "" && failureReason != "") {
+
+                } else {
+                    alert("Unable to update. Missing required values.");
+                    return false;
+                }
+            } else if (key == "a") {
+                if (keyId != "" && customerClientId != "") {
+
+                } else {
+                    alert("Unable to update. Missing required values.");
+                    return false;
+                }
+            }
+            if (keyId != "") {
+                $("#cncLoader").show();
+                $.ajax({
+                    url: '@Url.Action("SetCustomerApprovedOrDeclined", "Customer")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { key: keyId, failureReason: failureReason, clientId: customerClientId },
+                    dataType: "json",
+                    success: function (data) {
+                        $(ffrom).dialog("close");
+                        $("#cncLoader").hide();
+                        if (data[0] == "200") {
+                            $("#cncLoaderMessage").append(data[1]);
+                            $("#cncLoaderMessage").show();
+
+                        } else {
+
+                            $("#showMessage").removeClass("alert alert-danger fade in");
+                            $("#showMessage").empty();
+                            $("#showMessage").show();
+                            $("#showMessage").addClass("alert alert-danger fade in");
+                            $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> '" + data[1] + "'");
+                        }
+                    },
+                    error: function () {
+                        $(ffrom).dialog("close");
+                        $("#cncLoader").hide();
+                        $("#showMessage").removeClass("alert alert-danger fade in");
+                        $("#showMessage").empty();
+                        $("#showMessage").show();
+                        $("#showMessage").addClass("alert alert-danger fade in");
+                        $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong><strong>Fail!</strong> An error occured while updating. Please try again. ");
+                    }
+                });
+            } else {
+
+                $("#showMessage").removeClass("alert alert-danger fade in");
+                $("#showMessage").empty();
+                $("#showMessage").show();
+                $("#showMessage").addClass("alert alert-danger fade in");
+                $("#showMessage").append("<button class='close' onclick='UpdatePanelDiv();'>×</button> <i class='fa-fw fa fa-times'></i><strong>Error!</strong> Missing required values. ");
+            }
+            //return false;
+        }
+
+        function UpdatePanelDiv() {
+            $("#showMessage").empty();
+            $("#showMessage").hide();
+        }
+    </script>
+}

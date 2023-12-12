@@ -1,0 +1,235 @@
+﻿@model IEnumerable<CnC.Core.Cards.CardType>
+
+@{
+    ViewBag.Title = "CardTypes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-credit-card"></i> </span>
+                        <h2>Card Types</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            
+
+                                <div class="table-responsive" style="overflow-x: hidden">
+
+                                    @using (Html.BeginForm("CardTypes", "Admin", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+                                        <fieldset>
+                                            @{ Html.RenderPartial("_CardTypesSearchControls", new CnC.Core.Cards.CardType());}
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    @{Html.RenderPartial("_SearchButtons");}
+
+                                                </div>
+                                            </div>
+                                            <div class="row" style="padding-bottom:20px;">
+                                                <div class="col-sm-12">
+                                                    <a href="@Url.Action("AddCardType", "Admin")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                                        <span style="padding:10px;">Add New CardType</span>
+                                                        <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                        </fieldset>
+                                        @*<p>
+                                                @Html.ActionLink("Create New", "AddSetting")
+                                            </p>*@
+                                                        if (Model != null && Model.Count() > 0)
+                                                        {
+                                                        <table class="table table-bordered">
+                                                            <tr>
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.CreatedOn)
+                                                                    </th>*@
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayNameFor(model => model.Name)
+                                                                </th>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayNameFor(model => model.Fee)
+                                                                </th>
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.IsReloadable)
+                                                                    </th>*@
+                                                                <th class="col-xs-2">
+                                                                    Reload Limit
+                                                                    @*@Html.DisplayNameFor(model => model.ReloadLimit)*@
+                                                                </th>
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.ReloadDayLimit)
+                                                                    </th>*@
+                                                                <th class="col-xs-2">
+                                                                    Maximum Reload
+                                                                    @*@Html.DisplayNameFor(model => model.MaximumReload)*@
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    Minimum Reload
+                                                                    @*@Html.DisplayNameFor(model => model.MinimumReloadAtATime)*@
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    Maximum Reload
+                                                                    @*@Html.DisplayNameFor(model => model.MaximumReloadAtATime)*@
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    Max Quantity
+                                                                    @*@Html.DisplayNameFor(model => model.MaxQuantity)*@
+                                                                </th>
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.IsProofOfSourceOfFundsRequired)
+                                                                    </th>
+                                                                    <th>
+                                                                        @Html.DisplayNameFor(model => model.IsProofOfAddressRequired)
+                                                                    </th>*@
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.Requirements)
+                                                                    </th>*@
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.Description)
+                                                                    </th>*@
+                                                                @*<th>
+                                                                        @Html.DisplayNameFor(model => model.IsActive)
+                                                                    </th>
+                                                                    <th>
+                                                                        @Html.DisplayNameFor(model => model.TopUpServiceFeePercentage)
+                                                                    </th>
+                                                                    <th>
+                                                                        @Html.DisplayNameFor(model => model.TopUpServiceFeeMinimum)
+                                                                    </th>*@
+                                                                <th class="col-xs-1"></th>
+                                                            </tr>
+
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.CreatedOn)
+                                                                        </td>*@
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Name)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Fee)
+                                                                    </td>
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.IsReloadable)
+                                                                        </td>*@
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.ReloadLimit)
+                                                                    </td>
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.ReloadDayLimit)
+                                                                        </td>*@
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.MaximumReload)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.MinimumReloadAtATime)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.MaximumReloadAtATime)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.MaxQuantity)
+                                                                    </td>
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.IsProofOfSourceOfFundsRequired)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(modelItem => item.IsProofOfAddressRequired)
+                                                                        </td>*@
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.Requirements)
+                                                                        </td>*@
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.Description)
+                                                                        </td>*@
+                                                                    @*<td>
+                                                                            @Html.DisplayFor(modelItem => item.IsActive)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(modelItem => item.TopUpServiceFeePercentage)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(modelItem => item.TopUpServiceFeeMinimum)
+                                                                        </td>*@
+                                                                    <td>
+                                                                        @Html.ActionLink("Edit", "EditCardType", new { id = item.Id })
+                                                                        @*@Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                                                                            @Html.ActionLink("Delete", "Delete", new { id=item.Id })*@
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </table>
+
+                                                            Html.RenderPartial("_Pagination");
+
+                                                        }
+                                    else
+                                    {
+                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                        <button class="close" data-dismiss="alert">×</button>
+                                        <i class="fa-fw fa fa-cube"></i>
+                                        <strong>Sorry! </strong> No Records Found
+                                    </div>
+                                    }
+                                                        }
+                                </div>
+                                                        
+
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>

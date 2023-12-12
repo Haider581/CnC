@@ -1,0 +1,57 @@
+﻿@{
+    ViewBag.Title = "New Card Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- MAIN CONTENT -->
+<div id="content">
+    <div class="row">
+        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-table fa-fw "></i>
+                Card
+                                <span>
+                    >
+                    New Card Request
+                </span>
+            </h1>
+        </div>
+
+    </div>
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget jarviswidget-color-blueDark" id="wid-cust-cards" data-widget-editbutton="false">
+                    @*<header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>New Top Up Request</h2>
+                    </header>*@
+                    <!-- widget div-->
+                    <h5></h5>
+                    @{ Html.RenderPartial("_AdminCardRequest");}
+                    <!-- end widget div -->
+                </div>
+                <!-- end widget -->
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
+<!-- END MAIN CONTENT -->
+@section pagespecific {
+}
+
+
+
+
+
+
+
+

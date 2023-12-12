@@ -1,0 +1,158 @@
+﻿@model IEnumerable<CnC.Core.Affiliates.Affiliate>
+@using CnC.Service
+
+@{
+    ViewBag.Title = "Affiliates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SettingService settingService = new SettingService();
+    //var appUrl = new SettingService().AppUrl;
+    string domain = Request.Url.Scheme + "://" + Request.Url.Authority;
+    string signupUrl = domain + "/Customer/Signup";
+}
+<style>
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wraptext {
+        word-wrap: break-word;
+        max-width: 200px;
+        white-space: normal;
+    }
+</style>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<!-- breadcrumb -->
+<ol class="breadcrumb">
+    <li>Admin</li>
+    <li><strong>@ViewBag.Title</strong></li>
+</ol>
+<!-- end breadcrumb -->
+<!-- MAIN CONTENT -->
+<div id="content">
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget" id="wid-id-0" data-widget-deletebutton="false" data-widget-editbutton="false" data-widget-colorbutton="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                        <h2>Affiliates</h2>
+                    </header>
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+                            @using (Html.BeginForm("Affiliates", "Admin", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login-form" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <fieldset>
+                                    @{ Html.RenderPartial("_AffiliateSearchControl", new CnC.Core.Affiliates.Affiliate());}
+                                    <div class="row" style="padding-bottom:20px;">
+                                        <div class="col-sm-12">
+                                            @{Html.RenderPartial("_SearchButtons");}
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div class="row" style="padding-bottom:20px;">
+                                    <div class="col-sm-12">
+                                        <a href="@Url.Action("AddAffiliate", "Admin")" name="btnCreateNew" id="btnCreateNew" value="" class="btn btn-labeled btn-primary pull-right" style="margin-right:10px; margin-left:10px;">
+                                            <span style="padding:10px;">Add New Affiliate</span>
+                                            <span class="btn-label" style="left: 0px;"><i class="glyphicon glyphicon-plus"></i></span>
+                                        </a>
+                                    </div>
+                                </div>
+                                                if (Model != null && Model.Count() > 0)
+                                                {
+                                                    <div class="table-responsive" style="overflow-x: hidden">
+                                                        <table class="table table-bordered">
+                                                            <tr>
+                                                                <th class="col-xs-2">
+                                                                    Affiliate Id
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    First Name
+                                                                </th>
+                                                                <th class="col-xs-2">
+                                                                    Last Name
+                                                                </th>
+                                                                <th class="col-xs-3">
+                                                                    Email
+                                                                </th>
+                                                                <th class="col-xs-1">
+                                                                    @Html.DisplayNameFor(model => model.Active)
+                                                                </th>
+                                                                <th class="col-xs-3">
+                                                                    Affiliate Link
+                                                                </th>
+                                                                <th class="col-xs-1"></th>
+                                                            </tr>
+
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Id)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Address.FirstName)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(model => item.Address.LastName)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(model => item.Address.Email)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DisplayFor(modelItem => item.Active)
+                                                                    </td>
+                                                                    <td>
+                                                                        @{ string affiliateLink = signupUrl + "?affiliateId=" + item.Id; }
+                                                                        @affiliateLink
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.ActionLink("Edit", "EditAffiliate", new { id = item.Id })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+
+                                                        </table>
+                                                    </div>
+                                                    Html.RenderPartial("_Pagination");
+
+
+                                                }
+                                                else
+                                                {
+                                                    <div class="alert alert-info fade in" style="margin-top:5px;">
+                                                        <button class="close" data-dismiss="alert">×</button>
+                                                        <i class="fa-fw fa fa-cube"></i>
+                                                        <strong>Sorry! </strong> No Records Found
+                                                    </div>
+                                                    }
+                                                }
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+        </div>
+        <!-- end row -->
+    </section>
+    <!-- end widget grid -->
+</div>
